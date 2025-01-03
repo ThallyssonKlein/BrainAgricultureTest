@@ -1,11 +1,19 @@
+from brainagriculturetest.src.adapters.inbound.http.farmer_adapter import FarmerAdapter
+from brainagriculturetest.src.domain.farm.invalid_area_error import InvalidAreaError
 from fastapi import APIRouter, HTTPException
-from src.application.services.example_service import ExampleService
 
-router = APIRouter()
+class FarmerController:
+    def __init__(self, farmer_adapter: FarmerAdapter):
+        self.router = APIRouter()
+        self.farmer_adapter = farmer_adapter
+        self.router.add_api_route("/farmer", self.create_farmer, methods=["POST"])
 
-example_service = ExampleService()
+    async def create_farmer(self, farm_data):
+        try:
+            self.farmer_adapter.create_farmer(farm_data)
+            return {"message": "Farmer created successfully"}
+        except InvalidAreaError as e:
+            raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/farmer/")
-def create_example(farmer_data: dict):
-    new_example = example_service.create_example(farmer_data)
-    return new_example, 201
+    def get_router(self):
+        return self.router
