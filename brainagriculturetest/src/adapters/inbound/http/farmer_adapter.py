@@ -1,18 +1,28 @@
+from brainagriculturetest.src.adapters.inbound.http.schemas import FarmerSchema
 from brainagriculturetest.src.domain.farm.farm_service import FarmService
 from brainagriculturetest.src.domain.farm.invalid_area_error import InvalidAreaError
 from brainagriculturetest.src.domain.person.invalid_cnpj_error import InvalidCNPJError
 from brainagriculturetest.src.domain.person.invalid_cpf_error import InvalidCPFError
 from brainagriculturetest.src.domain.person.person_service import PersonService
 from brainagriculturetest.src.ports.inbound.http.error.bad_request_error import BadRequestError
-from brainagriculturetest.src.ports.outbound.database.farmer.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.outbound_crop_repository_port import OutboundCropRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.outbound_culture_repository_port import OutboundCultureRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
 
 class FarmerAdapter:
-    def __init__(self, outbound_farmer_repository_port: OutboundFarmerRepositoryPort, farm_service: FarmService, person_service: PersonService):
+    def __init__(self, outbound_farmer_repository_port: OutboundFarmerRepositoryPort, 
+                 farm_service: FarmService, person_service: PersonService,
+                 outbound_culture_repository_port: OutboundCultureRepositoryPort,
+                 outbound_crop_repository_port: OutboundCropRepositoryPort):
         self.outbound_farmer_repository_port = outbound_farmer_repository_port
         self.farm_service = farm_service
         self.person_service = person_service
+        self.outbound_culture_repository_port = outbound_culture_repository_port
+        self.outbound_crop_repository_port = outbound_crop_repository_port
 
-    def create_farmer(self, farmer_data):
+    async def create_farmer(self, farmer_schema: FarmerSchema):
+        farmer_data = farmer_schema.dict()
+
         try:
             if len(farmer_data['document']) == 11:
                 self.person_service.validate_cpf(farmer_data['document'])
@@ -22,10 +32,25 @@ class FarmerAdapter:
             raise BadRequestError(err)
         except InvalidCNPJError as err:
             raise BadRequestError(err)
+        
+        # Step 1: Create Farmer
+        farmer = await self.outbound_farmer_repository_port.create_farmer(farmer_data)
 
-        farm_ids = []
-        try:
-            for farm in farmer_data['farms']:
-                farm_ids.append(self.farm_service.create_farm(farm))
-        except InvalidAreaError as err:
-            raise BadRequestError(err)
+        # Step 2: Iterate over farms
+        for farm_data in farmer_data["farms"]:
+            farm = None
+            try:
+                farm = await FarmService.create_farm(session, farmer.id, farm_data)
+            except InvalidAreaError as err:
+                raise BadRequestError(err)
+
+            # Step 3: Iterate over crops in each farm
+            for crop_data in farm_data["crops"]:
+                # Step 4: Get or create the culture
+                culture = await self.outbound_culture_repository_port.get_or_create_culture(crop_data["culture"]["name"])
+
+                # Step 5: Create crop with the associated culture
+                await self.outbound_crop_repository_port.create_crop(farm.id, crop_data, culture.id)
+
+        return self.outbound_farmer_repository_port.farmer_with_relations(farmer.id)
+

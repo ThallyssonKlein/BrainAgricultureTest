@@ -1,8 +1,13 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import JSONResponse
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from brainagriculturetest.src.domain.person.person_service import PersonService
 from brainagriculturetest.src.ports.inbound.http.error.http_error import HttpError
-from brainagriculturetest.src.ports.outbound.database.farm.outbound_farm_repository_port import OutboundFarmRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.db import get_db
+from brainagriculturetest.src.ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.outbound_crop_repository_port import OutboundCropRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.outbound_culture_repository_port import OutboundCultureRepositoryPort
 
 # Instância da aplicação FastAPI
 app = FastAPI()
@@ -11,11 +16,21 @@ app = FastAPI()
 from brainagriculturetest.src.ports.inbound.http.controllers.farmer_controller import FarmerController
 from brainagriculturetest.src.adapters.inbound.http.farmer_adapter import FarmerAdapter
 
-from brainagriculturetest.src.ports.outbound.database.farmer.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
+from brainagriculturetest.src.ports.outbound.database.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
 from brainagriculturetest.src.domain.farm.farm_service import FarmService
 
-farm_adapter = FarmerAdapter(OutboundFarmerRepositoryPort(), FarmService(OutboundFarmRepositoryPort()))
-farmer_controller = FarmerController(farm_adapter)
+def get_farm_adapter(db: AsyncSession = Depends(get_db)):
+    return FarmerAdapter(
+        OutboundFarmerRepositoryPort(db),
+        FarmService(
+            OutboundFarmRepositoryPort(db),
+            PersonService(),
+            OutboundCultureRepositoryPort(db),
+            OutboundCropRepositoryPort(db)
+        )
+    )
+
+farmer_controller = FarmerController(get_farm_adapter)
 
 app.include_router(farmer_controller.get_router())
 
