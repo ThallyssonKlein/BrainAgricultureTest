@@ -1,0 +1,2 @@
+class OutboundFarmerRepositoryPort():
+    pass
