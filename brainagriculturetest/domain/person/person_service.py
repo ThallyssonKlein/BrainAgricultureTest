@@ -3,7 +3,7 @@ from domain.person.invalid_cpf_error import InvalidCPFError
 
 
 class PersonService:
-    def validate_cpf(cpf: str) -> bool:
+    def validate_cpf(self, cpf: str) -> bool:
         cpf = ''.join(filter(str.isdigit, cpf))
         if len(cpf) != 11 or cpf == cpf[0] * 11:
             raise InvalidCPFError("Invalid CPF format")
@@ -16,7 +16,7 @@ class PersonService:
 
         return True
 
-    def validate_cnpj(cnpj: str) -> bool:
+    def validate_cnpj(self, cnpj: str) -> bool:
         cnpj = ''.join(filter(str.isdigit, cnpj))
         if len(cnpj) != 14 or cnpj == cnpj[0] * 14:
             raise InvalidCNPJError("Invalid CNPJ format")

@@ -1,11 +1,16 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
+from urllib.parse import quote_plus
 
 from config.config import Config
 
 config = Config()
 
-DATABASE_URL = f"postgresql+asyncpg://{config.get('db')['user']}:{config.get('db')['password']}@{config.get('db')['host']}:{config.get('db')['port']}/{config.get('db')['database']}"
+DATABASE_URL = f"postgresql+asyncpg://{config.get('db')['user']}:{quote_plus(config.get('db')['password'])}@{config.get('db')['host']}:{config.get('db')['port']}/{config.get('db')['database']}"
+
+print("---------")
+print(DATABASE_URL)
+print("---------")
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 async_session = sessionmaker(

@@ -26,6 +26,7 @@ class InboundFarmerAdapter:
     async def create_farmer(self, farmer_schema: FarmerSchema):
         farmer_data = farmer_schema.dict()
 
+        print(farmer_data)
         try:
             if len(farmer_data['document']) == 11:
                 self.person_service.validate_cpf(farmer_data['document'])
