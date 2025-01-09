@@ -44,10 +44,10 @@ class InboundFarmerAdapter:
         for farm_data in farmer_data["farms"]:
             farm = None
             try:
-                farm = await FarmService.create_farm(self.session, farmer.id, farm_data)
+                farm = await FarmService.create_farm(self, farm_data)
             except InvalidAreaError as err:
                 await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
-                raise BadRequestError(err)
+                raise BadRequestError(err.get_message)
             except Exception as err:
                 await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
                 raise err
