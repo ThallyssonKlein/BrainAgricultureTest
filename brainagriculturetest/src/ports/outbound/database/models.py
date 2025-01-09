@@ -26,6 +26,8 @@ class Farm(Base):
     vegetation_area = Column(Float, nullable=False)
     total_area = Column(Float, nullable=False)
     farmer_id = Column(Integer, ForeignKey("farmers.id"), nullable=False)
+    city = Column(String(255), nullable=False)
+    state = Column(String(2), nullable=False)
 
     farmer = relationship("Farmer", back_populates="farms")
     crops = relationship("Crop", back_populates="farm")

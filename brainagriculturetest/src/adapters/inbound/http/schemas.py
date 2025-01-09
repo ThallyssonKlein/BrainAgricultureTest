@@ -17,6 +17,8 @@ class FarmSchema(BaseModel):
     vegetation_area: float
     total_area: float
     crops: List[CropSchema]
+    city: str
+    state: str
 
 
 class FarmerSchema(BaseModel):
