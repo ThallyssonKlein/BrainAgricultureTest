@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
-from sqlalchemy.future import select
+from sqlalchemy.future import select, delete
 
 from brainagriculturetest.src.ports.outbound.database.models import Crop, Farm, Farmer
 
@@ -31,3 +31,10 @@ class OutboundFarmerRepositoryPort():
         farmer_with_relations = result.scalar_one()
 
         return farmer_with_relations
+
+    async def delete_farmer(self, farmer_id: int):
+        await self.session.execute(
+            delete(Farmer)
+            .where(Farmer.id == farmer_id)
+        )
+        await self.session.commit()

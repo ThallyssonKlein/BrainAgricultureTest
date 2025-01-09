@@ -26,7 +26,8 @@ def get_farm_adapter(db: AsyncSession = Depends(get_db)):
             OutboundFarmRepositoryPort(db),
             PersonService(),
             OutboundCultureRepositoryPort(db),
-            OutboundCropRepositoryPort(db)
+            OutboundCropRepositoryPort(db),
+            OutboundFarmRepositoryPort(db)
         )
     )
 

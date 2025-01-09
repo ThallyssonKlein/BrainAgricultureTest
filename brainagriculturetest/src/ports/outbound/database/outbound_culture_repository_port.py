@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
+from sqlalchemy.future import select, delete
 
 from brainagriculturetest.src.ports.outbound.database.models import Culture
 
@@ -16,3 +16,10 @@ class OutboundCultureRepositoryPort:
             await self.session.commit()
             await self.session.refresh(culture)
         return culture
+    
+    async def delete_culture(self, culture_id: int):
+        await self.session.execute(
+            delete(Culture)
+            .where(Culture.id == culture_id)
+        )
+        await self.session.commit()
