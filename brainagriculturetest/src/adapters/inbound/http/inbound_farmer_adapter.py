@@ -10,7 +10,7 @@ from brainagriculturetest.src.ports.outbound.database.outbound_culture_repositor
 from brainagriculturetest.src.ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 from brainagriculturetest.src.ports.outbound.database.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
 
-class FarmerAdapter:
+class InboundFarmerAdapter:
     def __init__(self, outbound_farmer_repository_port: OutboundFarmerRepositoryPort, 
                  farm_service: FarmService, person_service: PersonService,
                  outbound_culture_repository_port: OutboundCultureRepositoryPort,

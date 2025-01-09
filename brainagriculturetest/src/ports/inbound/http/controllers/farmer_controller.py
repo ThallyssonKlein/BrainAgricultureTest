@@ -1,9 +1,9 @@
-from brainagriculturetest.src.adapters.inbound.http.farmer_adapter import FarmerAdapter
+from brainagriculturetest.src.adapters.inbound.http.inbound_farmer_adapter import InboundFarmerAdapter
 from brainagriculturetest.src.domain.farm.invalid_area_error import InvalidAreaError
 from fastapi import APIRouter, HTTPException
 
 class FarmerController:
-    def __init__(self, farmer_adapter: FarmerAdapter):
+    def __init__(self, farmer_adapter: InboundFarmerAdapter):
         self.router = APIRouter()
         self.farmer_adapter = farmer_adapter
         self.router.add_api_route("/farmer", self.create_farmer, methods=["POST"])
