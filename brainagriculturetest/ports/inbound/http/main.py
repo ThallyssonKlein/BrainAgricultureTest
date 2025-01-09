@@ -53,5 +53,3 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 
-
-

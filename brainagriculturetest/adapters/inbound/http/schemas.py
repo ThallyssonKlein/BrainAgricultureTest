@@ -22,7 +22,7 @@ class FarmSchema(BaseModel):
 
 
 class FarmerSchema(BaseModel):
-    document: str = Field(pattern=r"^\d{14}$")
+    document: str = Field(..., pattern=r"^\d{11}|\d{14}$")
     name: str
     city: str
     state: str
