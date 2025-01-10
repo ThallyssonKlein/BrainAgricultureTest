@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import './PaginatedSelect.css';
-import IPlayer from './IPlayer';
+import IFarmer from './IFarmer';
 import API from '../../API';
 import { OptionsContext } from '../../context/OptionsContext';
 
@@ -13,19 +13,19 @@ export const PaginatedSelect: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
-  const fetchOptions = async (page: number, searchTerm: string): Promise<IPlayer[]> => {
-    const response = await API.get(`/api/v1/player/search?page=${page}&limit=10&search=${searchTerm}`);
+  const fetchOptions = async (page: number, searchTerm: string): Promise<IFarmer[]> => {
+    const response = await API.get(`/api/v1/farmer?page=${page}&limit=10&query=${searchTerm}`);
 
     if (response.status !== 200) {
-      alert('Error fetching players!');
+      alert('Error fetching farmers!');
     }
 
-    return (response.data as IPlayer[]);
+    return (response.data as IFarmer[]);
   };
     
   const loadOptions = async (page: number, searchTerm: string) => {
     setIsLoading(true);
-    const newOptions: IPlayer[] = await fetchOptions(page, searchTerm);
+    const newOptions: IFarmer[] = await fetchOptions(page, searchTerm);
     if (newOptions.length === 0) {
       setHasMore(false);
     } else {
@@ -65,9 +65,9 @@ export const PaginatedSelect: React.FC = () => {
     }
   };
 
-  const handleOptionClick = (nickname: string) => {
-    setSelectedOption(nickname);
-    setSearchTerm(nickname);
+  const handleOptionClick = (name: string, id: number) => {
+    setSelectedOption(id);
+    setSearchTerm(name);
     setTimeout(() => setIsOpen(false), 100)
   };
 
@@ -91,10 +91,10 @@ export const PaginatedSelect: React.FC = () => {
           {options.map((option, index) => (
             <div
               key={index}
-              className={`option-item ${selectedOption === option.nickname ? 'selected' : ''}`}
-              onClick={() => handleOptionClick(option.nickname)}
+              className={`option-item ${selectedOption === option.name ? 'selected' : ''}`}
+              onClick={() => handleOptionClick(option.name, option.id)}
             >
-              {option.nickname}
+              {option.name}
             </div>
           ))}
           {isLoading && <div className="loading">Loading...</div>}

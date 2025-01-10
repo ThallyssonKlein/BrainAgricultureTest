@@ -8,8 +8,8 @@ class FarmerController:
     def __init__(self, farmer_adapter: InboundFarmerAdapter):
         self.router = APIRouter()
         self.farmer_adapter = farmer_adapter
-        self.router.add_api_route("/farmer", self.create_farmer, methods=["POST"])
-        self.router.add_api_route("/farmer", self.find_farmers_paginated_and_with_query, methods=["GET"])
+        self.router.add_api_route("/api/v1/farmer", self.create_farmer, methods=["POST"])
+        self.router.add_api_route("/api/v1/farmer", self.find_farmers_paginated_and_with_query, methods=["GET"])
 
     async def create_farmer(self, farm_data: FarmerSchema = Body(...)):
         try:
