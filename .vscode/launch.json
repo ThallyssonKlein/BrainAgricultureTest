@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Debug Jest Tests",
+            "program": "${workspaceFolder}/frontend/node_modules/.bin/jest",
+            "args": [
+                "--runInBand"
+            ],
+            "runtimeExecutable": "/home/thallyssonklein/.nvm/versions/node/v20.18.1/bin/node",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "disableOptimisticBPs": true,
+            "cwd": "${workspaceFolder}/frontend"
+        },
+        {
+          "type": "node",
+          "request": "launch",
+          "name": "Debug Live Pix Service com Nodemon e TypeScript",
+          "runtimeExecutable": "nodemon",
+          "program": "${workspaceFolder}/frontend/src/index.tsx",
+          "restart": true,
+          "console": "integratedTerminal",
+          "internalConsoleOptions": "neverOpen",
+          "cwd": "${workspaceFolder}/frontend",
+          "skipFiles": [
+            "<node_internals>/**"
+          ],
+          "runtimeArgs": [
+            "--require", "ts-node/register"
+          ],
+          "env": {
+            "NODE_ENV": "development"
+          }
+        }
+    ]
+  }
+  
