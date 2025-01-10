@@ -39,3 +39,14 @@ class OutboundFarmerRepositoryPort():
             .where(Farmer.id == farmer_id)
         )
         await self.session.commit()
+    
+    async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str):
+        stmt = select(Farmer).offset(offset - 1).limit(limit).options(
+            selectinload(Farmer.farms).selectinload(Farm.crops).selectinload(Crop.culture)
+        )
+        
+        if query:
+            stmt = stmt.where(Farmer.name.ilike(f"%{query}%"))
+
+        result = await self.session.execute(stmt)
+        return result.scalars().all()

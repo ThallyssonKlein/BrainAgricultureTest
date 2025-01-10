@@ -82,3 +82,6 @@ class InboundFarmerAdapter:
                     
 
         return self.outbound_farmer_repository_port.get_farm_relations(farmer.id)
+
+    async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str):
+        return (await self.outbound_farmer_repository_port.find_farmers_paginated_and_with_query(limit, offset, query))
