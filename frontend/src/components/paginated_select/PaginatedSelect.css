@@ -1,9 +1,9 @@
 /* CSS */
 .paginated-select {
-    width: 300px;
+    flex: 1;
     margin: 20px auto;
     font-family: Arial, sans-serif;
-  }
+}
   
   .search-input {
     width: 100%;

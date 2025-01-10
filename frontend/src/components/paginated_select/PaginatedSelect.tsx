@@ -1,16 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-//import './PaginatedSelect.css';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import './PaginatedSelect.css';
 import IPlayer from './IPlayer';
 import API from '../../API';
+import { OptionsContext } from '../../context/OptionsContext';
 
-type PaginatedSelectProps = {
-  setSelectedOption: (nickname: string) => void;
-  selectedOption: string | null;
-  options: IPlayer[];
-  setOptions: (options: IPlayer[]) => void;
-};
-
-export const PaginatedSelect: React.FC<PaginatedSelectProps> = ({selectedOption, setSelectedOption, options, setOptions}) => {
+export const PaginatedSelect: React.FC = () => {
+  const { selectedOption, setSelectedOption, options, setOptions } = useContext(OptionsContext)
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
