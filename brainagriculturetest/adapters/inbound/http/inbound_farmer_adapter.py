@@ -1,4 +1,5 @@
 from adapters.inbound.http.schemas import FarmerSchema
+from ports.inbound.http.error.conflict_error import ConflictError
 from domain.farm.farm_service import FarmService
 from domain.farm.invalid_area_error import InvalidAreaError
 from domain.person.invalid_cnpj_error import InvalidCNPJError
@@ -9,6 +10,7 @@ from ports.outbound.database.outbound_crop_repository_port import OutboundCropRe
 from ports.outbound.database.outbound_culture_repository_port import OutboundCultureRepositoryPort
 from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 from ports.outbound.database.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
+from sqlalchemy.exc import IntegrityError
 
 class InboundFarmerAdapter:
     def __init__(self, outbound_farmer_repository_port: OutboundFarmerRepositoryPort, 
@@ -26,7 +28,6 @@ class InboundFarmerAdapter:
     async def create_farmer(self, farmer_schema: FarmerSchema):
         farmer_data = farmer_schema.dict()
 
-        print(farmer_data)
         try:
             if len(farmer_data['document']) == 11:
                 self.person_service.validate_cpf(farmer_data['document'])
@@ -38,13 +39,20 @@ class InboundFarmerAdapter:
             raise BadRequestError(err)
         
         # Step 1: Create Farmer
-        farmer = await self.outbound_farmer_repository_port.create_farmer(farmer_data)
+        farmer = None
+
+        try:
+            farmer = await self.outbound_farmer_repository_port.create_farmer(farmer_data)
+        # Validate if the error is the farmer with the same id
+        except IntegrityError as err:
+            if err._message().find("duplicate key value violates unique constraint") != -1:
+                raise ConflictError("Farmer already exists")
 
         # Step 2: Iterate over farms
         for farm_data in farmer_data["farms"]:
             farm = None
             try:
-                farm = await FarmService.create_farm(self, farm_data)
+                farm = await FarmService.create_farm(self, farmer.id, farm_data)
             except InvalidAreaError as err:
                 await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
                 raise BadRequestError(err.get_message)
@@ -73,4 +81,4 @@ class InboundFarmerAdapter:
                     raise err
                     
 
-        return self.outbound_farmer_repository_port.farmer_with_relations(farmer.id)
+        return self.outbound_farmer_repository_port.get_farm_relations(farmer.id)
