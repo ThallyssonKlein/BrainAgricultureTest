@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { OptionsContext } from "../../context/OptionsContext";
-import withFilledPieCharts from "./withFilledPieCharts";
+import WithFilledPieCharts from "./WithFilledPieCharts";
 import API from "../../API";
 
 export default function Charts() {
@@ -19,7 +19,7 @@ export default function Charts() {
 
     useEffect(() => {
         if (data) {
-            setPieChartsComponent(withFilledPieCharts(data));
+            setPieChartsComponent(<WithFilledPieCharts data={data} />);
         }
     }, [data]);
 
@@ -33,6 +33,7 @@ export default function Charts() {
                     </div>
                     <div className="charts-container">
                         <h1>Charts</h1>
+                        <h2>Click on the slices of the charts to see the details</h2>
                         {selectedOption && PieChartsComponent ? PieChartsComponent : null }
                     </div>
                 </div>

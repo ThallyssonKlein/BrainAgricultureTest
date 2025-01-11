@@ -22,7 +22,7 @@ class FarmerController:
         if limit > 100:
             raise BadRequestError("Limit can be at most 100")
 
-        return (await self.farmer_adapter.find_farmers_paginated_and_with_query(limit, page, query))
+        return await self.farmer_adapter.find_farmers_paginated_and_with_query(limit, page, query)
 
     def get_router(self):
         return self.router

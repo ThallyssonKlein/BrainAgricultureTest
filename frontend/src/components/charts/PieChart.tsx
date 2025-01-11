@@ -12,9 +12,10 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 interface PieChartProps {
   labels: string[];
   data: number[];
+  onSliceClick?: (data: string) => void;
 }
 
-export default function PieChart({ labels, data }: PieChartProps) {
+export default function PieChart({ labels, data, onSliceClick }: PieChartProps) {
   const generateRandomColors = (count: number) => {
     return Array.from({ length: count }, () =>
       `rgba(${Math.floor(Math.random() * 256)}, ${Math.floor(
@@ -48,6 +49,13 @@ export default function PieChart({ labels, data }: PieChartProps) {
         enabled: true,
       },
     },
+    onClick: (_event: any, elements: string | any[]) => {
+      if (elements.length > 0 && onSliceClick) {
+        const elementIndex = elements[0].index;
+        const selectedLabel = labels[elementIndex];
+        onSliceClick(selectedLabel);
+      }
+    },  
   };
 
   return <Pie data={chartData} options={options} />;

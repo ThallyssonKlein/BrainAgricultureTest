@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func, delete
+from sqlalchemy.orm import selectinload
 
 from adapters.inbound.http.schemas import FarmSchema
 from ports.outbound.database.models import Crop, Culture, Farm
@@ -74,10 +75,16 @@ class OutboundFarmRepositoryPort():
         }
 
     async def find_farms_by_state_and_farmer_id(self, farmer_id: int, state: str):
-        query = select(Farm).where(Farm.farmer_id == farmer_id, Farm.state == state)
-        result = await self.session.execute(query)
+        result = await self.session.execute(
+                select(Farm)
+                .where(Farm.farmer_id == farmer_id, Farm.state == state)
+                .options(
+                    selectinload(Farm.crops).selectinload(Crop.culture)
+                )
+        )
         farms = result.scalars().all()
-        return farms
+        return [farm.__dict__ for farm in farms]
+
             
     async def find_farms_ordered_by_vegetation_area_desc_by_farmer_id(self, farmer_id: int):
         query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.vegetation_area.desc())
