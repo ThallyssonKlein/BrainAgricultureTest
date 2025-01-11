@@ -1,7 +1,7 @@
 import React from "react"
 import { PaginatedSelect } from "../../components/paginated_select/PaginatedSelect";
 import { OptionsProvider } from "../../context/OptionsContext";
-import Chart from "../../components/chart/Chart";
+import Charts from "../../components/charts/Charts";
 
 export default function Dashboard() {
     const handleClick = () => {
@@ -18,7 +18,7 @@ export default function Dashboard() {
                             Create
                     </button>
                 </div>
-                <Chart />
+                <Charts />
             </div>
         </OptionsProvider>
     )

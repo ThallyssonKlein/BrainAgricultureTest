@@ -1,5 +1,7 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from adapters.inbound.http.inbound_dashboard_adapter import InboundDashboardAdapter
+from ports.inbound.http.controllers.dashboard_controller import DashboardController
 from ports.inbound.http.error.http_error import HttpError
 from ports.inbound.http.controllers.farmer_controller import FarmerController
 from adapters.inbound.http.inbound_farmer_adapter import InboundFarmerAdapter
@@ -45,7 +47,9 @@ async def init_dependencies(db: AsyncSession):
         outbound_farm_repository_port
     )
 
-    return farmer_adapter
+    inbound_dashboard_adapter = InboundDashboardAdapter(outbound_farm_repository_port)
+
+    return farmer_adapter, inbound_dashboard_adapter
 
 
 # Resolver dependências
@@ -55,11 +59,13 @@ async def get_farmer_adapter() -> InboundFarmerAdapter:
 
 # Instanciar o controller
 async def init_app():
-    farmer_adapter = await get_farmer_adapter()
+    farmer_adapter, inbound_dashboard_adapter = await get_farmer_adapter()
     farmer_controller = FarmerController(farmer_adapter)
+    dashboard_controller = DashboardController(inbound_dashboard_adapter)
 
     # Incluir o router do controller
     app.include_router(farmer_controller.get_router())
+    app.include_router(dashboard_controller.get_router())
 
 import asyncio
 asyncio.run(init_app())

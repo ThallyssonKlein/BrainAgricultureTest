@@ -11,7 +11,7 @@ interface ICrop {
     culture: ICulture;
 }
 
-interface IFarm {
+export interface IFarm {
     id: number;
     vegetation_area: number;
     farmer_id: number;

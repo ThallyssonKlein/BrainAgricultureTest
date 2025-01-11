@@ -1,12 +1,13 @@
 import React, { useContext } from "react";
 import { OptionsContext } from "../../context/OptionsContext";
+import PieChart from "./PieChart";
 
-export default function Chart() {
+export default function Charts() {
     const { selectedOption } = useContext(OptionsContext);
 
     return (
         <div>
-            <h1>{selectedOption}</h1>
+            <h1>{selectedOption ? <PieChart /> : "Loading..." }</h1>
         </div>
     )
 }

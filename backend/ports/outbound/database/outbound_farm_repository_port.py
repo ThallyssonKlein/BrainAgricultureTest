@@ -33,18 +33,10 @@ class OutboundFarmRepositoryPort():
     async def find_farm_counts_grouped_by_state_by_farmer_id(self, farmer_id: int):
         query = select(
             Farm.state,
-            func.count(Farm.id)
+            func.count(Farm.id).label('farm_count')
         ).where(Farm.farmer_id == farmer_id).group_by(Farm.state)
         result = await self.session.execute(query)
-        return result.scalars().all()
-    
-    async def find_farm_grouped_by_state_by_farmer_id(self, farmer_id: int):
-        query = select(
-            Farm.state,
-            func.sum(Farm.total_area).label('total_area')
-        ).where(Farm.farmer_id == farmer_id).group_by(Farm.state)
-        result = await self.session.execute(query)
-        return result.scalars().all()
+        return result.all()
     
     async def find_farms_count_grouped_by_culture_by_farmer_id(self, farmer_id: int):
         query = select(
@@ -55,15 +47,6 @@ class OutboundFarmRepositoryPort():
         result = await self.session.execute(query)
         return result.all()
     
-    async def find_farms_grouped_by_culture_by_farmer_id(self, farmer_id: int):
-        query = select(
-            Culture.name,
-            func.sum(Farm.total_area).label('total_area')
-        ).join(Crop, Crop.farm_id == Farm.id).join(Culture, Culture.id == Crop.culture_id).where(Farm.farmer_id == farmer_id).group_by(Culture.name)
-        
-        result = await self.session.execute(query)
-        return result.all()
-
     async def find_average_land_use_by_farmer_id(self, farmer_id: int):
         query = select(
             func.avg(Farm.arable_area).label('average_arable_area'),
@@ -79,7 +62,7 @@ class OutboundFarmRepositoryPort():
     async def find_total_farms_and_hectares_by_farmer_id(self, farmer_id: int):
         query = select(
             func.count(Farm.id).label('total_farms'),
-            (Farm.total_area).label('total_hectares')
+            func.sum(Farm.total_area).label('total_hectares')
         ).where(Farm.farmer_id == farmer_id)
         
         result = await self.session.execute(query)
@@ -88,8 +71,3 @@ class OutboundFarmRepositoryPort():
             'farm_count': totals.total_farms,
             'total_hectares': totals.total_hectares
         }
-
-    async def find_farms_by_farmer_id(self, farmer_id: int):
-        query = select(Farm).where(Farm.farmer_id == farmer_id)
-        result = await self.session.execute(query)
-        return result.scalars().all()
