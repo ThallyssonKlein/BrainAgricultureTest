@@ -12,18 +12,18 @@ export default function CreateFarmModal() {
     const [totalArea, setTotalArea] = useState<number>(0);
     const [city, setCity] = useState<string>("");
     const { modalIsOpen, setModalIsOpen, isEdit } = useContext(FarmModalContext);
-    const { selectedOption } = useContext(OptionsContext);
+    const { selectedOption, refreshKey, setRefreshKey } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
 
     useEffect(() => {
         if (isEdit && selectedOption) {
-            setVegetationArea(selectedOption.vegetation_area);
-            setState(selectedOption.state);
-            setName(selectedOption.name);
-            setArableArea(selectedOption.arable_area);
-            setTotalArea(selectedOption.total_area);
-            setCity(selectedOption.city);
+            // setVegetationArea(selectedOption.vegetation_area);
+            // setState(selectedOption.state);
+            // setName(selectedOption.name);
+            // setArableArea(selectedOption.arable_area);
+            // setTotalArea(selectedOption.total_area);
+            // setCity(selectedOption.city);
         } else {
             setVegetationArea(0);
             setState("");
@@ -34,15 +34,11 @@ export default function CreateFarmModal() {
         }
     }, [isEdit, selectedOption]);
 
-    useEffect(() => {
-        console.log("abriu a modal")
-    }, [modalIsOpen])
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newFarm = { vegetationArea, state, name, arableArea, totalArea, city, id: selectedOption?.id };
+        const newFarm = { vegetation_area: vegetationArea, state, name, arable_area: arableArea, total_area: totalArea, city, id: selectedOption?.id };
         if (isEdit) {
-            const response = await API.put(`/api/v1/farm/${selectedOption}`, newFarm);
+            const response = await API.put(`/api/v1/farmer/${selectedOption}/farm`, newFarm);
 
             if (response.status === 200) {
                 setSavedSuccessFullyMessage(true);
@@ -56,7 +52,7 @@ export default function CreateFarmModal() {
                 }, 2000);
             }
         } else {
-            const response = await API.post("/api/v1/farm", newFarm);
+            const response = await API.post(`/api/v1/farmer/${selectedOption}/farm`, newFarm);
 
             if (response.status === 201) {
                 setSavedSuccessFullyMessage(true);
@@ -69,6 +65,7 @@ export default function CreateFarmModal() {
                 setArableArea(0);
                 setTotalArea(0);
                 setCity("");
+                setRefreshKey(refreshKey + 1);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {

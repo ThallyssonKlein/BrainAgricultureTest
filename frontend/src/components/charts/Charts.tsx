@@ -5,7 +5,7 @@ import API from "../../API";
 import { IData } from "./IData";
 
 export default function Charts() {
-    const { selectedOption } = useContext(OptionsContext);
+    const { selectedOption, refreshKey } = useContext(OptionsContext);
     const [PieChartsComponent, setPieChartsComponent] = React.useState<JSX.Element | null>(null);
     const [data, setData] = React.useState<IData | null>(null);
 
@@ -16,7 +16,7 @@ export default function Charts() {
                 setData(response.data as IData);
             });
         }
-    }, [selectedOption]);
+    }, [selectedOption, refreshKey]);
 
     useEffect(() => {
         if (data) {

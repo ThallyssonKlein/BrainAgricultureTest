@@ -1,4 +1,4 @@
-interface ICulture {
+export interface ICulture {
     id: number;
     name: string;
 }
@@ -21,7 +21,7 @@ export interface IFarm {
     arable_area: number;
     total_area: number;
     city: string;
-    crops: ICrop[];
+    crops?: ICrop[];
 }
 
 export default interface IFarmer {
@@ -30,5 +30,5 @@ export default interface IFarmer {
     city: string;
     id: number;
     document: string;
-    farms: IFarm[];
+    farms?: IFarm[];
 }

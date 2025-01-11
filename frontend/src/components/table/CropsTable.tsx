@@ -10,7 +10,8 @@ interface ICropsTableProps {
 
 export default function CropsTable({ selectedFarm, selectedCropId, handleCropClick, crops }: ICropsTableProps): JSX.Element {
     return (
-        <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
+        <div>
+          <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
             <thead>
               <tr>
                 <th>Id</th>
@@ -19,7 +20,7 @@ export default function CropsTable({ selectedFarm, selectedCropId, handleCropCli
               </tr>
             </thead>
             <tbody>
-              {selectedFarm ? selectedFarm.crops.map((crop) => (
+              {selectedFarm ? selectedFarm.crops?.map((crop) => (
                 <tr
                   key={crop.id}
                   onClick={() => handleCropClick(crop.id)}
@@ -42,5 +43,9 @@ export default function CropsTable({ selectedFarm, selectedCropId, handleCropCli
               ))}
             </tbody>
           </table>
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+              <button style={{flex: 1}}>Create Crop</button>
+          </div>
+        </div>
     )
 }

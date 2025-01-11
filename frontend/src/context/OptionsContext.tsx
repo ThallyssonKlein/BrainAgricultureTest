@@ -7,6 +7,8 @@ export const OptionsContext = createContext<{
   setSelectedOption: React.Dispatch<React.SetStateAction<any>>;
   selectedObject: any;
   setSelectedObject: React.Dispatch<React.SetStateAction<any>>;
+  refreshKey: number;
+  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
 }>({
   options: [],
   setOptions: () => {},
@@ -14,6 +16,8 @@ export const OptionsContext = createContext<{
   setSelectedOption: () => {},
   selectedObject: null,
   setSelectedObject: () => {},
+  refreshKey: 0,
+  setRefreshKey: () => {},
 });
 
 interface OptionsproviderProps {
@@ -24,6 +28,7 @@ export const OptionsContextProvider = ({ children }: OptionsproviderProps) => {
   const [options, setOptions] = useState<any[]>([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [selectedObject, setSelectedObject] = useState(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <OptionsContext.Provider value={{ 
@@ -32,7 +37,9 @@ export const OptionsContextProvider = ({ children }: OptionsproviderProps) => {
         selectedOption, 
         setSelectedOption,
         selectedObject,
-        setSelectedObject
+        setSelectedObject,
+        refreshKey,
+        setRefreshKey,
       }}>
       {children}
     </OptionsContext.Provider>

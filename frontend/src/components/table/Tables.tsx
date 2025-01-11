@@ -44,7 +44,7 @@ const FarmTable: React.FC = () => {
   };
 
   const selectedFarm = farms.find((farm) => farm.id === selectedFarmId);
-  const selectedCrop = selectedFarm?.crops.find((crop) => crop.id === selectedCropId);
+  const selectedCrop = selectedFarm?.crops?.find((crop) => crop.id === selectedCropId);
 
   return (
     <div className="farms-table-container">
