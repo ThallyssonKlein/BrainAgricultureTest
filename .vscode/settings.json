@@ -9,5 +9,7 @@
             "database": "brain_agriculture",
             "username": "brain_agriculture"
         }
-    ]
+    ],
+    "python.autoComplete.extraPaths": ["./backend"],
+    "python.analysis.extraPaths": ["./backend"]
 }

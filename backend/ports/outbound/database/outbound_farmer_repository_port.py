@@ -49,4 +49,4 @@ class OutboundFarmerRepositoryPort():
             stmt = stmt.where(Farmer.name.ilike(f"%{query}%"))
 
         result = await self.session.execute(stmt)
-        return result.scalars().all()
+        return result.all()

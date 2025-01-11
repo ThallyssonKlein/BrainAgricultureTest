@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from adapters.inbound.http.inbound_dashboard_adapter import InboundDashboardAdapter
+from adapters.inbound.http.inbound_farm_adapter import InboundFarmAdapter
 from ports.inbound.http.controllers.dashboard_controller import DashboardController
+from ports.inbound.http.controllers.farm_controller import FarmController
 from ports.inbound.http.error.http_error import HttpError
 from ports.inbound.http.controllers.farmer_controller import FarmerController
 from adapters.inbound.http.inbound_farmer_adapter import InboundFarmerAdapter
@@ -38,7 +40,7 @@ async def init_dependencies(db: AsyncSession):
     outbound_crop_repository_port = OutboundCropRepositoryPort(db)
     outbound_farm_repository_port = OutboundFarmRepositoryPort(db)
 
-    farmer_adapter = InboundFarmerAdapter(
+    inbound_farmer_adapter = InboundFarmerAdapter(
         outbound_farmer_repository_port,
         FarmService(outbound_farm_repository_port),
         PersonService(),
@@ -48,8 +50,9 @@ async def init_dependencies(db: AsyncSession):
     )
 
     inbound_dashboard_adapter = InboundDashboardAdapter(outbound_farm_repository_port)
+    inbound_farm_adapter = InboundFarmAdapter(outbound_farm_repository_port)
 
-    return farmer_adapter, inbound_dashboard_adapter
+    return inbound_farmer_adapter, inbound_dashboard_adapter, inbound_farm_adapter
 
 
 # Resolver dependências
@@ -59,13 +62,15 @@ async def get_farmer_adapter() -> InboundFarmerAdapter:
 
 # Instanciar o controller
 async def init_app():
-    farmer_adapter, inbound_dashboard_adapter = await get_farmer_adapter()
-    farmer_controller = FarmerController(farmer_adapter)
+    inbound_farmer_adapter, inbound_dashboard_adapter, inbound_farm_adapter = await get_farmer_adapter()
+    farmer_controller = FarmerController(inbound_farmer_adapter)
     dashboard_controller = DashboardController(inbound_dashboard_adapter)
+    farm_controller = FarmController(inbound_farm_adapter)
 
     # Incluir o router do controller
     app.include_router(farmer_controller.get_router())
     app.include_router(dashboard_controller.get_router())
+    app.include_router(farm_controller.get_router())
 
 import asyncio
 asyncio.run(init_app())

@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ports.outbound.database.models import Crop
@@ -16,3 +17,7 @@ class OutboundCropRepositoryPort:
         await self.session.commit()
         await self.session.refresh(crop)
         return crop
+    
+    async def find_crops_by_culture_id(self, culture_id: int):
+        result = await self.session.execute(select(Crop).where(Crop.culture_id == culture_id))
+        return result.all()
