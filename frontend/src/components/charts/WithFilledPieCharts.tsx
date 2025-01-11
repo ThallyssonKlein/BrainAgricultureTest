@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { JSX, useContext } from "react";
 import PieChart from "./PieChart";
 import "./charts.css"
 import { IData } from "./IData";

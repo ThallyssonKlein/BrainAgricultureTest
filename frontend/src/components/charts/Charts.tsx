@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { JSX, useContext, useEffect } from "react";
 import { OptionsContext } from "../../context/OptionsContext";
 import WithFilledPieCharts from "./WithFilledPieCharts";
 import API from "../../API";
@@ -38,7 +38,7 @@ export default function Charts() {
                     </div>
                 </div>
                 :
-                "Loading..."
+                null
             }
         </div>
     )

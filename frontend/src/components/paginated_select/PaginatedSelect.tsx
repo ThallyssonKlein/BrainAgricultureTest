@@ -5,7 +5,7 @@ import API from '../../API';
 import { OptionsContext } from '../../context/OptionsContext';
 
 export const PaginatedSelect: React.FC = () => {
-  const { selectedOption, setSelectedOption, options, setOptions } = useContext(OptionsContext)
+  const { selectedOption, setSelectedOption, options, setOptions, setSelectedObject } = useContext(OptionsContext)
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -67,6 +67,7 @@ export const PaginatedSelect: React.FC = () => {
 
   const handleOptionClick = (name: string, id: number) => {
     setSelectedOption(id);
+    setSelectedObject(options.find(option => option.id === id));
     setSearchTerm(name);
     setTimeout(() => setIsOpen(false), 100)
   };

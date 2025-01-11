@@ -1,4 +1,4 @@
-from brainagriculturetest.src.ports.inbound.http.error.http_error import HttpError
+from ports.inbound.http.error.http_error import HttpError
 
 
 class NotFoundError(HttpError):

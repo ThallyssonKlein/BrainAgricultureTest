@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.future import select
 from sqlalchemy import delete
+from sqlalchemy.exc import IntegrityError
 
 from ports.outbound.database.models import Crop, Farm, Farmer
 
@@ -17,9 +18,36 @@ class OutboundFarmerRepositoryPort():
             state=farmer_data["state"],
         )
         self.session.add(farmer)
-        await self.session.commit()
-        await self.session.refresh(farmer)
-        return farmer
+        try:
+            await self.session.commit()
+            await self.session.refresh(farmer)
+            return farmer
+        except IntegrityError as e:
+            await self.session.rollback()
+            raise ValueError("Farmer with this document already exists") from e
+
+
+    async def update_farmer(self, farmer_data: dict):
+        stmt = select(Farmer).where(Farmer.id == farmer_data['id'])
+        result = await self.session.execute(stmt)
+        farmer = result.scalars().first()
+
+        if not farmer:
+            raise ValueError("Farmer not found with the provided id")
+
+        # Atualizar os campos
+        farmer.name = farmer_data.get("name", farmer.name)
+        farmer.city = farmer_data.get("city", farmer.city)
+        farmer.state = farmer_data.get("state", farmer.state)
+
+        try:
+            await self.session.commit()
+            await self.session.refresh(farmer)
+            return farmer
+        except IntegrityError as e:
+            await self.session.rollback()
+            raise e
+
 
     async def delete_farmer(self, farmer_id: int):
         await self.session.execute(
