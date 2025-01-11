@@ -20,4 +20,4 @@ class OutboundCropRepositoryPort:
     
     async def find_crops_by_culture_id(self, culture_id: int):
         result = await self.session.execute(select(Crop).where(Crop.culture_id == culture_id))
-        return result.all()
+        return result.scalars().all()

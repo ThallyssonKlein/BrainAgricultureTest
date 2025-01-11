@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { FarmsContext } from '../../context/FarmsContext';
+import "./table.css"
 
 interface ICulture {
   id: number;
@@ -44,13 +45,15 @@ const FarmTable: React.FC = () => {
   const selectedCrop = selectedFarm?.crops.find((crop) => crop.id === selectedCropId);
 
   return (
-    <div>
+    <div className="farms-table-container">
       {farms && 
         <div>
         {/* Tabela de Fazendas */}
+        <h3>Farms</h3>
         <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
           <thead>
             <tr>
+              <th>Id</th>
               <th>Nome</th>
               <th>Área Total</th>
               <th>Área Vegetação</th>
@@ -66,6 +69,7 @@ const FarmTable: React.FC = () => {
                 onClick={() => handleFarmClick(farm.id)}
                 style={{ cursor: 'pointer', background: selectedFarmId === farm.id ? '#f0f0f0' : 'white' }}
               >
+                <td>{farm.id}</td>
                 <td>{farm.name}</td>
                 <td>{farm.total_area}</td>
                 <td>{farm.vegetation_area}</td>
@@ -77,11 +81,12 @@ const FarmTable: React.FC = () => {
           </tbody>
         </table>
 
-        {/* Tabela de Colheitas */}
+        <h3>Crops</h3>
         {selectedFarm && (
           <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
             <thead>
               <tr>
+                <th>Id</th>
                 <th>Data</th>
                 <th>Nome da Cultura</th>
               </tr>
@@ -93,6 +98,7 @@ const FarmTable: React.FC = () => {
                   onClick={() => handleCropClick(crop.id)}
                   style={{ cursor: 'pointer', background: selectedCropId === crop.id ? '#f0f0f0' : 'white' }}
                 >
+                  <td>{crop.id}</td>
                   <td>{crop.date}</td>
                   <td>{crop.culture.name}</td>
                 </tr>
@@ -101,16 +107,18 @@ const FarmTable: React.FC = () => {
           </table>
         )}
 
-        {/* Tabela de Cultura */}
+        <h3>Cultures</h3>
         {selectedCrop && (
           <table border={1} style={{ width: '100%' }}>
             <thead>
               <tr>
+                <th>Id</th>
                 <th>Nome da Cultura</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td>{selectedCrop.culture.id}</td>
                 <td>{selectedCrop.culture.name}</td>
               </tr>
             </tbody>
