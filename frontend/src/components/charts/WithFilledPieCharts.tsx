@@ -4,8 +4,8 @@ import "./charts.css"
 import { IData } from "./IData";
 import API from "../../API";
 import { OptionsContext } from "../../context/OptionsContext";
-import { FarmsContext } from "../../context/FarmsContext";
-import { IFarm } from "../paginated_select/IFarmer";
+import { TablesContext } from "../../context/TablesContext";
+import { ICrop, IFarm } from "../IFarmer";
 
 interface WithFilledPieChartsProps {
   data: IData;
@@ -13,7 +13,7 @@ interface WithFilledPieChartsProps {
 
 export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps): JSX.Element {
   const { selectedOption } = useContext(OptionsContext);
-  const { setFarms } = useContext(FarmsContext);
+  const { setFarms, setCrops } = useContext(TablesContext);
   const labelsState = []
   const dataState = []
 
@@ -37,10 +37,20 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
   ];
 
   const handleOnSlideClickGroupedByState = async (data: string) => {
+    setCrops([])
     const response = await API.get("/api/v1/farm?state=" + data + "&farmer_id=" + selectedOption)
 
     if (response.status === 200) {
       setFarms(response.data as IFarm[]);
+    }
+  }
+
+  const handleOnSlideClickGroupedByCulture = async (data: string) => {
+    setFarms([])
+    const response = await API.get("/api/v1/crop?culture_name=" + data + "&farmer_id=" + selectedOption)
+
+    if (response.status === 200) {
+      setCrops(response.data as ICrop[]);
     }
   }
 
@@ -50,7 +60,7 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
         <PieChart labels={labelsState} data={dataState} onSliceClick={handleOnSlideClickGroupedByState}/>
       </div>
       <div className="pie-chart">
-        <PieChart labels={labelsCulture} data={dataCulture} />
+        <PieChart labels={labelsCulture} data={dataCulture} onSliceClick={handleOnSlideClickGroupedByCulture}/>
       </div>
       <div className="pie-chart">
         <PieChart labels={landUseLabels} data={landUseData} />

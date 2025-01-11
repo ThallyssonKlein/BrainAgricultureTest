@@ -3,12 +3,13 @@ interface ICulture {
     name: string;
 }
 
-interface ICrop {
+export interface ICrop {
     id: number;
     culture_id: number;
     date: string;
     farm_id: number;
-    culture: ICulture;
+    culture?: ICulture;
+    culture_name?: string;
 }
 
 export interface IFarm {

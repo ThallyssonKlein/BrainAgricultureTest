@@ -1,7 +1,7 @@
-from sqlalchemy import select
+from sqlalchemy import literal, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ports.outbound.database.models import Crop
+from ports.outbound.database.models import Crop, Culture, Farm
 
 class OutboundCropRepositoryPort:
     def __init__(self, session: AsyncSession):
@@ -18,6 +18,18 @@ class OutboundCropRepositoryPort:
         await self.session.refresh(crop)
         return crop
     
-    async def find_crops_by_culture_id(self, culture_id: int):
-        result = await self.session.execute(select(Crop).where(Crop.culture_id == culture_id))
-        return result.scalars().all()
+    async def find_crops_where_associated_culture_has_the_name_and_by_farmer_id(self, culture_name: str, farmer_id: int):
+        stmt = (
+            select(
+                Crop.id,
+                Crop.farm_id,
+                Crop.date,
+                Crop.culture_id,
+                literal(culture_name).label("culture_name")
+            )
+            .join(Crop.farm)
+            .where(Culture.name == culture_name)
+            .where(Farm.farmer_id == farmer_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.mappings().all()

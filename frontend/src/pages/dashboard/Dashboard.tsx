@@ -2,12 +2,11 @@ import React from "react"
 import { PaginatedSelect } from "../../components/paginated_select/PaginatedSelect";
 import { OptionsProvider } from "../../context/OptionsContext";
 import Charts from "../../components/charts/Charts";
-import { FarmsProvider } from "../../context/FarmsContext";
+import { TablesContextProvider } from "../../context/TablesContext";
 import Tables from "../../components/table/Tables";
 
 export default function Dashboard() {
     const handleClick = () => {
-        // Define the action to be triggered on button click
         console.log("Create button clicked");
     };
 
@@ -20,10 +19,10 @@ export default function Dashboard() {
                             Create
                     </button>
                 </div>
-                <FarmsProvider>
+                <TablesContextProvider>
                     <Charts />
                     <Tables />
-                </FarmsProvider>
+                </TablesContextProvider>
             </div>
         </OptionsProvider>
     )

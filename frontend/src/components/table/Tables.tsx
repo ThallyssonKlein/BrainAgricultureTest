@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
-import { FarmsContext } from '../../context/FarmsContext';
+import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
+import CropsTable from './CropsTable';
+import CulturesTable from './CulturesTable';
 
 interface ICulture {
   id: number;
@@ -30,7 +32,7 @@ export interface IFarm {
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
   const [selectedCropId, setSelectedCropId] = useState<number | null>(null);
-  const { farms } = useContext(FarmsContext);
+  const { farms, crops } = useContext(TablesContext);
 
   const handleFarmClick = (farmId: number) => {
     setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
@@ -46,7 +48,7 @@ const FarmTable: React.FC = () => {
 
   return (
     <div className="farms-table-container">
-      {farms && 
+      {farms && farms.length > 0 && (!crops || crops.length === 0)&& 
         <div>
         {/* Tabela de Fazendas */}
         <h3>Farms</h3>
@@ -83,48 +85,32 @@ const FarmTable: React.FC = () => {
 
         <h3>Crops</h3>
         {selectedFarm && (
-          <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Data</th>
-                <th>Nome da Cultura</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedFarm.crops.map((crop) => (
-                <tr
-                  key={crop.id}
-                  onClick={() => handleCropClick(crop.id)}
-                  style={{ cursor: 'pointer', background: selectedCropId === crop.id ? '#f0f0f0' : 'white' }}
-                >
-                  <td>{crop.id}</td>
-                  <td>{crop.date}</td>
-                  <td>{crop.culture.name}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <CropsTable
+            selectedFarm={selectedFarm}
+            selectedCropId={selectedCropId}
+            handleCropClick={handleCropClick}
+          />
         )}
 
         <h3>Cultures</h3>
-        {selectedCrop && (
-          <table border={1} style={{ width: '100%' }}>
-            <thead>
-              <tr>
-                <th>Id</th>
-                <th>Nome da Cultura</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{selectedCrop.culture.id}</td>
-                <td>{selectedCrop.culture.name}</td>
-              </tr>
-            </tbody>
-          </table>
-        )}
+        {selectedCrop && selectedCrop.culture ? (
+          <CulturesTable
+            selectedCrop={{ culture: selectedCrop.culture }}
+          />
+        ) : null}
       </div>
+      }
+      {crops && crops.length > 0 && (!farms || farms.length === 0) &&
+        <div>
+          <h3>Crops</h3>
+          {crops && (
+            <CropsTable
+              crops={crops}
+              selectedCropId={selectedCropId}
+              handleCropClick={handleCropClick}
+            />
+          )}
+        </div>
       }
     </div>
   );

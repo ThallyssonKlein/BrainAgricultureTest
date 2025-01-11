@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import './PaginatedSelect.css';
-import IFarmer from './IFarmer';
+import IFarmer from '../IFarmer';
 import API from '../../API';
 import { OptionsContext } from '../../context/OptionsContext';
 
