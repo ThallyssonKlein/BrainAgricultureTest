@@ -87,11 +87,15 @@ class OutboundFarmRepositoryPort():
 
             
     async def find_farms_ordered_by_vegetation_area_desc_by_farmer_id(self, farmer_id: int):
-        query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.vegetation_area.desc())
+        query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.vegetation_area.desc()).options(
+                    selectinload(Farm.crops).selectinload(Crop.culture)
+                )
         result = await self.session.execute(query)
-        return result.all()
+        return result.scalars().all()
     
     async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int):
-        query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.arable_area.desc())
+        query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.arable_area.desc()).options(
+                    selectinload(Farm.crops).selectinload(Crop.culture)
+                )
         result = await self.session.execute(query)
-        return result.all()
+        return result.scalars().all()

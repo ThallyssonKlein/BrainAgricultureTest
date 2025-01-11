@@ -6,3 +6,9 @@ class InboundFarmAdapter:
 
     async def find_farms_by_state_and_farmer_id(self, farmer_id: int, state: str):
         return await self.outbound_farm_repository_port.find_farms_by_state_and_farmer_id(farmer_id, state)
+    
+    async def find_farms_ordered_by_vegetation_area_desc_by_farmer_id(self, farmer_id: int):
+        return await self.outbound_farm_repository_port.find_farms_ordered_by_vegetation_area_desc_by_farmer_id(farmer_id)
+
+    async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int):
+        return await self.outbound_farm_repository_port.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id)

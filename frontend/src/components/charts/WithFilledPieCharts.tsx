@@ -54,6 +54,23 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
     }
   }
 
+  const handleOnSlideClickGroupedByArableAndVegetationArea = async (data: string) => {
+    setCrops([])
+    if (data === "Arable Area") {
+      const response = await API.get("/api/v1/farm?order_by=arable_area_desc&farmer_id=" + selectedOption)
+
+      if (response.status === 200) {
+        setFarms(response.data as IFarm[]);
+      }
+    } else {
+      const response = await API.get("/api/v1/farm?order_by=vegetation_area_desc&farmer_id=" + selectedOption)
+
+      if (response.status === 200) {
+        setFarms(response.data as IFarm[]);
+      }
+    }
+  }
+
   return (
     <div className="pie-charts-container">
       <div className="pie-chart">
@@ -63,7 +80,7 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
         <PieChart labels={labelsCulture} data={dataCulture} onSliceClick={handleOnSlideClickGroupedByCulture}/>
       </div>
       <div className="pie-chart">
-        <PieChart labels={landUseLabels} data={landUseData} />
+        <PieChart labels={landUseLabels} data={landUseData} onSliceClick={handleOnSlideClickGroupedByArableAndVegetationArea}/>
       </div>
     </div>
   );
