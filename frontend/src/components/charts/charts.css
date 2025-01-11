@@ -1,0 +1,22 @@
+.pie-charts-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.pie-chart {
+    margin: 10px;
+}
+
+.counts-container {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 100px;
+}
+
+.count {
+    margin: 10px;
+}
+
+.charts-container {
+    text-align: center;
+}
