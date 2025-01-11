@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { OptionsContext } from "../context/OptionsContext";
 import API from "../API";
 
-export default function DeleteButton() {
+export default function DeleteFarmerButton() {
     const { selectedOption } = useContext(OptionsContext);
 
     const handleOnClick = async () => {

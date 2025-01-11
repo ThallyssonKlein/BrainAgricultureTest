@@ -51,9 +51,10 @@ class OutboundFarmRepositoryPort():
     
     async def find_average_land_use_by_farmer_id(self, farmer_id: int):
         query = select(
-            func.avg(Farm.arable_area).label('average_arable_area'),
-            func.avg(Farm.vegetation_area).label('average_vegetation_area')
+            func.coalesce(func.avg(Farm.arable_area), 0).label('average_arable_area'),
+            func.coalesce(func.avg(Farm.vegetation_area), 0).label('average_vegetation_area')
         ).where(Farm.farmer_id == farmer_id)
+        
         result = await self.session.execute(query)
         averages = result.one()
         return {
@@ -64,7 +65,7 @@ class OutboundFarmRepositoryPort():
     async def find_total_farms_and_hectares_by_farmer_id(self, farmer_id: int):
         query = select(
             func.count(Farm.id).label('total_farms'),
-            func.sum(Farm.total_area).label('total_hectares')
+            func.coalesce(func.sum(Farm.total_area), 0).label('total_hectares')  # Substituir NULL por 0
         ).where(Farm.farmer_id == farmer_id)
         
         result = await self.session.execute(query)
