@@ -13,8 +13,7 @@ class FarmerController:
 
     async def create_farmer(self, farm_data: FarmerSchema = Body(...)):
         try:
-            await self.farmer_adapter.create_farmer(farm_data)
-            return {"message": "Farmer created successfully"}
+            return await self.farmer_adapter.create_farmer(farm_data)
         except InvalidAreaError as e:
             raise BadRequestError(e.message)
     

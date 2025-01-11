@@ -25,4 +25,3 @@ class FarmerSchema(BaseModel):
     name: str
     city: str
     state: str
-    farms: List[FarmSchema]

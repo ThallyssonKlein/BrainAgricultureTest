@@ -21,18 +21,6 @@ class OutboundFarmerRepositoryPort():
         await self.session.refresh(farmer)
         return farmer
 
-    async def get_farm_relations(self, farmer_id: int):
-        result = await self.session.execute(
-            select(Farmer)
-            .where(Farmer.id == farmer_id)
-            .options(
-                selectinload(Farmer.farms).selectinload(Farm.crops).selectinload(Crop.culture)
-            )
-        )
-        farmer_with_relations = result.scalar_one()
-
-        return farmer_with_relations
-
     async def delete_farmer(self, farmer_id: int):
         await self.session.execute(
             delete(Farmer)

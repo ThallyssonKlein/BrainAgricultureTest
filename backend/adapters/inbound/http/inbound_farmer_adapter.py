@@ -43,45 +43,11 @@ class InboundFarmerAdapter:
 
         try:
             farmer = await self.outbound_farmer_repository_port.create_farmer(farmer_data)
-        # Validate if the error is the farmer with the same id
         except IntegrityError as err:
             if err._message().find("duplicate key value violates unique constraint") != -1:
                 raise ConflictError("Farmer already exists")
 
-        # Step 2: Iterate over farms
-        for farm_data in farmer_data["farms"]:
-            farm = None
-            try:
-                farm = await FarmService.create_farm(self, farmer.id, farm_data)
-            except InvalidAreaError as err:
-                await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
-                raise BadRequestError(err.get_message)
-            except Exception as err:
-                await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
-                raise err
-
-            # Step 3: Iterate over crops in each farm
-            for crop_data in farm_data["crops"]:
-                # Step 4: Get or create the culture
-                culture = None
-                try:
-                    culture = await self.outbound_culture_repository_port.get_or_create_culture(crop_data["culture"]["name"])
-                except Exception as err:
-                    await self.outbound_farm_repository_port.delete_farm(farm.id)
-                    await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
-                    raise err
-
-                # Step 5: Create crop with the associated culture
-                try:
-                    await self.outbound_crop_repository_port.create_crop(farm.id, crop_data, culture.id)
-                except Exception as err:
-                    await self.outbound_culture_repository_port.delete_culture(culture.id)
-                    await self.outbound_farm_repository_port.delete_farm(farm.id)
-                    await self.outbound_farmer_repository_port.delete_farmer(farmer.id)
-                    raise err
-                    
-
-        return self.outbound_farmer_repository_port.get_farm_relations(farmer.id)
+        return farmer
 
     async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str):
         return await self.outbound_farmer_repository_port.find_farmers_paginated_and_with_query(limit, offset, query)
