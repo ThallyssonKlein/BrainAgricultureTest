@@ -12,3 +12,6 @@ class InboundFarmAdapter:
 
     async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int):
         return await self.outbound_farm_repository_port.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id)
+    
+    async def create_farm_for_a_farmer(self, farmer_id: int, farm: dict):
+        return await self.outbound_farm_repository_port.create_farm_for_a_farmer(farmer_id, farm)

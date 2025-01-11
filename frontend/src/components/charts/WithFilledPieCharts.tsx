@@ -73,15 +73,26 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
 
   return (
     <div className="pie-charts-container">
-      <div className="pie-chart">
-        <PieChart labels={labelsState} data={dataState} onSliceClick={handleOnSlideClickGroupedByState}/>
-      </div>
-      <div className="pie-chart">
-        <PieChart labels={labelsCulture} data={dataCulture} onSliceClick={handleOnSlideClickGroupedByCulture}/>
-      </div>
-      <div className="pie-chart">
-        <PieChart labels={landUseLabels} data={landUseData} onSliceClick={handleOnSlideClickGroupedByArableAndVegetationArea}/>
-      </div>
+      {
+        data.farm_counts_grouped_by_state && data.farm_counts_grouped_by_state.length > 0 ?
+        <div className="pie-chart">
+          <PieChart labels={labelsState} data={dataState} onSliceClick={handleOnSlideClickGroupedByState}/>
+        </div>
+        : null
+      }
+      {
+        data.farms_count_grouped_by_culture && data.farms_count_grouped_by_culture.length > 0 ?
+        <div className="pie-chart">
+          <PieChart labels={labelsCulture} data={dataCulture} onSliceClick={handleOnSlideClickGroupedByCulture}/>
+        </div>
+      : null
+      }
+      {data.average_land_use && (data.average_land_use.average_arable_area && data.average_land_use.average_vegetation_area) ? 
+        <div className="pie-chart">
+          <PieChart labels={landUseLabels} data={landUseData} onSliceClick={handleOnSlideClickGroupedByArableAndVegetationArea}/>
+        </div>
+      : null
+      }
     </div>
   );
 }

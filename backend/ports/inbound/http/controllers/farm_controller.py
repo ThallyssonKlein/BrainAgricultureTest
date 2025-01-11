@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Body, Query
 from adapters.inbound.http.inbound_farm_adapter import InboundFarmAdapter
+from adapters.inbound.http.schemas import FarmSchema
 
 class FarmController:
     def __init__(self, inbound_farm_adapter: InboundFarmAdapter):
@@ -9,6 +10,12 @@ class FarmController:
             "/api/v1/farm", 
             self.find_farm, 
             methods=["GET"]
+        )
+        self.router.add_api_route(
+            "/api/v1/farmer/{farmer_id}/farm", 
+            self.create_farm_for_a_farmer, 
+            methods=["POST"], 
+            status_code=201
         )
 
     async def find_farm(self, farmer_id: int, state: str = Query(None), order_by: str = Query(None)):
@@ -29,6 +36,9 @@ class FarmController:
 
     async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int):
         return await self.inbound_farm_adapter.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id)
+
+    async def create_farm_for_a_farmer(self, farmer_id: int, farm: FarmSchema = Body(...)):
+        return await self.inbound_farm_adapter.create_farm_for_a_farmer(farmer_id, farm)
 
     def get_router(self):
         return self.router
