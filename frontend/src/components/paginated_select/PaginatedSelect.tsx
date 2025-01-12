@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useState, useEffect, useRef, useContext, useCallback } from 'react';
 import './PaginatedSelect.css';
 import IFarmer from '../IFarmer';
 import API from '../../API';
@@ -6,41 +6,42 @@ import { OptionsContext } from '../../context/OptionsContext';
 import { TablesContext } from '../../context/TablesContext';
 
 export const PaginatedSelect: React.FC = () => {
-  const { selectedOption, setSelectedOption, options, setOptions, setSelectedObject } = useContext(OptionsContext)
+  const { selectedOption, setSelectedOption } = useContext(OptionsContext)
+  const [options, setOptions] = useState<IFarmer[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const { setCrops, setSelectedFarm } = useContext(TablesContext);
+  const { setFarms, setCrops } = useContext(TablesContext);
 
-  const fetchOptions = async (page: number, searchTerm: string): Promise<IFarmer[]> => {
-    const response = await API.get(`/api/v1/farmer?page=${page}&limit=10&query=${searchTerm}`);
+  const loadOptions = useCallback(async (page: number, searchTerm: string) => {
+    const fetchOptions = async (page: number, searchTerm: string): Promise<IFarmer[]> => {
+      const response = await API.get(`/api/v1/farmer?page=${page}&limit=10&query=${searchTerm}`);
 
-    if (response.status !== 200) {
-      alert('Error fetching farmers!');
-    }
+      if (response.status !== 200) {
+        alert('Error fetching farmers!');
+      }
 
-    return (response.data as IFarmer[]);
-  };
-    
-  const loadOptions = async (page: number, searchTerm: string) => {
+      return (response.data as IFarmer[]);
+    };
+
     setIsLoading(true);
     const newOptions: IFarmer[] = await fetchOptions(page, searchTerm);
     if (newOptions.length === 0) {
       setHasMore(false);
     } else {
-      setOptions([...options, ...newOptions]);
+      setOptions((prevOptions) => [...prevOptions, ...newOptions]);
     }
     setIsLoading(false);
-  };
+  }, [setOptions]);
 
   useEffect(() => {
     if (isOpen) {
       loadOptions(page, searchTerm);
     }
-  }, [page, searchTerm, isOpen]);
+  }, [page, searchTerm, isOpen, loadOptions]);
 
   const handleScroll = () => {
     if (!dropdownRef.current) return;
@@ -67,11 +68,10 @@ export const PaginatedSelect: React.FC = () => {
     }
   };
 
-  const handleOptionClick = (name: string, id: number) => {
-    setSelectedOption(id);
-    setSelectedFarm(null);
+  const handleOptionClick = (name: string, farmer: IFarmer) => {
+    setSelectedOption(farmer);
     setCrops([]);
-    setSelectedObject(options.find(option => option.id === id));
+    setFarms([]);
     setSearchTerm(name);
     setTimeout(() => setIsOpen(false), 100)
   };
@@ -93,11 +93,11 @@ export const PaginatedSelect: React.FC = () => {
           onScroll={handleScroll}
           role="listbox"
         >
-          {options.map((option, index) => (
+          {options.map((option: IFarmer, index) => (
             <div
               key={index}
               className={`option-item ${selectedOption === option.name ? 'selected' : ''}`}
-              onClick={() => handleOptionClick(option.name, option.id)}
+              onClick={() => handleOptionClick(option.name, option)}
             >
               {option.name}
             </div>

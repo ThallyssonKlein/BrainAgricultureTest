@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
@@ -7,14 +7,13 @@ import API from '../../API';
 import { OptionsContext } from '../../context/OptionsContext';
 
 const FarmTable: React.FC = () => {
-  const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
-  const { setFarms, farms, crops, setSelectedFarm, selectedFarm } = useContext(TablesContext);
+  const { setFarms, farms, crops, setSelectedFarmId: setSelectedFarm, selectedFarmId: selectedFarm } = useContext(TablesContext);
   const { setModalIsOpen, setISEdit } = useContext(FarmModalContext);
-  const { setRefreshKey } = useContext(OptionsContext);
+  const { setRefreshCharts } = useContext(OptionsContext);
 
   const handleFarmClick = (farmId: number) => {
-    setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
-    setSelectedFarm(farms.find((farm) => farm.id === farmId) || null);
+    const selectedFarm = farms.find((farm) => farm.id === farmId);
+    setSelectedFarm(selectedFarm ? selectedFarm.id : null);
   };
 
   const handleDeleteFarm = async (id: number) => {
@@ -25,7 +24,7 @@ const FarmTable: React.FC = () => {
         if (response.status === 200){
             setSelectedFarm(null);
             setFarms(farms.filter((farm) => farm.id !== id));
-            setRefreshKey(previos => previos + 1);
+            setRefreshCharts(previos => previos + 1);
         } else if(response.status === 409){
             alert("Culture is being used in a crop, cannot delete!");
         } else {
@@ -36,9 +35,8 @@ const FarmTable: React.FC = () => {
 
   return (
     <div className="farms-table-container">
-      {farms && farms.length > 0 && (!crops || crops.length === 0)&& 
+      {farms && farms.length > 0 && (!crops || crops.length === 0) && 
         <div>
-        {/* Tabela de Fazendas */}
         <h2>Click on the farm to see the crops</h2>
         <h3>Farms</h3>
         <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
@@ -60,7 +58,7 @@ const FarmTable: React.FC = () => {
               <tr
                 key={farm.id}
                 onClick={() => handleFarmClick(farm.id)}
-                style={{ cursor: 'pointer', background: selectedFarmId === farm.id ? '#f0f0f0' : 'white' }}
+                style={{ cursor: 'pointer', background: selectedFarm === farm.id ? '#f0f0f0' : 'white' }}
               >
                 <td>{farm.id}</td>
                 <td>{farm.name}</td>
@@ -90,10 +88,7 @@ const FarmTable: React.FC = () => {
         {selectedFarm && (
           <div>
             <h3>Crops</h3>
-            <CropsTable
-              selectedFarm={selectedFarm}
-              setSelectedFarm={setSelectedFarm}
-            />
+            <CropsTable />
           </div>
         )}
       </div>
@@ -102,9 +97,7 @@ const FarmTable: React.FC = () => {
         <div>
           <h3>Crops</h3>
           {crops && (
-            <CropsTable
-              crops={crops}
-            />
+            <CropsTable />
           )}
         </div>
       }

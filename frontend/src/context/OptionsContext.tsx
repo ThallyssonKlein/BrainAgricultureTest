@@ -1,23 +1,16 @@
 import React, { createContext, useState } from 'react';
+import IFarmer from '../components/IFarmer';
 
 export const OptionsContext = createContext<{
-  options: any[];
-  setOptions: React.Dispatch<React.SetStateAction<any[]>>;
   selectedOption: any;
   setSelectedOption: React.Dispatch<React.SetStateAction<any>>;
-  selectedObject: any;
-  setSelectedObject: React.Dispatch<React.SetStateAction<any>>;
-  refreshKey: number;
-  setRefreshKey: React.Dispatch<React.SetStateAction<number>>;
+  refreshCharts: number;
+  setRefreshCharts: React.Dispatch<React.SetStateAction<number>>;
 }>({
-  options: [],
-  setOptions: () => {},
   selectedOption: null,
   setSelectedOption: () => {},
-  selectedObject: null,
-  setSelectedObject: () => {},
-  refreshKey: 0,
-  setRefreshKey: () => {},
+  refreshCharts: 0,
+  setRefreshCharts: () => {},
 });
 
 interface OptionsproviderProps {
@@ -25,21 +18,15 @@ interface OptionsproviderProps {
 }
 
 export const OptionsContextProvider = ({ children }: OptionsproviderProps) => {
-  const [options, setOptions] = useState<any[]>([]);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [selectedObject, setSelectedObject] = useState(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<IFarmer | null>(null);
+  const [refreshCharts, setRefreshCharts] = useState(0);
 
   return (
     <OptionsContext.Provider value={{ 
-        options, 
-        setOptions, 
         selectedOption, 
         setSelectedOption,
-        selectedObject,
-        setSelectedObject,
-        refreshKey,
-        setRefreshKey,
+        refreshCharts,
+        setRefreshCharts,
       }}>
       {children}
     </OptionsContext.Provider>

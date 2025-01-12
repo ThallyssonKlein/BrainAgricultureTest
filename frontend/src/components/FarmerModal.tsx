@@ -16,27 +16,27 @@ export default function FarmerModal() {
         modalIsOpen,
         setModalIsOpen
     } = useContext(FarmerModalContext);
-    const { selectedObject } = useContext(OptionsContext);
+    const { selectedOption } = useContext(OptionsContext);
 
     useEffect(() => {
-        if (isEdit && selectedObject) {
-            setName(selectedObject.name);
-            setState(selectedObject.state);
-            setCity(selectedObject.city);
-            setDocument(selectedObject.document);
+        if (isEdit && selectedOption) {
+            setName(selectedOption.name);
+            setState(selectedOption.state);
+            setCity(selectedOption.city);
+            setDocument(selectedOption.document);
         } else {
             setName("");
             setState("");
             setCity("");
             setDocument("");
         }
-    }, [isEdit, selectedObject]);
+    }, [isEdit, selectedOption]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newFarmer = { name, state, city, document, id: selectedObject?.id };
+        const newFarmer = { name, state, city, document, id: selectedOption?.id };
         if (isEdit) {
-            const response = await API.put(`/api/v1/farmer/${selectedObject?.id}`, newFarmer);
+            const response = await API.put(`/api/v1/farmer/${selectedOption?.id}`, newFarmer);
 
             if (response.status === 200) {
                 setSavedSuccessFullyMessage(true);

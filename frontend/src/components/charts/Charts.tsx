@@ -5,15 +5,13 @@ import API from "../../API";
 import { IData } from "./IData";
 
 export default function Charts() {
-    const { selectedOption, refreshKey } = useContext(OptionsContext);
+    const { selectedOption, refreshCharts: refreshKey } = useContext(OptionsContext);
     const [PieChartsComponent, setPieChartsComponent] = React.useState<JSX.Element | null>(null);
     const [data, setData] = React.useState<IData | null>(null);
 
     useEffect(() => {
-        console.log("recebeu o refresh key")
         if (selectedOption) {
             API.get(`/api/v1/dashboard/${selectedOption}`).then((response) => {
-                console.log(response.data)
                 setData(response.data as IData);
             });
         }

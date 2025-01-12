@@ -1,23 +1,24 @@
 import React, { useEffect, useState, useContext } from "react";
 import Modal from "react-modal";
 import API from "../API";
-import { ICrop, ICulture } from "./IFarmer";
+import { ICulture } from "./IFarmer";
 import { OptionsContext } from "../context/OptionsContext";
 import { TablesContext } from "../context/TablesContext";
+import { ApiResponse } from "apisauce";
 
 interface ICreateCultureModalProps {
     isEdit: boolean;
     modalIsOpen: boolean;
     setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    setRefreshKey2: React.Dispatch<React.SetStateAction<number>>;
-    selectedCultureObject: ICulture | null;
-    selectedCrop: ICrop | null;
+    setRefreshCropModal: React.Dispatch<React.SetStateAction<number>>;
+    selectedCultureObject: ICulture | null | undefined;
+    setCultures: React.Dispatch<React.SetStateAction<ICulture[] | null>>;
 }
 
-export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setRefreshKey2, selectedCultureObject, selectedCrop }: ICreateCultureModalProps) {
+export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setRefreshCropModal, selectedCultureObject, setCultures }: ICreateCultureModalProps) {
     const [name, setName] = useState<string>("");
-    const { selectedOption, setRefreshKey } = useContext(OptionsContext);
-    const { setSelectedFarm, selectedFarm, setCrops } = useContext(TablesContext);
+    const { selectedOption } = useContext(OptionsContext);
+    const { selectedFarmId, setCrops, setFarms, farms } = useContext(TablesContext);
 
     useEffect(() => {
         if (isEdit && selectedCultureObject) {
@@ -27,6 +28,37 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
         }
     }, [isEdit, selectedCultureObject]);
 
+    const refreshCultures = (response: ApiResponse<unknown, unknown>) => {
+        const selectedFarm = farms.find(farm => farm.id === selectedFarmId);
+        const createdCulture = response.data as ICulture
+        if (selectedFarm) {
+            setFarms(prevFarms => prevFarms.map(farm => 
+                farm.id === selectedFarmId 
+                ? { ...farm, crops: farm.crops?.map(crop => {
+                    if (crop.culture?.id === createdCulture.id) {
+                        crop.culture = createdCulture;
+                    }
+
+                    return crop;
+                }) || [] } 
+                : farm
+            ));
+        } else {
+            setCrops((previousCrops) => previousCrops.map(crop => {
+                if (crop.culture?.id === createdCulture.id) {
+                    crop.culture = createdCulture;
+                }
+
+                return crop;
+            })
+            );
+        }
+        setCultures(prevState => {
+            return prevState ? prevState.filter(culture => culture.id !== createdCulture.id) : null;
+        });
+        setModalIsOpen(false);
+        setRefreshCropModal(previous => previous + 1);
+    }
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const newCulture = { name };
@@ -34,43 +66,7 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
             const response = await API.put(`/api/v1/culture/${selectedCultureObject?.id}`, newCulture);
 
             if (response.status === 200) {
-                const updatedResponseData = response.data as ICulture;
-
-                if (selectedFarm && setSelectedFarm) {
-                    const updatedFarm = selectedFarm;
-                    updatedFarm.crops = updatedFarm.crops?.map(crop => {
-                        if (crop.culture_id === updatedResponseData.id || crop.culture?.id === updatedResponseData.id) {
-                            return {
-                                ...crop,
-                                culture: updatedResponseData,
-                                culture_id: updatedResponseData.id,
-                                culture_name: updatedResponseData.name
-                            };
-                        }
-                        return crop;
-                    });
-                    setSelectedFarm(
-                        updatedFarm
-                    )
-                } else {
-                    setCrops((prevState: ICrop[]) => {
-                        return prevState?.map((crop: ICrop) => {
-                            if (crop.culture_id === updatedResponseData.id || crop.culture?.id === updatedResponseData.id) {
-                                return {
-                                    ...crop,
-                                    culture: updatedResponseData,
-                                    culture_id: updatedResponseData.id,
-                                    culture_name: updatedResponseData.name
-                                };
-                            }
-                            return crop;
-                        });
-                    });
-                }
-
-                setModalIsOpen(false);
-                setRefreshKey(previous => previous + 1);
-                setRefreshKey2(previous => previous + 1);
+                refreshCultures(response);
             } else {
                 alert("Error editing culture!")
             }
@@ -78,9 +74,7 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
             const response = await API.post(`/api/v1/farmer/${selectedOption}/culture`, newCulture);
 
             if (response.status === 201) {
-                setModalIsOpen(false);
-                setRefreshKey(previous => previous + 1);
-                setRefreshKey2(previous => previous + 1);
+                refreshCultures(response);
             } else {
                 alert("Error creating culture!")
             }

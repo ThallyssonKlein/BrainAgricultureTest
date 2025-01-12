@@ -5,10 +5,9 @@ export interface ICulture {
 
 export interface ICrop {
     id: number;
-    culture_id?: number;
     date: string;
     farm_id: number;
-    culture?: ICulture;
+    culture?: ICulture | null;
     culture_name?: string;
 }
 

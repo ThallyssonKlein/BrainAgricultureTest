@@ -14,10 +14,12 @@ export default function FarmModal() {
     const [totalArea, setTotalArea] = useState<number | undefined>(0);
     const [city, setCity] = useState<string | undefined>("");
     const { modalIsOpen, setModalIsOpen, isEdit } = useContext(FarmModalContext);
-    const { selectedOption, setRefreshKey } = useContext(OptionsContext);
+    const { selectedOption, setRefreshCharts } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
-    const { setFarms, selectedFarm } = useContext(TablesContext);
+    const { farms, setFarms, selectedFarmId } = useContext(TablesContext);
+
+    const selectedFarm = farms.find(farm => farm.id === selectedFarmId);
 
     useEffect(() => {
         if (isEdit && selectedFarm) {
@@ -48,7 +50,8 @@ export default function FarmModal() {
                 setTimeout(() => {
                     setSavedSuccessFullyMessage(false);
                 }, 2000);
-                setFarms((prevFarms) => [...prevFarms, response.data as IFarm]);
+                setFarms((prevFarms) => prevFarms.map(farm => farm.id === selectedFarm?.id ? response.data as IFarm : farm));
+                setRefreshCharts(previous => previous + 1);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
@@ -69,8 +72,8 @@ export default function FarmModal() {
                 setArableArea(0);
                 setTotalArea(0);
                 setCity("");
-                setRefreshKey(previous => previous + 1);
                 setFarms((prevFarms) => [...prevFarms, response.data as IFarm]);
+                setRefreshCharts(previous => previous + 1);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {

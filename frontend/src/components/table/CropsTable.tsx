@@ -1,21 +1,16 @@
-import React, { JSX, useContext } from "react";
-import { ICrop, IFarm } from "../IFarmer";
+import React, { JSX, useContext, useState } from "react";
+import { ICrop } from "../IFarmer";
 import { CropModalContext } from "../../context/CropModalContext";
 import CropModal from "../CropModal";
 import API from "../../API";
 import { OptionsContext } from "../../context/OptionsContext";
 import { TablesContext } from "../../context/TablesContext";
 
-interface ICropsTableProps {
-    selectedFarm?: IFarm;
-    setSelectedFarm?: React.Dispatch<React.SetStateAction<IFarm | null>>;
-    crops?: ICrop[]
-}
-
-export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICropsTableProps): JSX.Element {
-    const { setModalIsOpen, setISEdit, setSelectedCrop } = useContext(CropModalContext);
-    const { setRefreshKey } = useContext(OptionsContext);
-    const { setCrops } = useContext(TablesContext);
+export default function CropsTable(): JSX.Element {
+    const { setModalIsOpen, setISEdit } = useContext(CropModalContext);
+    const [selectedCrop, setSelectedCrop] = useState<ICrop | null>(null);
+    const { setRefreshCharts } = useContext(OptionsContext);
+    const { crops, farms, setCrops, selectedFarmId, setFarms } = useContext(TablesContext);
 
     const handleDeleteCrop = async (id: number) => {
       const userResponse = window.confirm("Do you want to proceed?");
@@ -23,18 +18,17 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
         const response = await API.delete(`/api/v1/crop/${id}`);
 
         if (response.status === 200){
-            if (selectedFarm && setSelectedFarm) {
-                const updatedFarm = selectedFarm;
-                updatedFarm.crops = updatedFarm.crops?.filter(crop => crop.id !== id);
-                setSelectedFarm(
-                    updatedFarm
-                )
+            const selectedFarm = farms.find(farm => farm.id === selectedFarmId);
+            if (selectedFarm) {
+                setFarms(prevFarms => prevFarms.map(farm => 
+                    farm.id === selectedFarmId 
+                    ? { ...farm, crops: farm.crops?.filter(crop => crop.id !== id) || [] } 
+                    : farm
+                ));
             } else {
-                setCrops((prevState) => {
-                    return prevState?.filter(crop => crop.id !== id);
-                });
+                setCrops((previousCrops) => previousCrops.filter(crop => crop.id !== id));
             }
-            setRefreshKey(previos => previos + 1);
+            setRefreshCharts(previos => previos + 1);
         } else {
           alert("Error deleting!");
         }
@@ -43,7 +37,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
 
     return (
         <div>
-          <CropModal selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm} />
+          <CropModal selectedCrop={selectedCrop} />
           <table border={1} style={{ width: '100%', marginBottom: '20px', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
@@ -55,7 +49,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
               </tr>
             </thead>
             <tbody>
-              {selectedFarm ? selectedFarm.crops?.map((crop) => (
+              {selectedFarmId ? farms.find(farm => farm.id === selectedFarmId)?.crops?.map((crop) => (
                 <tr
                   key={crop.id}
                   style={{ cursor: 'pointer', background: 'white' }}
@@ -73,7 +67,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
                     >Edit</button>
                   </td>
                   <td>
-                    <button onClick={(event) => handleDeleteCrop(crop.id)}>Delete</button>
+                    <button onClick={(_event) => handleDeleteCrop(crop.id)}>Delete</button>
                   </td>
                 </tr>
               )) : crops?.map((crop) => (
@@ -95,7 +89,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
                     >Edit</button>
                   </td>
                   <td>
-                    <button onClick={(event) => handleDeleteCrop(crop.id)}>Delete</button>
+                    <button onClick={(_event) => handleDeleteCrop(crop.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
