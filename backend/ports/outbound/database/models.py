@@ -28,7 +28,7 @@ class Farm(Base):
     state = Column(String(2), nullable=False)
 
     farmer = relationship("Farmer", back_populates="farms")
-    crops = relationship("Crop", back_populates="farm")
+    crops = relationship("Crop", back_populates="farm", cascade="all, delete-orphan")
 
 
 class Crop(Base):
@@ -37,7 +37,7 @@ class Crop(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     date = Column(Date, nullable=False)
     culture_id = Column(Integer, ForeignKey("cultures.id"), nullable=False)
-    farm_id = Column(Integer, ForeignKey("farms.id"), nullable=False)
+    farm_id = Column(Integer, ForeignKey("farms.id", ondelete="CASCADE"), nullable=False)
 
     farm = relationship("Farm", back_populates="crops")
     culture = relationship("Culture", back_populates="crops")

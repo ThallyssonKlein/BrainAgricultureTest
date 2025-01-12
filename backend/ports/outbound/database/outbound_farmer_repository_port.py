@@ -33,8 +33,6 @@ class OutboundFarmerRepositoryPort():
             await self.session.rollback()
             raise e
 
-
-
     async def update_farmer(self, farmer_data: dict):
         try:
             stmt = (

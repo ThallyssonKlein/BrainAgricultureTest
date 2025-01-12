@@ -1,4 +1,4 @@
-from sqlalchemy import delete, insert, literal, select, update
+from sqlalchemy import delete, insert, select, update
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 

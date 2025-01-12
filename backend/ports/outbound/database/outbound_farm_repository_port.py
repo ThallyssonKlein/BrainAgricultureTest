@@ -3,7 +3,6 @@ from sqlalchemy.future import select
 from sqlalchemy import func, delete, insert, update
 from sqlalchemy.orm import selectinload
 
-from adapters.inbound.http.schemas import FarmSchema
 from ports.outbound.database.models import Crop, Culture, Farm
 
 class OutboundFarmRepositoryPort():
@@ -32,10 +31,10 @@ class OutboundFarmRepositoryPort():
     async def delete_farm(self, farm_id: int):
         try:
             await self.session.execute(
-            delete(Farm)
-            .where(Farm.id == farm_id)
+                delete(Farm).where(Farm.id == farm_id)
             )
             await self.session.commit()
+
         except Exception as e:
             await self.session.rollback()
             raise e
