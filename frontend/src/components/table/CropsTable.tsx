@@ -6,12 +6,10 @@ import CreateCropModal from "../CreateCropModal";
 interface ICropsTableProps {
     selectedFarm?: IFarm;
     setSelectedFarm?: React.Dispatch<React.SetStateAction<IFarm | null>>;
-    selectedCropId?: number | null;
-    handleCropClick: (cropId: number) => void;
     crops?: ICrop[]
 }
 
-export default function CropsTable({ selectedFarm, selectedCropId, handleCropClick, crops, setSelectedFarm }: ICropsTableProps): JSX.Element {
+export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICropsTableProps): JSX.Element {
     const { setModalIsOpen } = useContext(CropModalContext);
 
     return (
@@ -29,8 +27,7 @@ export default function CropsTable({ selectedFarm, selectedCropId, handleCropCli
               {selectedFarm ? selectedFarm.crops?.map((crop) => (
                 <tr
                   key={crop.id}
-                  onClick={() => handleCropClick(crop.id)}
-                  style={{ cursor: 'pointer', background: selectedCropId === crop.id ? '#f0f0f0' : 'white' }}
+                  style={{ cursor: 'pointer', background: 'white' }}
                 >
                   <td>{crop.id}</td>
                   <td>{crop.date}</td>
@@ -39,8 +36,7 @@ export default function CropsTable({ selectedFarm, selectedCropId, handleCropCli
               )) : crops?.map((crop) => (
                 <tr
                   key={crop.id}
-                  onClick={() => handleCropClick(crop.id)}
-                  style={{ cursor: 'pointer', background: selectedCropId === crop.id ? '#f0f0f0' : 'white' }}
+                  style={{ cursor: 'pointer', background: 'white' }}
                 >
                   <td>{crop.id}</td>
                   <td>{crop.date}</td>

@@ -2,24 +2,16 @@ import React, { useState, useContext, useEffect } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
-import { ICrop, IFarm } from '../IFarmer';
+import { IFarm } from '../IFarmer';
 
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
-  const [selectedCropId, setSelectedCropId] = useState<number | null>(null);
   const { farms, crops } = useContext(TablesContext);
   const [selectedFarm, setSelectedFarm] = useState<IFarm | null>(farms.find((farm) => farm.id === selectedFarmId) || null);
-  const [selectedCrop, setSelectedCrop] = useState<ICrop | null>(selectedFarm?.crops?.find((crop) => crop.id === selectedCropId) || null);
 
   const handleFarmClick = (farmId: number) => {
     setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
-    setSelectedCropId(null);
     setSelectedFarm(farms.find((farm) => farm.id === farmId) || null);
-    setSelectedCrop(selectedFarm?.crops?.find((crop) => crop.id === selectedCropId) || null)
-  };
-
-  const handleCropClick = (cropId: number) => {
-    setSelectedCropId(cropId === selectedCropId ? null : cropId);
   };
 
   return (
@@ -27,6 +19,7 @@ const FarmTable: React.FC = () => {
       {farms && farms.length > 0 && (!crops || crops.length === 0)&& 
         <div>
         {/* Tabela de Fazendas */}
+        <h2>Click on the farm to see the crops</h2>
         <h3>Farms</h3>
         <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
           <thead>
@@ -64,8 +57,6 @@ const FarmTable: React.FC = () => {
           <CropsTable
             selectedFarm={selectedFarm}
             setSelectedFarm={setSelectedFarm}
-            selectedCropId={selectedCropId}
-            handleCropClick={handleCropClick}
           />
         )}
       </div>
@@ -76,8 +67,6 @@ const FarmTable: React.FC = () => {
           {crops && (
             <CropsTable
               crops={crops}
-              selectedCropId={selectedCropId}
-              handleCropClick={handleCropClick}
             />
           )}
         </div>

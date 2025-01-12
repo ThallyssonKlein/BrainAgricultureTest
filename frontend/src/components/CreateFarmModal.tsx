@@ -3,6 +3,8 @@ import Modal from "react-modal";
 import { FarmModalContext } from "../context/FarmModalContext";
 import { OptionsContext } from "../context/OptionsContext";
 import API from "../API";
+import { TablesContext } from "../context/TablesContext";
+import { IFarm } from "./IFarmer";
 
 export default function CreateFarmModal() {
     const [vegetationArea, setVegetationArea] = useState<number>(0);
@@ -15,6 +17,7 @@ export default function CreateFarmModal() {
     const { selectedOption, refreshKey, setRefreshKey } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
+    const { setFarms } = useContext(TablesContext);
 
     useEffect(() => {
         if (isEdit && selectedOption) {
@@ -45,6 +48,7 @@ export default function CreateFarmModal() {
                 setTimeout(() => {
                     setSavedSuccessFullyMessage(false);
                 }, 2000);
+                setFarms((prevFarms) => [...prevFarms, response.data as IFarm]);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
@@ -66,6 +70,7 @@ export default function CreateFarmModal() {
                 setTotalArea(0);
                 setCity("");
                 setRefreshKey(refreshKey + 1);
+                setFarms((prevFarms) => [...prevFarms, response.data as IFarm]);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {

@@ -19,6 +19,7 @@ export default function Dashboard() {
         <OptionsContextProvider>
             <FarmerModalContextProvider>
                 <FarmModalContextProvider>
+                    <TablesContextProvider>
                     <CreateFarmerModal />
                     <CreateFarmModal />
                     <div>
@@ -31,13 +32,12 @@ export default function Dashboard() {
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                 <CreateFarmButton />
                         </div>
-                        <TablesContextProvider>
                             <Charts />
                             <CropModalContextProvider>
                                 <Tables />
                             </CropModalContextProvider>
-                        </TablesContextProvider>
                     </div>
+                    </TablesContextProvider>
                 </FarmModalContextProvider>
             </FarmerModalContextProvider>
         </OptionsContextProvider>
