@@ -35,12 +35,11 @@ class OutboundCropRepositoryPort:
         result = await self.session.execute(stmt)
         return result.mappings().all()
 
-    async def create_crop_for_a_farm(self, farm_id: int, crop: dict):
-        d = crop.model_dump()
+    async def create_crop_for_a_farm_and_return_culture_name(self, farm_id: int, crop: dict):
         new_crop = Crop(
-            date=d["date"],
+            date=crop["date"],
             farm_id=farm_id,
-            culture_id=d["culture"]["id"],
+            culture_id=crop["culture"]["id"],
         )
         self.session.add(new_crop)
         await self.session.commit()
