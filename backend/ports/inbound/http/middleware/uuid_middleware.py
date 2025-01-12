@@ -12,7 +12,7 @@ class UuidMiddleware(BaseHTTPMiddleware, Loggable):
         trace_id = str(uuid4())
         request.state.trace_id = trace_id
 
-        self.info(f"Request {trace_id} received", trace_id)
+        self.log.info(f"Request {trace_id} received", trace_id)
 
         response = await call_next(request)
 
