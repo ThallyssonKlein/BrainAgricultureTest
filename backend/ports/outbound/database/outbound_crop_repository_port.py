@@ -1,4 +1,5 @@
-from sqlalchemy import delete, literal, select, update
+from sqlalchemy import delete, insert, literal, select, update
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ports.outbound.database.models import Crop, Culture, Farm
@@ -8,34 +9,42 @@ class OutboundCropRepositoryPort:
         self.session = session
 
     async def create_crop(self, farm_id: int, crop_data: dict, culture_id: int) -> Crop:
-        crop = Crop(
-            date=crop_data["date"],
-            farm_id=farm_id,
-            culture_id=culture_id,
-        )
-        self.session.add(crop)
-        await self.session.commit()
-        await self.session.refresh(crop)
-        return crop
+        try:
+            crop = Crop(
+                date=crop_data["date"],
+                farm_id=farm_id,
+                culture_id=culture_id,
+            )
+            self.session.add(crop)
+            await self.session.commit()
+            await self.session.refresh(crop)
+            return crop
+        except Exception as e:
+            await self.session.rollback()
+            raise e
     
     async def find_crops_by_culture_name_and_farmer_id(self, culture_name: str, farmer_id: int):
-        stmt = (
-            select(
-                Crop.id,
-                Crop.farm_id,
-                Crop.date,
-                Crop.culture_id,
-                literal(culture_name).label("culture_name")
+        try:
+            stmt = (
+                select(
+                    Crop.id,
+                    Crop.farm_id,
+                    Crop.date,
+                    Crop.culture_id,
+                    literal(culture_name).label("culture_name")
+                )
+                .join(Crop.farm)
+                .join(Crop.culture)
+                .where(Culture.name == culture_name)
+                .where(Farm.farmer_id == farmer_id)
             )
-            .join(Crop.farm)
-            .join(Crop.culture)
-            .where(Culture.name == culture_name)
-            .where(Farm.farmer_id == farmer_id)
-        )
-        result = await self.session.execute(stmt)
-        return result.mappings().all()
+            result = await self.session.execute(stmt)
+            return result.mappings().all()
+        except Exception as e:
+            await self.session.rollback()
+            raise e
 
-    async def create_crop_for_a_farm_and_return_culture_name(self, farm_id: int, crop: dict):
+    async def create_crop_for_a_farm_and_return_with_culture(self, farm_id: int, crop: dict):
         try:
             stmt = (
                 insert(Crop)
@@ -44,24 +53,29 @@ class OutboundCropRepositoryPort:
                     farm_id=farm_id,
                     culture_id=crop["culture"]["id"]
                 )
-                .returning(
-                    Crop.id,
-                    Crop.date,
-                    Culture.name.label("culture_name"),
-                    Culture.id.label("culture_id"),
-                    Farm.id.label("farm_id")
-                )
+                .returning(Crop.id)
             )
-
-            stmt = stmt.join(Culture, Culture.id == Crop.culture_id).join(Farm, Farm.id == Crop.farm_id)
 
             result = await self.session.execute(stmt)
             await self.session.commit()
 
-            created_crop = result.mappings().first()
+            crop_id = result.scalar()
+            if not crop_id:
+                raise ValueError("Failed to create crop.")
+
+            stmt = (
+                select(Crop)
+                .where(Crop.id == crop_id)
+                .options(
+                    selectinload(Crop.culture)
+                )
+            )
+
+            result = await self.session.execute(stmt)
+            created_crop = result.scalars().first()
 
             if not created_crop:
-                raise ValueError("Failed to create crop or retrieve culture name.")
+                raise ValueError("Failed to retrieve crop with culture relationship.")
 
             return created_crop
         except Exception as e:
@@ -81,21 +95,23 @@ class OutboundCropRepositoryPort:
             )
             await self.session.execute(stmt_update)
             await self.session.commit()
-            
+
             stmt_select = (
-                select(
-                    Crop.id,
-                    Crop.date,
-                    Culture.name.label("culture_name"),
-                    Culture.id.label("culture_id"),
-                    Farm.id.label("farm_id"),
-                )
-                .join(Culture, Culture.id == Crop.culture_id)
-                .join(Farm, Farm.id == Crop.farm_id)
+                select(Crop)
                 .where(Crop.id == crop_id)
+                .options(
+                    selectinload(Crop.culture),
+                    selectinload(Crop.farm),
+                )
             )
+
             result = await self.session.execute(stmt_select)
-            return result.mappings().first()
+            updated_crop = result.scalars().first()
+
+            if not updated_crop:
+                raise ValueError("Crop not found.")
+
+            return updated_crop
         except Exception as e:
             await self.session.rollback()
             raise e

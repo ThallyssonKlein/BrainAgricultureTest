@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
@@ -32,13 +32,17 @@ const Tables: React.FC = () => {
         }
      }
   }
+  
+  useEffect(() => {
+    console.log(farms)
+  }, [farms])
 
   return (
     <div className="farms-table-container">
       {farms && farms.length > 0 && (!crops || crops.length === 0) && 
         <div>
-        <h2>Click on the farm to see the crops</h2>
-        <h3>Farms</h3>
+        <h2>Clique em uma fazenda para ver suas safras</h2>
+        <h3>Fazendas</h3>
         <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
           <thead>
             <tr>
@@ -58,15 +62,15 @@ const Tables: React.FC = () => {
               <tr
                 key={farm.id}
                 onClick={() => handleFarmClick(farm.id)}
-                style={{ cursor: 'pointer', background: selectedFarmId === farm.id ? '#f0f0f0' : 'white' }}
+                style={{ cursor: 'pointer', background: selectedFarmId === farm.id ? '#adacac' : 'white' }}
               >
-                <td>{farm.id}</td>
-                <td>{farm.name}</td>
-                <td>{farm.total_area}</td>
-                <td>{farm.vegetation_area}</td>
-                <td>{farm.arable_area}</td>
-                <td>{farm.state}</td>
-                <td>{farm.city}</td>
+                <td>{farm?.id || "N/A"}</td>
+                <td>{farm?.name || "N/A"}</td>
+                <td>{farm?.total_area || "N/A"}</td>
+                <td>{farm?.vegetation_area || "N/A"}</td>
+                <td>{farm?.arable_area || "N/A"}</td>
+                <td>{farm?.state || "N/A"}</td>
+                <td>{farm?.city || "N/A"}</td>
                 <td>
                   <button
                     onClick={() => {
@@ -75,10 +79,10 @@ const Tables: React.FC = () => {
                       setSelectedFarmId(farm.id);
                       setModalIsOpen(true);
                     }}
-                  >Edit</button>
+                  >Editar</button>
                 </td>
                 <td>
-                  <button onClick={(event) => handleDeleteFarm(farm.id)}>Delete</button>
+                  <button onClick={(_event) => handleDeleteFarm(farm.id)}>Excluir</button>
                 </td>
               </tr>
             ))}
@@ -87,7 +91,7 @@ const Tables: React.FC = () => {
 
         {selectedFarmId && (
           <div>
-            <h3>Crops</h3>
+            <h3>Safras</h3>
             <CropsTable />
           </div>
         )}
@@ -95,7 +99,7 @@ const Tables: React.FC = () => {
       }
       {crops && crops.length > 0 && (!farms || farms.length === 0) &&
         <div>
-          <h3>Crops</h3>
+          <h3>Safras</h3>
           {crops && (
             <CropsTable />
           )}

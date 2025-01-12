@@ -8,7 +8,6 @@ export interface ICrop {
     date: string;
     farm_id: number;
     culture?: ICulture | null;
-    culture_name?: string;
 }
 
 export interface IFarm {

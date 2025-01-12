@@ -62,7 +62,7 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
         const newCulture = { name };
         if (isEdit) {
             const response = await API.put(`/api/v1/culture/${selectedCultureObject?.id}`, newCulture);
-
+            const createdCulture = response.data as ICulture
             if (response.status === 200) {
                 refreshCultures(response);
                 setCultures(prevState => {
@@ -74,12 +74,12 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
                     return prevState;
                 });        
             } else {
-                alert("Error editing culture!")
+                alert("Erro editando cultura!")
             }
         } else {
-            const response = await API.post(`/api/v1/farmer/${selectedOption}/culture`, newCulture);
+            const response = await API.post(`/api/v1/farmer/${selectedOption.id}/culture`, newCulture);
 
-            if (response.status !== 201) {
+            if (response.status === 201) {
                 refreshCultures(response);
                 setCultures(prevState => {
                     if (prevState && prevState.length > 0) {
@@ -88,7 +88,7 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
                     return prevState;
                 })
             } else {
-                alert("Error creating culture!")
+                alert("Erro criando cultura!")
             }
         }
     };
@@ -122,13 +122,22 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
             >
                 &times;
             </button>
-            <h2>{isEdit ? "Edit Culture" : "Create Culture"}</h2>
+            <h2>{isEdit ? "Editar Cultura" : "Criar Cultura"}</h2>
             <form onSubmit={handleSubmit}>
-                <div>
+                <div style={{ marginBottom: '50px' }}>
                     <label>Name: </label>
                     <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
-                <button type="submit">{isEdit ? "Update" : "Save"}</button>
+                <button 
+                    type="submit"
+                    style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        right: '20px',
+                        marginLeft: '30px',
+                        cursor: 'pointer',
+                    }}
+                >{isEdit ? "Atualizar" : "Salvar"}</button>
             </form>
     </Modal>
     )

@@ -43,7 +43,7 @@ class CultureController:
         return await self.inbound_culture_adapter.update_culture_by_id(culture_id, culture)
     
     async def delete_culture_by_id(self, culture_id: int = Path(...)):
-        return await self.inbound_culture_adapter.delete_culture_by_id(culture_id)
+        await self.inbound_culture_adapter.delete_culture_by_id(culture_id)
     
     def get_router(self):
         return self.router

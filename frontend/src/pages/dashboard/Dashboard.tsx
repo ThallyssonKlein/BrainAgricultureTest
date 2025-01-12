@@ -24,12 +24,15 @@ export default function Dashboard() {
                         <FarmModal />
                         <div>
                             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                <h3>Fazendeiro:</h3>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                                     <PaginatedSelect />
                                     <CreateFarmerButton />
                                     <EditFarmerButton />
                                     <DeleteFarmerButton />
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginBottom: 10 }}>
                                     <CreateFarmButton />
                             </div>
                                 <Charts />

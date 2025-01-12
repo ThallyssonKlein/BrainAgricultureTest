@@ -6,10 +6,11 @@ export default function CreateFarmerButton() {
 
     return (
         <button
+            style={{ marginRight: 10 }}
             onClick={() => {
                 setISEdit(false);
                 setModalIsOpen(true);
             }}
-        >Create</button>
+        >Criar</button>
     );
 }

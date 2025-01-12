@@ -115,35 +115,48 @@ export default function FarmModal() {
             >
                 &times;
             </button>
-            <h2>{isEdit ? "Edit Farm" : "Create Farm"}</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>vegetationArea</label>
-                    <input type="number" value={vegetationArea} onChange={(e) => setVegetationArea(Number(e.target.value))} required />
-                </div>
-                <div>
-                    <label>State</label>
-                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
-                </div>
-                <div>
-                    <label>Name</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div>
-                    <label>arableArea</label>
-                    <input type="number" value={arableArea} onChange={(e) => setArableArea(Number(e.target.value))} required />
-                </div>
-                <div>
-                    <label>totalArea</label>
-                    <input type="number" value={totalArea} onChange={(e) => setTotalArea(Number(e.target.value))} required />
-                </div>
-                <div>
-                    <label>City</label>
-                    <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
-                </div>
-                <button type="submit">{isEdit ? "Update" : "Save"}</button>
-                {savedSuccessFullyMessage && <p>Saved successfully!</p>}
-                {savedWithErrorMessage && <p>Something went wrong!</p>}
+            <h2>{isEdit ? "Edite a Fazenda" : "Crie uma Fazenda"}</h2>
+            <form
+                style={{
+                    display: 'grid',          // Define o layout como grid
+                    gridTemplateColumns: '1fr 1fr', // Duas colunas iguais
+                    gap: '20px',              // Espaçamento entre os itens
+                    position: 'relative',     // Necessário para posicionar o botão corretamente
+                    paddingBottom: '60px',    // Espaço inferior para o botão
+                }}
+                onSubmit={handleSubmit}>
+                <label style={{ marginRight: 20}}>Área de Vegetação</label>
+                <input type="number" value={vegetationArea} onChange={(e) => setVegetationArea(Number(e.target.value))} required />
+
+                <label style={{ marginRight: 20}}>Estado</label>
+                <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
+
+
+                <label style={{ marginRight: 20}}>Nome</label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+
+
+                <label style={{ marginRight: 20}}>Área de Cultivo</label>
+                <input type="number" value={arableArea} onChange={(e) => setArableArea(Number(e.target.value))} required />
+
+                <label style={{ marginRight: 20}}>Área Total</label>
+                <input type="number" value={totalArea} onChange={(e) => setTotalArea(Number(e.target.value))} required />
+
+                <label style={{ marginRight: 20}}>Cidade</label>
+                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
+
+                <button 
+                    type="submit"
+                    style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        right: '20px',
+                        marginLeft: '30px',
+                        cursor: 'pointer',
+                    }}
+                >{isEdit ? "Atualizar" : "Salvar"}</button>
+                {savedSuccessFullyMessage && <p>Salvo com sucesso!</p>}
+                {savedWithErrorMessage && <p>Algo deu errado!</p>}
             </form>
     </Modal>
     )

@@ -17,6 +17,6 @@ export default function CreateFarmButton() {
                     setModalIsOpen(true);
                 }
             }}
-        >Create Farm</button>
+        >Criar Fazenda</button>
     );
 }

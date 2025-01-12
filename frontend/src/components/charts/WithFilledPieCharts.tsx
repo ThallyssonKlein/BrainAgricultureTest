@@ -30,7 +30,7 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
     dataCulture.push(culture.farm_count);
   }
 
-  const landUseLabels = ["Arable Area", "Vegetation Area"];
+  const landUseLabels = ["Área de Cultivo", "Área de Vegetação"];
   const landUseData = [
     data.average_land_use.average_arable_area,
     data.average_land_use.average_vegetation_area,
@@ -38,7 +38,7 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
 
   const handleOnSlideClickGroupedByState = async (data: string) => {
     setCrops([])
-    const response = await API.get("/api/v1/farm?state=" + data + "&farmer_id=" + selectedOption)
+    const response = await API.get("/api/v1/farm?state=" + data + "&farmer_id=" + selectedOption.id)
 
     if (response.status === 200) {
       setFarms(response.data as IFarm[]);
@@ -47,7 +47,7 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
 
   const handleOnSlideClickGroupedByCulture = async (data: string) => {
     setFarms([])
-    const response = await API.get("/api/v1/crop?culture_name=" + data + "&farmer_id=" + selectedOption)
+    const response = await API.get("/api/v1/crop?culture_name=" + data + "&farmer_id=" + selectedOption.id)
 
     if (response.status === 200) {
       setCrops(response.data as ICrop[]);
@@ -57,13 +57,13 @@ export default function WithFilledPieCharts({ data }: WithFilledPieChartsProps):
   const handleOnSlideClickGroupedByArableAndVegetationArea = async (data: string) => {
     setCrops([])
     if (data === "Arable Area") {
-      const response = await API.get("/api/v1/farm?order_by=arable_area_desc&farmer_id=" + selectedOption)
+      const response = await API.get("/api/v1/farm?order_by=arable_area_desc&farmer_id=" + selectedOption.id)
 
       if (response.status === 200) {
         setFarms(response.data as IFarm[]);
       }
     } else {
-      const response = await API.get("/api/v1/farm?order_by=vegetation_area_desc&farmer_id=" + selectedOption)
+      const response = await API.get("/api/v1/farm?order_by=vegetation_area_desc&farmer_id=" + selectedOption.id)
 
       if (response.status === 200) {
         setFarms(response.data as IFarm[]);

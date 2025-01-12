@@ -11,5 +11,10 @@
         }
     ],
     "python.autoComplete.extraPaths": ["./backend"],
-    "python.analysis.extraPaths": ["./backend"]
+    "python.analysis.extraPaths": [
+        "./backend"
+    ],
+    "cSpell.words": [
+        "selectinload"
+    ]
 }

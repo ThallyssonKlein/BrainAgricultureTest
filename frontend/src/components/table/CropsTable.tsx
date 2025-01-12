@@ -64,10 +64,10 @@ export default function CropsTable(): JSX.Element {
                         setSelectedCrop(crop);
                         setModalIsOpen(true);
                       }}
-                    >Edit</button>
+                    >Editar</button>
                   </td>
                   <td>
-                    <button onClick={(_event) => handleDeleteCrop(crop.id)}>Delete</button>
+                    <button onClick={(_event) => handleDeleteCrop(crop.id)}>Excluir</button>
                   </td>
                 </tr>
               )) : crops?.map((crop) => (
@@ -77,7 +77,7 @@ export default function CropsTable(): JSX.Element {
                 >
                   <td>{crop.id}</td>
                   <td>{crop.date}</td>
-                  <td>{crop.culture_name}</td>
+                  <td>{crop.culture?.name}</td>
                   <td>
                     <button
                       onClick={() => {
@@ -86,10 +86,10 @@ export default function CropsTable(): JSX.Element {
                         setSelectedCrop(crop);
                         setModalIsOpen(true);
                       }}
-                    >Edit</button>
+                    >Editar</button>
                   </td>
                   <td>
-                    <button onClick={(_event) => handleDeleteCrop(crop.id)}>Delete</button>
+                    <button onClick={(_event) => handleDeleteCrop(crop.id)}>Excluir</button>
                   </td>
                 </tr>
               ))}
@@ -98,8 +98,11 @@ export default function CropsTable(): JSX.Element {
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
               <button 
                 style={{flex: 1}}
-                onClick={() => setModalIsOpen(true)}
-              >Create Crop</button>
+                onClick={() => {
+                  setISEdit(false);
+                  setModalIsOpen(true);
+                }}
+              >Criar Safra</button>
           </div>
         </div>
     )

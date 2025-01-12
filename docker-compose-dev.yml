@@ -20,6 +20,16 @@ services:
     depends_on:
       - postgres_db_brain_agriculture_test
     restart: unless-stopped
+  frontend_brain_agriculture_test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: frontend_brain_agriculture_test
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend_brain_agriculture_test
 
 volumes:
   postgres_data_brain_agriculture:

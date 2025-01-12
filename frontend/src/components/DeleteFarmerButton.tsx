@@ -18,6 +18,6 @@ export default function DeleteFarmerButton() {
     return (
         <button
             onClick={handleOnClick}
-        >Delete</button>
+        >Deletar</button>
     );
 }

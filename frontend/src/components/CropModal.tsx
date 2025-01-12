@@ -60,7 +60,6 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
             }
         }
         setRefreshCharts(previos => previos + 1);
-
     }
 
     useEffect(() => {
@@ -75,9 +74,17 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        console.log("---------")
+        console.log(selectedCulture);
+        console.log("---------")
         if (!selectedCulture) {
-            alert("Select one culture");
+            alert("Selecione uma cultura!");
             return;
+        }
+
+        if (!date) {
+            alert("Selecione uma data!");
+            return
         }
 
         const newCrop = { date, culture: { id: selectedCulture } };
@@ -89,16 +96,15 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 setTimeout(() => {
                     setSavedSuccessFullyMessage(false);
                 }, 2000);
+                refreshTablesAndCharts(isEdit, response);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);
                 }, 2000);
-
-                refreshTablesAndCharts(isEdit, response);
             }
         } else {
-            const response = await API.post(`/api/v1/farm/${selectedOption}/crop`, newCrop);
+            const response = await API.post(`/api/v1/farm/${selectedFarmId}/crop`, newCrop);
 
             if (response.status === 201) {
                 setSavedSuccessFullyMessage(true);
@@ -107,7 +113,6 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 }, 2000);
                 setDate("");
                 setSelectedCulture(null);
-
                 refreshTablesAndCharts(isEdit, response);
             } else {
                 setSavedWithErrorMessage(true);
@@ -120,7 +125,7 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
 
     useEffect(() => {
         (async () => {
-            const response = await API.get(`/api/v1/farmer/${selectedOption}/culture`);
+            const response = await API.get(`/api/v1/farmer/${selectedOption.id}/culture`);
             
             if (response.status === 200) {
                 setCultures(response.data as ICulture[]);
@@ -168,9 +173,9 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 return prevState ? prevState.filter(culture => culture.id !== id) : null;
             });
         } else if(response.status === 409){
-            alert("Culture is being used in a crop, cannot delete!");
+            alert("Cultura está sendo usada por alguma safra, delete elas primeiro!");
         } else {
-            alert("Error deleting!");
+            alert("Erro Deletando a Cultura!");
         }
       }
     }
@@ -212,13 +217,13 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
             >
                 &times;
             </button>
-            <h2>{isEdit ? "Edit Crop and Cultures" : "Create Crop and Cultures"}</h2>
+            <h2>{isEdit ? "Editar Safras e Culturas" : "Criar Safras e Culturas"}</h2>
             <form onSubmit={handleSubmit}>
                 <div>
-                    <label>Date: </label>
+                    <label>Data: </label>
                     <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
                 </div>
-                <h1>Select One Culture or Create It</h1>
+                <h3>Selecione uma Cultura ou Crie Uma</h3>
                 {cultures && cultures.length > 0 ? 
                     <div>
                         <table border={1} style={{ width: '100%', marginBottom: '20px', borderCollapse: 'collapse' }}>
@@ -238,7 +243,7 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                                         onClick={() => {
                                             setSelectedCulture(culture.id)
                                         }}
-                                        style={{ cursor: 'pointer', background: selectedCulture === culture.id ? 'red' : 'white' }}
+                                        style={{ cursor: 'pointer', background: selectedCulture === culture.id ? '#adacac' : 'white' }}
                                     >
                                         <td>{culture.id}</td>
                                         <td>{culture.name}</td>
@@ -250,10 +255,10 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                                                 setSelectedCulture(culture.id);
                                                 setCultureModalIsOpen(true);
                                             }}
-                                            >Edit</button>
+                                            >Editar</button>
                                         </td>
                                         <td>
-                                            <button onClick={(event) => handleDeleteCulture(culture.id)}>Delete</button>
+                                            <button onClick={(_event) => handleDeleteCulture(culture.id)}>Excluir</button>
                                         </td>
                                     </tr>                  
                                 ))
@@ -262,19 +267,30 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                         </table>
                         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                             <button 
-                                style={{flex: 1}}
+                                style={{flex: 1, marginBottom: 50}}
                                 onClick={() => {
                                     setIsEditCulture(false);
                                     setCultureModalIsOpen(true);
                                 }}
-                            >Create Culture</button>
+                            >Criar Cultura</button>
                         </div>
                     </div>
                     : "Loading cultures..."                  
                 }
-                <button type="submit">{isEdit ? "Update" : "Save"}</button>
-                {savedSuccessFullyMessage && <p>Saved successfully!</p>}
-                {savedWithErrorMessage && <p>Something went wrong!</p>}
+                 <button
+                    type="submit"
+                    style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        right: '20px',
+                        marginLeft: '30px',
+                        cursor: 'pointer',
+                    }}
+                >
+                    {isEdit ? "Atualizar" : "Salvar"}
+                </button>
+                {savedSuccessFullyMessage && <p>Salvo com sucesso!</p>}
+                {savedWithErrorMessage && <p>Algo deu errado!</p>}
             </form>
     </Modal>
     )

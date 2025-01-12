@@ -13,9 +13,9 @@ class InboundCropAdapter:
         else:
             raise BadRequestError("Invalid query parameters")
     
-    async def create_crop_for_a_farm_and_return_culture_name(self, farm_id: int, crop: CropSchema):
+    async def create_crop_for_a_farm_and_return_culture(self, farm_id: int, crop: CropSchema):
         c = crop.model_dump()
-        return await self.outbound_crop_repository_port.create_crop_for_a_farm_and_return_culture_name(farm_id, c)
+        return await self.outbound_crop_repository_port.create_crop_for_a_farm_and_return_with_culture(farm_id, c)
 
     async def update_crop_by_id(self, crop_id: int, crop: CropSchema):
         c = crop.model_dump()

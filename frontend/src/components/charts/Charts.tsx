@@ -5,17 +5,17 @@ import API from "../../API";
 import { IData } from "./IData";
 
 export default function Charts() {
-    const { selectedOption, refreshCharts: refreshKey } = useContext(OptionsContext);
+    const { selectedOption, refreshCharts } = useContext(OptionsContext);
     const [PieChartsComponent, setPieChartsComponent] = React.useState<JSX.Element | null>(null);
     const [data, setData] = React.useState<IData | null>(null);
 
     useEffect(() => {
         if (selectedOption) {
-            API.get(`/api/v1/dashboard/${selectedOption}`).then((response) => {
+            API.get(`/api/v1/dashboard/${selectedOption.id}`).then((response) => {
                 setData(response.data as IData);
             });
         }
-    }, [selectedOption, refreshKey]);
+    }, [selectedOption, refreshCharts]);
 
     useEffect(() => {
         if (data) {
@@ -28,8 +28,8 @@ export default function Charts() {
             {data ? 
                 <div>
                     <div className="counts-container">
-                        <h1 className="count">Total Farms: {data ? data.farm_count : null}</h1>
-                        <h1 className="count">Total Hectares: {data ? data.total_hectares : null}</h1>
+                        <h1 className="count">Total de Fazendas: {data ? data.farm_count : null}</h1>
+                        <h1 className="count">Total de Hectares: {data ? data.total_hectares : null}</h1>
                     </div>
                     {
                         (data.farm_counts_grouped_by_state && data.farm_counts_grouped_by_state.length > 0) 
@@ -38,8 +38,8 @@ export default function Charts() {
                         ?
 
                         <div className="charts-container">
-                            <h1>Charts</h1>
-                            <h2>Click on the slices of the charts to see the details</h2>
+                            <h1>Gráficos</h1>
+                            <h2>Clique nas fatias do gráfico pra ver os detalhes</h2>
                             {selectedOption && PieChartsComponent ? PieChartsComponent : null }
                         </div>
                         : null

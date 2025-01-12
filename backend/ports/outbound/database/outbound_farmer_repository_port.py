@@ -65,13 +65,17 @@ class OutboundFarmerRepositoryPort():
             raise e
     
     async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str):
-        stmt = select(Farmer).offset(offset - 1).limit(limit)
+        try:
+            stmt = select(Farmer).offset(offset - 1).limit(limit)
         
-        if query:
-            stmt = stmt.where(Farmer.name.ilike(f"%{query}%"))
+            if query:
+                stmt = stmt.where(Farmer.name.ilike(f"%{query}%"))
 
-        result = await self.session.execute(stmt)
-        return result.scalars().all()
+            result = await self.session.execute(stmt)
+            return result.scalars().all()
+        except Exception as e:
+            await self.session.rollback()
+            raise e
     
     async def delete_farmer_by_id(self, farmer_id: int):
         try:

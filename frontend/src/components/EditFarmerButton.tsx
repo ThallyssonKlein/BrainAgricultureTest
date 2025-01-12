@@ -6,10 +6,11 @@ export default function EditFarmerButton() {
 
     return (
         <button
+            style={{ marginRight: 10 }}
             onClick={() => {
                 setISEdit(true);
                 setModalIsOpen(true);
             }}
-        >Edit</button>
+        >Editar</button>
     );
 }
