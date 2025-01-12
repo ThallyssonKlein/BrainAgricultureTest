@@ -6,7 +6,8 @@ import { OptionsContext } from '../../context/OptionsContext';
 import { TablesContext } from '../../context/TablesContext';
 
 export const PaginatedSelect: React.FC = () => {
-  const { selectedOption, setSelectedOption } = useContext(OptionsContext)
+  const { selectedOption, setSelectedOption } = useContext(OptionsContext);
+  const { setFarms, setCrops } = useContext(TablesContext);
   const [options, setOptions] = useState<IFarmer[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
@@ -14,34 +15,54 @@ export const PaginatedSelect: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const { setFarms, setCrops } = useContext(TablesContext);
 
-  const loadOptions = useCallback(async (page: number, searchTerm: string) => {
-    const fetchOptions = async (page: number, searchTerm: string): Promise<IFarmer[]> => {
-      const response = await API.get(`/api/v1/farmer?page=${page}&limit=10&query=${searchTerm}`);
+  const loadOptions = useCallback(
+    async (page: number, searchTerm: string) => {
+      const fetchOptions = async (page: number, searchTerm: string): Promise<IFarmer[]> => {
+        const response = await API.get(`/api/v1/farmer?page=${page}&limit=10&query=${searchTerm}`);
 
-      if (response.status !== 200) {
-        alert('Error fetching farmers!');
+        if (response.status !== 200) {
+          alert('Error fetching farmers!');
+          return [];
+        }
+
+        return response.data as IFarmer[];
+      };
+
+      setIsLoading(true);
+      const newOptions: IFarmer[] = await fetchOptions(page, searchTerm);
+
+      if (page === 1) {
+        setOptions(newOptions);
+        if (newOptions.length > 0) {
+          const firstOption = newOptions[0];
+          setSelectedOption(firstOption);
+          setSearchTerm(firstOption.name);
+          setFarms([]);
+          setCrops([]);
+        }
+      } else {
+        setOptions((prevOptions) => [...prevOptions, ...newOptions]);
       }
 
-      return (response.data as IFarmer[]);
-    };
-
-    setIsLoading(true);
-    const newOptions: IFarmer[] = await fetchOptions(page, searchTerm);
-    if (newOptions.length === 0) {
-      setHasMore(false);
-    } else {
-      setOptions((prevOptions) => [...prevOptions, ...newOptions]);
-    }
-    setIsLoading(false);
-  }, [setOptions]);
+      setHasMore(newOptions.length > 0);
+      setIsLoading(false);
+    },
+    [setOptions, setSelectedOption, setFarms, setCrops]
+  );
 
   useEffect(() => {
-    if (isOpen) {
+    if (searchTerm !== '' || page === 1) {
+      setPage(1);
+      loadOptions(1, searchTerm);
+    }
+  }, [searchTerm, loadOptions, page]);
+
+  useEffect(() => {
+    if (isOpen && page > 1) {
       loadOptions(page, searchTerm);
     }
-  }, [page, searchTerm, isOpen, loadOptions]);
+  }, [page, isOpen, loadOptions, searchTerm]);
 
   const handleScroll = () => {
     if (!dropdownRef.current) return;
@@ -53,16 +74,13 @@ export const PaginatedSelect: React.FC = () => {
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    setOptions([]); 
-    setPage(1);
-    setHasMore(true);
+    const value = event.target.value;
+    setSearchTerm(value);
   };
 
   const handleDropdownClick = () => {
     setIsOpen((prevIsOpen) => !prevIsOpen);
     if (!isOpen) {
-      setOptions([]);
       setPage(1);
       setHasMore(true);
     }
@@ -70,10 +88,10 @@ export const PaginatedSelect: React.FC = () => {
 
   const handleOptionClick = (name: string, farmer: IFarmer) => {
     setSelectedOption(farmer);
-    setCrops([]);
     setFarms([]);
+    setCrops([]);
     setSearchTerm(name);
-    setTimeout(() => setIsOpen(false), 100)
+    setTimeout(() => setIsOpen(false), 100);
   };
 
   return (
@@ -93,17 +111,20 @@ export const PaginatedSelect: React.FC = () => {
           onScroll={handleScroll}
           role="listbox"
         >
-          {options.map((option: IFarmer, index) => (
-            <div
-              key={index}
-              className={`option-item ${selectedOption === option.name ? 'selected' : ''}`}
-              onClick={() => handleOptionClick(option.name, option)}
-            >
-              {option.name}
-            </div>
-          ))}
+          {options.length > 0 ? (
+            options.map((option: IFarmer) => (
+              <div
+                key={option.id}
+                className={`option-item ${selectedOption?.id === option.id ? 'selected' : ''}`}
+                onClick={() => handleOptionClick(option.name, option)}
+              >
+                {option.name}
+              </div>
+            ))
+          ) : (
+            !isLoading && <div className="no-results">No results found</div>
+          )}
           {isLoading && <div className="loading">Loading...</div>}
-          {!hasMore && <div className="no-more">No more options</div>}
         </div>
       )}
     </div>
