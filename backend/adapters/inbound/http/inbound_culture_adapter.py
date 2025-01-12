@@ -20,8 +20,13 @@ class InboundCultureAdapter:
     async def get_cultures_for_a_farmer(self, farmer_id: int):
         return await self.outbound_culture_repository_port.get_cultures_for_a_farmer(farmer_id)
 
-    async def update_culture_by_id(self, culture_id: int, culture: dict):
-        return await self.outbound_culture_repository_port.update_culture_by_id(culture_id, culture)
+    async def update_culture_by_id(self, culture_id: int, culture: CultureSchema):
+        c = culture.model_dump()
+        try:
+            return await self.outbound_culture_repository_port.update_culture_by_id(culture_id, c)
+        except ValueError as err:
+            if err._message().find("Culture not found.") != -1:
+                raise NotFoundError("Culture not found.")
     
     async def delete_culture_by_id(self, culture_id: int):
         result = None

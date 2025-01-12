@@ -51,15 +51,26 @@ class OutboundCultureRepositoryPort:
         return result.scalar_one_or_none()
     
     async def update_culture_by_id(self, culture_id: int, culture: dict):
-        d = culture.model_dump()
-        await self.session.execute(
-            update(Culture)
-            .where(Culture.id == culture_id)
-            .values(**d)
-        )
-        await self.session.commit()
-        result = await self.session.execute(select(Culture).where(Culture.id == culture_id))
-        return result.scalar_one()
+        try:
+            stmt = (
+                update(Culture)
+                .where(Culture.id == culture_id)
+                .values(**culture)
+                .returning(Culture)
+            )
+
+            result = await self.session.execute(stmt)
+            await self.session.commit()
+
+            updated_culture = result.scalars().first()
+
+            if not updated_culture:
+                raise ValueError("Culture not found.")
+
+            return updated_culture
+        except Exception as e:
+            await self.session.rollback()
+            raise e
 
     async def delete_culture_by_id(self, culture_id: int):
         try:
