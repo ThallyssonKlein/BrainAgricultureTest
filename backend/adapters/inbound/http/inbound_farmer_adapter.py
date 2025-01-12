@@ -1,7 +1,5 @@
 from adapters.inbound.http.schemas import FarmerSchema
 from ports.inbound.http.error.conflict_error import ConflictError
-from domain.farm.farm_service import FarmService
-from domain.farm.invalid_area_error import InvalidAreaError
 from domain.person.invalid_cnpj_error import InvalidCNPJError
 from domain.person.invalid_cpf_error import InvalidCPFError
 from domain.person.person_service import PersonService
@@ -15,12 +13,11 @@ from sqlalchemy.exc import IntegrityError
 
 class InboundFarmerAdapter:
     def __init__(self, outbound_farmer_repository_port: OutboundFarmerRepositoryPort, 
-                 farm_service: FarmService, person_service: PersonService,
+                 person_service: PersonService,
                  outbound_culture_repository_port: OutboundCultureRepositoryPort,
                  outbound_crop_repository_port: OutboundCropRepositoryPort,
                  outbound_farm_repository_port: OutboundFarmRepositoryPort):
         self.outbound_farmer_repository_port = outbound_farmer_repository_port
-        self.farm_service = farm_service
         self.person_service = person_service
         self.outbound_culture_repository_port = outbound_culture_repository_port
         self.outbound_crop_repository_port = outbound_crop_repository_port

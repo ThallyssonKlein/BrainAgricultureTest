@@ -6,14 +6,16 @@ import { FarmModalContext } from '../../context/FarmModalContext';
 import API from '../../API';
 import { OptionsContext } from '../../context/OptionsContext';
 
-const FarmTable: React.FC = () => {
-  const { setFarms, farms, crops, setSelectedFarmId: setSelectedFarm, selectedFarmId: selectedFarm } = useContext(TablesContext);
+const Tables: React.FC = () => {
+  const { setFarms, farms, crops, setSelectedFarmId, selectedFarmId } = useContext(TablesContext);
+
   const { setModalIsOpen, setISEdit } = useContext(FarmModalContext);
+
   const { setRefreshCharts } = useContext(OptionsContext);
 
   const handleFarmClick = (farmId: number) => {
     const selectedFarm = farms.find((farm) => farm.id === farmId);
-    setSelectedFarm(selectedFarm ? selectedFarm.id : null);
+    setSelectedFarmId(selectedFarm ? selectedFarm.id : null);
   };
 
   const handleDeleteFarm = async (id: number) => {
@@ -22,11 +24,9 @@ const FarmTable: React.FC = () => {
         const response = await API.delete(`/api/v1/farm/${id}`);
 
         if (response.status === 200){
-            setSelectedFarm(null);
+            setSelectedFarmId(null);
             setFarms(farms.filter((farm) => farm.id !== id));
             setRefreshCharts(previos => previos + 1);
-        } else if(response.status === 409){
-            alert("Culture is being used in a crop, cannot delete!");
         } else {
             alert("Error deleting!");
         }
@@ -58,7 +58,7 @@ const FarmTable: React.FC = () => {
               <tr
                 key={farm.id}
                 onClick={() => handleFarmClick(farm.id)}
-                style={{ cursor: 'pointer', background: selectedFarm === farm.id ? '#f0f0f0' : 'white' }}
+                style={{ cursor: 'pointer', background: selectedFarmId === farm.id ? '#f0f0f0' : 'white' }}
               >
                 <td>{farm.id}</td>
                 <td>{farm.name}</td>
@@ -71,8 +71,8 @@ const FarmTable: React.FC = () => {
                   <button
                     onClick={() => {
                       setISEdit(true);
-                      setSelectedFarm(null);
-                      setSelectedFarm(farm);
+                      setSelectedFarmId(null);
+                      setSelectedFarmId(farm.id);
                       setModalIsOpen(true);
                     }}
                   >Edit</button>
@@ -85,7 +85,7 @@ const FarmTable: React.FC = () => {
           </tbody>
         </table>
 
-        {selectedFarm && (
+        {selectedFarmId && (
           <div>
             <h3>Crops</h3>
             <CropsTable />
@@ -105,4 +105,4 @@ const FarmTable: React.FC = () => {
   );
 };
 
-export default FarmTable;
+export default Tables;

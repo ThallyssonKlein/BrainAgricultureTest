@@ -13,11 +13,14 @@ export default function FarmModal() {
     const [arableArea, setArableArea] = useState<number | undefined>(0);
     const [totalArea, setTotalArea] = useState<number | undefined>(0);
     const [city, setCity] = useState<string | undefined>("");
+
     const { modalIsOpen, setModalIsOpen, isEdit } = useContext(FarmModalContext);
+
     const { selectedOption, setRefreshCharts } = useContext(OptionsContext);
+    const { farms, setFarms, selectedFarmId } = useContext(TablesContext);
+
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
-    const { farms, setFarms, selectedFarmId } = useContext(TablesContext);
 
     const selectedFarm = farms.find(farm => farm.id === selectedFarmId);
 

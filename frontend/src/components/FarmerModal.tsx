@@ -9,13 +9,16 @@ export default function FarmerModal() {
     const [state, setState] = useState("");
     const [city, setCity] = useState("");
     const [document, setDocument] = useState("");
+
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
+
     const {
         isEdit,
         modalIsOpen,
         setModalIsOpen
     } = useContext(FarmerModalContext);
+    
     const { selectedOption } = useContext(OptionsContext);
 
     useEffect(() => {

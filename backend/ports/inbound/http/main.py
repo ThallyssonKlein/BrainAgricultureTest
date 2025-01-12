@@ -17,7 +17,6 @@ from ports.outbound.database.outbound_farmer_repository_port import OutboundFarm
 from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 from ports.outbound.database.outbound_crop_repository_port import OutboundCropRepositoryPort
 from ports.outbound.database.outbound_culture_repository_port import OutboundCultureRepositoryPort
-from domain.farm.farm_service import FarmService
 from domain.person.person_service import PersonService
 from ports.outbound.database.db import DatabaseSingleton
 
@@ -46,7 +45,6 @@ async def init_dependencies(db: AsyncSession):
 
     inbound_farmer_adapter = InboundFarmerAdapter(
         outbound_farmer_repository_port,
-        FarmService(outbound_farm_repository_port),
         PersonService(),
         outbound_culture_repository_port,
         outbound_crop_repository_port,

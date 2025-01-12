@@ -53,12 +53,10 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
             })
             );
         }
-        setCultures(prevState => {
-            return prevState ? prevState.filter(culture => culture.id !== createdCulture.id) : null;
-        });
         setModalIsOpen(false);
         setRefreshCropModal(previous => previous + 1);
     }
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const newCulture = { name };
@@ -67,14 +65,28 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
 
             if (response.status === 200) {
                 refreshCultures(response);
+                setCultures(prevState => {
+                    if (prevState && prevState.length > 0) {
+                        const culture = prevState.find(culture => culture.id === createdCulture.id);
+                        const arrayWithoutCulture = prevState.filter(culture => culture.id !== createdCulture.id);
+                        return [...arrayWithoutCulture, culture as ICulture];
+                    }
+                    return prevState;
+                });        
             } else {
                 alert("Error editing culture!")
             }
         } else {
             const response = await API.post(`/api/v1/farmer/${selectedOption}/culture`, newCulture);
 
-            if (response.status === 201) {
+            if (response.status !== 201) {
                 refreshCultures(response);
+                setCultures(prevState => {
+                    if (prevState && prevState.length > 0) {
+                        return [...prevState, response.data as ICulture];
+                    }
+                    return prevState;
+                })
             } else {
                 alert("Error creating culture!")
             }

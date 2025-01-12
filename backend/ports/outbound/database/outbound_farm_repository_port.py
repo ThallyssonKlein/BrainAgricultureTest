@@ -120,6 +120,15 @@ class OutboundFarmRepositoryPort():
             await self.session.commit()
 
             created_farm = result.scalars().first()
+
+            if created_farm:
+                await self.session.refresh(
+                    created_farm,
+                    attribute_names=["crops"]
+                )
+                for crop in created_farm.crops:
+                    await self.session.refresh(crop, attribute_names=["culture"])
+
             return created_farm
         except Exception as e:
             await self.session.rollback()
@@ -146,6 +155,17 @@ class OutboundFarmRepositoryPort():
             await self.session.commit()
 
             updated_farm = result.scalars().first()
+
+            if updated_farm:
+                await self.session.refresh(
+                    updated_farm,
+                    attribute_names=["crops"]
+                )
+                for crop in updated_farm.crops:
+                    await self.session.refresh(
+                        crop,
+                        attribute_names=["culture"]
+                    )
 
             return updated_farm
         except Exception as e:

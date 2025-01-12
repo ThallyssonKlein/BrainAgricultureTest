@@ -6,6 +6,7 @@ import CultureModal from "./CultureModal";
 import { ICrop, ICulture, IFarm } from "./IFarmer";
 import { CropModalContext } from "../context/CropModalContext";
 import { TablesContext } from "../context/TablesContext";
+import { ApiResponse } from "apisauce";
 
 interface ICreateCropModalProps {
     selectedCrop?: ICrop | null;
@@ -24,27 +25,39 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
     const [refreshCropModal, setRefreshCropModal] = useState(0);
     const { setCrops, farms, selectedFarmId, setFarms } = useContext(TablesContext);
 
-    const refreshTablesAndCharts = () => {
+    const refreshTablesAndCharts = (isEdit: boolean, response: ApiResponse<unknown, unknown>) => {
         const selectedFarm = farms.find(farm => farm.id === selectedFarmId);
+        const createdCrop = response?.data as ICrop;
         if (selectedFarm) {
-            setFarms(prevFarms => prevFarms.map(farm => 
-                farm.id === selectedFarmId 
-                ? { ...farm, crops: farm.crops?.map(crops => {
-                    if (crops.id === selectedCrop?.id) {
-                        crops.date = date;
-                    }
-                    return crops;
-                }) || [] } 
-                : farm
-            ));
+            if (isEdit) {
+                setFarms(prevFarms => prevFarms.map(farm => 
+                    farm.id === selectedFarmId 
+                    ? { ...farm, crops: farm.crops?.map(crop => {
+                        if (crop.id === createdCrop?.id) {
+                            crop = createdCrop
+                        }
+                        return crop;
+                    }) || [] } 
+                    : farm
+                ));
+            } else {
+                setFarms(prevFarms => prevFarms.map(farm => 
+                    farm.id === selectedFarmId 
+                    ? { ...farm, crops: farm.crops ? [...farm.crops, createdCrop] : [createdCrop] } 
+                    : farm
+                ));
+            }
         } else {
-            setCrops((previousCrops) => previousCrops.map(crop => {
-                if (crop.id === selectedCrop?.id) {
-                    crop.date = date;
-                }
-                return crop;
-            })
-          );
+            if (isEdit) {
+                setCrops((previousCrops) => previousCrops.map(crop => {
+                    if (crop.id === createdCrop?.id) {
+                        crop = createdCrop
+                    }
+                    return crop;
+                }));
+            } else {
+                setCrops((previousCrops) => previousCrops.concat(createdCrop));
+            }
         }
         setRefreshCharts(previos => previos + 1);
 
@@ -82,7 +95,7 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                     setSavedWithErrorMessage(false);
                 }, 2000);
 
-                refreshTablesAndCharts();
+                refreshTablesAndCharts(isEdit, response);
             }
         } else {
             const response = await API.post(`/api/v1/farm/${selectedOption}/crop`, newCrop);
@@ -95,7 +108,7 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 setDate("");
                 setSelectedCulture(null);
 
-                refreshTablesAndCharts();
+                refreshTablesAndCharts(isEdit, response);
             } else {
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
