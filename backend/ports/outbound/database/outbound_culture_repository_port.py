@@ -62,7 +62,7 @@ class OutboundCultureRepositoryPort(Loggable):
             stmt = (
                 update(Culture)
                 .where(Culture.id == culture_id)
-                .values(**culture)
+                .values(name=culture["name"])
                 .returning(Culture)
             )
 

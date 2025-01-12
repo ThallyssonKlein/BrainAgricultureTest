@@ -1,13 +1,13 @@
-from typing import List
+from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import date
 
 class CultureSchema(BaseModel):
     name: str
+    old_name: Optional[str] = None
 
 class ResumedCultureSchema(BaseModel):
     id: int
-
 
 class CropSchema(BaseModel):
     date: date

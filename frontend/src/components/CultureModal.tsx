@@ -59,8 +59,9 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
     
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newCulture = { name };
+        let newCulture: { name: string; old_name?: string } = { name };
         if (isEdit) {
+            newCulture = { ...newCulture, old_name: selectedCultureObject?.name };
             const response = await API.put(`/api/v1/culture/${selectedCultureObject?.id}`, newCulture);
             const createdCulture = response.data as ICulture
             if (response.status === 200) {
@@ -73,6 +74,8 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
                     }
                     return prevState;
                 });        
+            } else if (response.status === 409) {
+                alert("Cultura já existe!")
             } else {
                 alert("Erro editando cultura!")
             }
@@ -87,6 +90,8 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
                     }
                     return prevState;
                 })
+            } else if (response.status === 409) {
+                alert("Cultura já existe!")
             } else {
                 alert("Erro criando cultura!")
             }

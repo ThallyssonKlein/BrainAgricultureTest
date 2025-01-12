@@ -18,7 +18,7 @@ class InboundCultureAdapter(Loggable):
             self.log.info(f"Creating culture for farmer with id: {farmer_id} and data: {c}", trace_id)
             return await self.culture_service.create_culture_for_a_farmer(farmer_id, c, trace_id)
         except CultureAlreadyExistsError as err:
-            self.log.error(err.get_message(), trace_id)
+            self.log.error(err.get_message, trace_id)
             raise ConflictError(err.get_message)
     
     async def get_cultures_for_a_farmer(self, farmer_id: int, trace_id: str):
@@ -29,11 +29,14 @@ class InboundCultureAdapter(Loggable):
         c = culture.model_dump()
         try:
             self.log.info(f"Updating culture with id: {culture_id} and data: {c}", trace_id)
-            return await self.outbound_culture_repository_port.update_culture_by_id(culture_id, c, trace_id)
+            return await self.culture_service.update_culture_by_id(culture_id, c, trace_id)
         except ValueError as err:
             self.log.error(err._message(), trace_id)
             if err._message().find("Culture not found.") != -1:
                 raise NotFoundError("Culture not found.")
+        except CultureAlreadyExistsError as err:
+            self.log.error(err.get_message, trace_id)
+            raise ConflictError(err.get_message)
     
     async def delete_culture_by_id(self, culture_id: int, trace_id: str):
         result = None

@@ -44,10 +44,6 @@ app.add_middleware(
 
 app.add_middleware(UuidMiddleware)
 
-import logging
-
-logging.getLogger("sqlalchemy.engine").disabled = True
-
 async def init_dependencies(db: AsyncSession):
     outbound_farmer_repository_port = OutboundFarmerRepositoryPort(db)
     outbound_culture_repository_port = OutboundCultureRepositoryPort(db)

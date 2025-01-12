@@ -22,7 +22,7 @@ class DatabaseSingleton:
 
             DATABASE_URL = f"postgresql+asyncpg://{config.get('db')['user']}:{quote_plus(config.get('db')['password'])}@{config.get('db')['host']}:{config.get('db')['port']}/{config.get('db')['database']}"
 
-            engine = create_async_engine(DATABASE_URL, echo=True)
+            engine = create_async_engine(DATABASE_URL, echo=False)
             self.async_session = sessionmaker(
                 bind=engine, class_=AsyncSession, expire_on_commit=False
             )
