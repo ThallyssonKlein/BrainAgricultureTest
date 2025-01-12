@@ -65,35 +65,44 @@ class OutboundCropRepositoryPort:
             raise e
     
     async def update_crop_by_id(self, crop_id: int, crop: dict):        
-        stmt_update = (
-            update(Crop)
-            .where(Crop.id == crop_id)
-            .values(
-                date=crop["date"],
-                culture_id=crop["culture"]["id"],
+        try:
+            stmt_update = (
+                update(Crop)
+                .where(Crop.id == crop_id)
+                .values(
+                    date=crop["date"],
+                    culture_id=crop["culture"]["id"],
+                )
+                .execution_options(synchronize_session="fetch")
             )
-            .execution_options(synchronize_session="fetch")
-        )
-        await self.session.execute(stmt_update)
-        await self.session.commit()
-        
-        stmt_select = (
-            select(
-                Crop.id,
-                Crop.date,
-                Culture.name.label("culture_name"),
-                Culture.id.label("culture_id"),
-                Farm.id.label("farm_id"),
+            await self.session.execute(stmt_update)
+            await self.session.commit()
+            
+            stmt_select = (
+                select(
+                    Crop.id,
+                    Crop.date,
+                    Culture.name.label("culture_name"),
+                    Culture.id.label("culture_id"),
+                    Farm.id.label("farm_id"),
+                )
+                .join(Culture, Culture.id == Crop.culture_id)
+                .join(Farm, Farm.id == Crop.farm_id)
+                .where(Crop.id == crop_id)
             )
-            .join(Culture, Culture.id == Crop.culture_id)
-            .join(Farm, Farm.id == Crop.farm_id)
-            .where(Crop.id == crop_id)
-        )
-        result = await self.session.execute(stmt_select)
-        return result.mappings().first()
+            result = await self.session.execute(stmt_select)
+            return result.mappings().first()
+        except Exception as e:
+            await self.session.rollback()
+            raise e
 
     async def delete_crop_by_id(self, crop_id: int):
-        stmt = delete(Crop).where(Crop.id == crop_id)
-        await self.session.execute(stmt)
-        await self.session.commit()
+        try:
+            stmt = delete(Crop).where(Crop.id == crop_id)
+            result = await self.session.execute(stmt)
+            await self.session.commit()
+            return result
+        except Exception as e:
+            await self.session.rollback()
+            raise e
 

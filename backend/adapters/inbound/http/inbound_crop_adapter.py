@@ -1,5 +1,6 @@
 from adapters.inbound.http.schemas import CropSchema
 from ports.inbound.http.error.bad_request_error import BadRequestError
+from ports.inbound.http.error.not_found_error import NotFoundError
 from ports.outbound.database.outbound_crop_repository_port import OutboundCropRepositoryPort
 
 class InboundCropAdapter:
@@ -21,4 +22,6 @@ class InboundCropAdapter:
         return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, c)
     
     async def delete_crop_by_id(self, crop_id: int):
-        await self.outbound_crop_repository_port.delete_crop_by_id(crop_id)
+        result = await self.outbound_crop_repository_port.delete_crop_by_id(crop_id)
+        if result.rowcount == 0:
+            raise NotFoundError("Crop not found")
