@@ -11,7 +11,6 @@ class DashboardController:
             methods=["GET"]
         )
 
-
     async def get_dashboard_data(self, farmer_id: int = Path(..., description="The ID of the farmer")):
         return await self.dashboard_adapter.get_dashboard_data(farmer_id)
 

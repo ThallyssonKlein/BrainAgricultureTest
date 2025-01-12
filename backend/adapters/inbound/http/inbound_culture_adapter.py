@@ -11,14 +11,14 @@ class InboundCultureAdapter:
         self.culture_service = culture_service
 
     async def create_culture_for_a_farmer(self, farmer_id: int, culture: CultureSchema):
-        c = culture.dict()
+        c = culture.model_dump()
         try:
             return await self.culture_service.create_culture_for_a_farmer(farmer_id, c)
         except CultureAlreadyExistsError as err:
             raise ConflictError(err.get_message)
     
-    async def get_cultures_for_a_farmer_id(self, farmer_id: int):
-        return await self.outbound_culture_repository_port.get_cultures_for_a_farmer_id(farmer_id)
+    async def get_cultures_for_a_farmer(self, farmer_id: int):
+        return await self.outbound_culture_repository_port.get_cultures_for_a_farmer(farmer_id)
 
     async def update_culture_by_id(self, culture_id: int, culture: dict):
         return await self.outbound_culture_repository_port.update_culture_by_id(culture_id, culture)

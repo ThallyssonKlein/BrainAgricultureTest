@@ -15,7 +15,7 @@ class FarmController:
 
         self.router.add_api_route(
             "/api/v1/farm", 
-            self.find_farm, 
+            self.find_farms, 
             methods=["GET"]
         )
         self.router.add_api_route(
@@ -29,7 +29,7 @@ class FarmController:
             methods=["DELETE"]
         )
 
-    async def find_farm(self, farmer_id: int, state: str = Query(None), order_by: str = Query(None)):
+    async def find_farms(self, farmer_id: int, state: str = Query(None), order_by: str = Query(None)):
         if state:
             return await self.find_farm_by_farmer_id_and_state(farmer_id, state)
         elif order_by == "vegetation_area_desc":

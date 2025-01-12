@@ -39,7 +39,7 @@ class InboundFarmerAdapter:
 
 
     async def create_farmer(self, farmer_schema: FarmerSchema):
-        farmer_data = farmer_schema.dict()
+        farmer_data = farmer_schema.model_dump()
         
         self.__farmer_validations(farmer_data)
 
@@ -51,7 +51,7 @@ class InboundFarmerAdapter:
                 raise ConflictError("Farmer already exists")
     
     async def update_farmer(self, farmer_id: int, farmer_schema: FarmerSchema):
-        farmer_data = farmer_schema.dict()
+        farmer_data = farmer_schema.model_dump()
         farmer_data['id'] = farmer_id
 
         self.__farmer_validations(farmer_data)

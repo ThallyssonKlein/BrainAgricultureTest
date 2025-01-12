@@ -83,8 +83,7 @@ class OutboundFarmRepositoryPort():
                     selectinload(Farm.crops).selectinload(Crop.culture)
                 )
         )
-        farms = result.scalars().all()
-        return [farm.__dict__ for farm in farms]
+        return result.mappings().all()
 
             
     async def find_farms_ordered_by_vegetation_area_desc_by_farmer_id(self, farmer_id: int):
@@ -128,29 +127,31 @@ class OutboundFarmRepositoryPort():
 
 
     async def update_farm_by_id(self, farm_id: int, farm: dict):
-        d = farm.dict()
-        await self.session.execute(
-            update(Farm)
-            .where(Farm.id == farm_id)
-            .values(
-                name=d["name"],
-                arable_area=d["arable_area"],
-                vegetation_area=d["vegetation_area"],
-                total_area=d["total_area"],
-                city=d["city"],
-                state=d["state"]
+        try:
+            stmt = (
+                update(Farm)
+                .where(Farm.id == farm_id)
+                .values(
+                    name=farm["name"],
+                    arable_area=farm["arable_area"],
+                    vegetation_area=farm["vegetation_area"],
+                    total_area=farm["total_area"],
+                    city=farm["city"],
+                    state=farm["state"]
+                )
+                .returning(Farm)
             )
-        )
-        await self.session.commit()
-        
-        result = await self.session.execute(
-            select(Farm)
-            .where(Farm.id == farm_id)
-            .options(
-                selectinload(Farm.crops).selectinload(Crop.culture)
-            )
-        )
-        return result.scalars().first()
+
+            result = await self.session.execute(stmt)
+            await self.session.commit()
+
+            updated_farm = result.scalars().first()
+
+            return updated_farm
+        except Exception as e:
+            await self.session.rollback()
+            raise e
+
 
     async def delete_farm_by_id(self, farm_id: int):
         await self.session.execute(

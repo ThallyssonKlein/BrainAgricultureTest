@@ -15,11 +15,12 @@ class InboundFarmAdapter:
         return await self.outbound_farm_repository_port.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id)
     
     async def create_farm_for_a_farmer(self, farmer_id: int, farm: FarmSchema):
-        d = farm.dict()
+        d = farm.model_dump()
         return await self.outbound_farm_repository_port.create_farm_for_a_farmer(farmer_id, d)
     
-    async def update_farm_by_id(self, farm_id: int, farm: dict):
-        return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, farm)
+    async def update_farm_by_id(self, farm_id: int, farm: FarmSchema):
+        f = farm.model_dump()
+        return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, f)
     
     async def delete_farm_by_id(self, farm_id: int):
         return await self.outbound_farm_repository_port.delete_farm_by_id(farm_id)

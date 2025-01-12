@@ -36,7 +36,7 @@ class OutboundCropRepositoryPort:
         return result.mappings().all()
 
     async def create_crop_for_a_farm(self, farm_id: int, crop: dict):
-        d = crop.dict()
+        d = crop.model_dump()
         new_crop = Crop(
             date=d["date"],
             farm_id=farm_id,
@@ -62,7 +62,7 @@ class OutboundCropRepositoryPort:
         return result.mappings().first()
     
     async def update_crop_by_id(self, crop_id: int, crop: dict):
-        d = crop.dict()
+        d = crop.model_dump()
         
         # Atualizar os dados do crop
         stmt_update = (

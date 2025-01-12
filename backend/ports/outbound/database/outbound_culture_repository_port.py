@@ -42,7 +42,7 @@ class OutboundCultureRepositoryPort:
             await self.session.rollback()
             raise e
     
-    async def get_cultures_for_a_farmer_id(self, farmer_id: int):
+    async def get_cultures_for_a_farmer(self, farmer_id: int):
         result = await self.session.execute(select(Culture).where(Culture.farmer_id == farmer_id))
         return result.scalars().all()
     
@@ -51,7 +51,7 @@ class OutboundCultureRepositoryPort:
         return result.scalar_one_or_none()
     
     async def update_culture_by_id(self, culture_id: int, culture: dict):
-        d = culture.dict()
+        d = culture.model_dump()
         await self.session.execute(
             update(Culture)
             .where(Culture.id == culture_id)
