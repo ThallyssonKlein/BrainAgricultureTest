@@ -7,15 +7,16 @@ class FarmController:
         self.router = APIRouter()
         self.inbound_farm_adapter = inbound_farm_adapter
         self.router.add_api_route(
-            "/api/v1/farm", 
-            self.find_farm, 
-            methods=["GET"]
-        )
-        self.router.add_api_route(
             "/api/v1/farmer/{farmer_id}/farm", 
             self.create_farm_for_a_farmer, 
             methods=["POST"], 
             status_code=201
+        )
+
+        self.router.add_api_route(
+            "/api/v1/farm", 
+            self.find_farm, 
+            methods=["GET"]
         )
         self.router.add_api_route(
             "/api/v1/farm/{farm_id}", 

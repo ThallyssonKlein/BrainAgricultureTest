@@ -1,3 +1,4 @@
+from adapters.inbound.http.schemas import FarmSchema
 from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 
 class InboundFarmAdapter:
@@ -13,8 +14,9 @@ class InboundFarmAdapter:
     async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int):
         return await self.outbound_farm_repository_port.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id)
     
-    async def create_farm_for_a_farmer(self, farmer_id: int, farm: dict):
-        return await self.outbound_farm_repository_port.create_farm_for_a_farmer(farmer_id, farm)
+    async def create_farm_for_a_farmer(self, farmer_id: int, farm: FarmSchema):
+        d = farm.dict()
+        return await self.outbound_farm_repository_port.create_farm_for_a_farmer(farmer_id, d)
     
     async def update_farm_by_id(self, farm_id: int, farm: dict):
         return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, farm)

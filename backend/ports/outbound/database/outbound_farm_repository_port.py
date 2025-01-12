@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func, delete, update
+from sqlalchemy import func, delete, insert, update
 from sqlalchemy.orm import selectinload
 
 from adapters.inbound.http.schemas import FarmSchema
@@ -101,20 +101,31 @@ class OutboundFarmRepositoryPort():
         result = await self.session.execute(query)
         return result.scalars().all()
     
-    async def create_farm_for_a_farmer(self, farmer_id: int, farm: FarmSchema):
-        farm = Farm(
-            name=farm.name,
-            arable_area=farm.arable_area,
-            vegetation_area=farm.vegetation_area,
-            total_area=farm.total_area,
-            farmer_id=farmer_id,
-            city=farm.city,
-            state=farm.state
+    async def create_farm_for_a_farmer(self, farmer_id: int, farm: dict):
+        stmt = (
+            insert(Farm)
+            .values(
+                name=farm["name"],
+                arable_area=farm["arable_area"],
+                vegetation_area=farm["vegetation_area"],
+                total_area=farm["total_area"],
+                farmer_id=farmer_id,
+                city=farm["city"],
+                state=farm["state"],
+            )
+            .returning(Farm)
         )
-        self.session.add(farm)
-        await self.session.commit()
-        await self.session.refresh(farm)
-        return farm
+
+        try:
+            result = await self.session.execute(stmt)
+            await self.session.commit()
+
+            created_farm = result.scalars().first()
+            return created_farm
+        except Exception as e:
+            await self.session.rollback()
+            raise e
+
 
     async def update_farm_by_id(self, farm_id: int, farm: dict):
         d = farm.dict()
