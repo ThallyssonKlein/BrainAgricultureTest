@@ -5,6 +5,7 @@ import { OptionsContext } from "../context/OptionsContext";
 import API from "../API";
 import { TablesContext } from "../context/TablesContext";
 import { IFarm } from "./IFarmer";
+import StatesSelect from "./StatesSelect";
 
 export default function FarmModal() {
     const [vegetationArea, setVegetationArea] = useState<number | undefined>(0);
@@ -133,8 +134,7 @@ export default function FarmModal() {
                 <input type="number" value={vegetationArea} onChange={(e) => setVegetationArea(Number(e.target.value))} required />
 
                 <label style={{ marginRight: 20}}>Estado</label>
-                <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
-
+                <StatesSelect state={state || ""} setState={setState} />
 
                 <label style={{ marginRight: 20}}>Nome</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />

@@ -3,6 +3,7 @@ import Modal from "react-modal";
 import API from "../API";
 import { FarmerModalContext } from "../context/FarmerModalContext";
 import { OptionsContext } from "../context/OptionsContext";
+import StatesSelect from "./StatesSelect";
 
 export default function FarmerModal() {
     const [name, setName] = useState("");
@@ -18,7 +19,7 @@ export default function FarmerModal() {
         modalIsOpen,
         setModalIsOpen
     } = useContext(FarmerModalContext);
-    
+
     const { selectedOption } = useContext(OptionsContext);
 
     useEffect(() => {
@@ -105,19 +106,18 @@ export default function FarmerModal() {
             <h2>{isEdit ? "Editar Fazendeiro" : "Cadastrar Fazendeiro"}</h2>
             <form 
                 style={{
-                    display: 'grid',          // Define o layout como grid
-                    gridTemplateColumns: '1fr 1fr', // Duas colunas iguais
-                    gap: '20px',              // Espaçamento entre os itens
-                    position: 'relative',     // Necessário para posicionar o botão corretamente
-                    paddingBottom: '60px',    // Espaço inferior para o botão
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '20px',
+                    position: 'relative',
+                    paddingBottom: '60px',
                 }}
                 onSubmit={handleSubmit}>
                 <label>Nome</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
                
                 <label>Estado</label>
-                <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
-                
+                <StatesSelect state={state} setState={setState} />
                 <label>Cidade</label>
                 <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
 
