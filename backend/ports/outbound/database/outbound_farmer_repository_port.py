@@ -4,12 +4,14 @@ from sqlalchemy import delete, insert, update
 from sqlalchemy.exc import IntegrityError
 
 from ports.outbound.database.models import Farmer
+from shared.loggable import Loggable
 
-class OutboundFarmerRepositoryPort():
+class OutboundFarmerRepositoryPort(Loggable):
     def __init__(self, session: AsyncSession):
+        Loggable.__init__(self, prefix="OutboundFarmerRepositoryPort")
         self.session = session
 
-    async def create_farmer(self, farmer_data: dict):
+    async def create_farmer(self, farmer_data: dict, trace_id: str):
         try:
             stmt = (
                 insert(Farmer)
@@ -28,12 +30,14 @@ class OutboundFarmerRepositoryPort():
             return created_farmer
         except IntegrityError as e:
             await self.session.rollback()
+            self.log.error("Farmer with this document already exists", trace_id)
             raise ValueError("Farmer with this document already exists") from e
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error creating farmer: {e}", trace_id)
             raise e
 
-    async def update_farmer(self, farmer_data: dict):
+    async def update_farmer(self, farmer_data: dict, trace_id: str):
         try:
             stmt = (
                 update(Farmer)
@@ -58,9 +62,10 @@ class OutboundFarmerRepositoryPort():
             return updated_farmer
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error updating farmer: {e}", trace_id)
             raise e
     
-    async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str):
+    async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str, trace_id: str):
         try:
             stmt = select(Farmer).offset(offset - 1).limit(limit)
         
@@ -71,9 +76,10 @@ class OutboundFarmerRepositoryPort():
             return result.scalars().all()
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farmers: {e}", trace_id)
             raise e
     
-    async def delete_farmer_by_id(self, farmer_id: int):
+    async def delete_farmer_by_id(self, farmer_id: int, trace_id: str):
         try:
             result = await self.session.execute(
                 delete(Farmer).where(Farmer.id == farmer_id)
@@ -82,4 +88,5 @@ class OutboundFarmerRepositoryPort():
             return result
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error deleting farmer: {e}", trace_id)
             raise e

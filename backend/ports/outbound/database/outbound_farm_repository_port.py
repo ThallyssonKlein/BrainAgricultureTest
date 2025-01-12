@@ -4,12 +4,14 @@ from sqlalchemy import func, delete, insert, update
 from sqlalchemy.orm import selectinload
 
 from ports.outbound.database.models import Crop, Culture, Farm
+from shared.loggable import Loggable
 
-class OutboundFarmRepositoryPort():
+class OutboundFarmRepositoryPort(Loggable):
     def __init__(self, session: AsyncSession):
+        Loggable.__init__(self, prefix="OutboundFarmRepositoryPort")
         self.session = session
 
-    async def create_farm(self, farmer_id: int, farm_data: dict) -> Farm:
+    async def create_farm(self, farmer_id: int, farm_data: dict, trace_id: str) -> Farm:
         try:
             farm = Farm(
                 name=farm_data["name"],
@@ -26,9 +28,10 @@ class OutboundFarmRepositoryPort():
             return farm
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error creating farm: {e}", trace_id)
             raise e
     
-    async def delete_farm(self, farm_id: int):
+    async def delete_farm(self, farm_id: int, trace_id: str):
         try:
             await self.session.execute(
                 delete(Farm).where(Farm.id == farm_id)
@@ -37,9 +40,10 @@ class OutboundFarmRepositoryPort():
 
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error deleting farm: {e}", trace_id)
             raise e
 
-    async def find_farm_counts_grouped_by_state_by_farmer_id(self, farmer_id: int):
+    async def find_farm_counts_grouped_by_state_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(
             Farm.state.label("state"),
@@ -49,9 +53,10 @@ class OutboundFarmRepositoryPort():
             return result.mappings().all()
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farms: {e}", trace_id)
             raise e
     
-    async def find_farms_count_grouped_by_culture_by_farmer_id(self, farmer_id: int):
+    async def find_farms_count_grouped_by_culture_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(
             Culture.name.label('culture'),
@@ -62,9 +67,10 @@ class OutboundFarmRepositoryPort():
             return result.mappings().all()
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farms: {e}", trace_id)
             raise e
     
-    async def find_average_land_use_by_farmer_id(self, farmer_id: int):
+    async def find_average_land_use_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(
             func.coalesce(func.avg(Farm.arable_area), 0).label('average_arable_area'),
@@ -79,9 +85,10 @@ class OutboundFarmRepositoryPort():
             }
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farms: {e}", trace_id)
             raise e
     
-    async def find_total_farms_and_hectares_by_farmer_id(self, farmer_id: int):
+    async def find_total_farms_and_hectares_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(
             func.count(Farm.id).label('total_farms'),
@@ -96,9 +103,10 @@ class OutboundFarmRepositoryPort():
             }
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farms: {e}", trace_id)
             raise e
 
-    async def find_farms_by_state_and_farmer_id(self, farmer_id: int, state: str):
+    async def find_farms_by_state_and_farmer_id(self, farmer_id: int, state: str, trace_id: str):
         try:
             result = await self.session.execute(
             select(Farm)
@@ -110,10 +118,11 @@ class OutboundFarmRepositoryPort():
             return result.scalars().all()
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farms: {e}", trace_id)
             raise e
 
             
-    async def find_farms_ordered_by_vegetation_area_desc_by_farmer_id(self, farmer_id: int):
+    async def find_farms_ordered_by_vegetation_area_desc_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.vegetation_area.desc()).options(
                     selectinload(Farm.crops).selectinload(Crop.culture)
@@ -122,9 +131,10 @@ class OutboundFarmRepositoryPort():
             return result.scalars().all()
         except Exception as e:
             await self.session.rollback()
-            raise
+            self.log.error(f"Error finding farms: {e}", trace_id)
+            raise e
     
-    async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int):
+    async def find_farms_ordered_by_arable_area_desc_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(Farm).where(Farm.farmer_id == farmer_id).order_by(Farm.arable_area.desc()).options(
                     selectinload(Farm.crops).selectinload(Crop.culture)
@@ -133,9 +143,10 @@ class OutboundFarmRepositoryPort():
             return result.scalars().all()
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding farms: {e}", trace_id)
             raise e
     
-    async def create_farm_for_a_farmer(self, farmer_id: int, farm: dict):
+    async def create_farm_for_a_farmer(self, farmer_id: int, farm: dict, trace_id: str):
         try:
             stmt = (
                 insert(Farm)
@@ -166,10 +177,11 @@ class OutboundFarmRepositoryPort():
             return created_farm
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error creating farm: {e}", trace_id)
             raise e
 
 
-    async def update_farm_by_id(self, farm_id: int, farm: dict):
+    async def update_farm_by_id(self, farm_id: int, farm: dict, trace_id: str):
         try:
             stmt = (
                 update(Farm)
@@ -204,10 +216,11 @@ class OutboundFarmRepositoryPort():
             return updated_farm
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error updating farm: {e}", trace_id)
             raise e
 
 
-    async def delete_farm_by_id(self, farm_id: int):
+    async def delete_farm_by_id(self, farm_id: int, trace_id: str):
         try:
             result = await self.session.execute(
                 delete(Farm)
@@ -217,4 +230,5 @@ class OutboundFarmRepositoryPort():
             return result
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error deleting farm: {e}", trace_id)
             raise e

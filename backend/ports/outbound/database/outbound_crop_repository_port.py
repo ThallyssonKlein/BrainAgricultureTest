@@ -3,12 +3,14 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ports.outbound.database.models import Crop, Culture, Farm
+from shared.loggable import Loggable
 
-class OutboundCropRepositoryPort:
+class OutboundCropRepositoryPort(Loggable):
     def __init__(self, session: AsyncSession):
+        Loggable.__init__(self, prefix="OutboundCropRepositoryPort")
         self.session = session
 
-    async def create_crop(self, farm_id: int, crop_data: dict, culture_id: int) -> Crop:
+    async def create_crop(self, farm_id: int, crop_data: dict, culture_id: int, trace_id: str) -> Crop:
         try:
             crop = Crop(
                 date=crop_data["date"],
@@ -21,9 +23,10 @@ class OutboundCropRepositoryPort:
             return crop
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error creating crop: {e}", trace_id)
             raise e
     
-    async def find_crops_by_culture_name_and_farmer_id(self, culture_name: str, farmer_id: int):
+    async def find_crops_by_culture_name_and_farmer_id(self, culture_name: str, farmer_id: int, trace_id: str):
         try:
             stmt = (
                 select(Crop)
@@ -40,10 +43,11 @@ class OutboundCropRepositoryPort:
             return crops
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error finding crops: {e}", trace_id)
             raise e
 
 
-    async def create_crop_for_a_farm_and_return_with_culture(self, farm_id: int, crop: dict):
+    async def create_crop_for_a_farm_and_return_with_culture(self, farm_id: int, crop: dict, trace_id: str):
         try:
             stmt = (
                 insert(Crop)
@@ -79,9 +83,10 @@ class OutboundCropRepositoryPort:
             return created_crop
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error creating crop: {e}", trace_id)
             raise e
     
-    async def update_crop_by_id(self, crop_id: int, crop: dict):        
+    async def update_crop_by_id(self, crop_id: int, crop: dict, trace_id: str):        
         try:
             stmt_update = (
                 update(Crop)
@@ -113,9 +118,10 @@ class OutboundCropRepositoryPort:
             return updated_crop
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error updating crop: {e}", trace_id)
             raise e
 
-    async def delete_crop_by_id(self, crop_id: int):
+    async def delete_crop_by_id(self, crop_id: int, trace_id: str):
         try:
             stmt = delete(Crop).where(Crop.id == crop_id)
             result = await self.session.execute(stmt)
@@ -123,5 +129,6 @@ class OutboundCropRepositoryPort:
             return result
         except Exception as e:
             await self.session.rollback()
+            self.log.error(f"Error deleting crop: {e}", trace_id)
             raise e
 

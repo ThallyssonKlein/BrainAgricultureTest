@@ -14,6 +14,7 @@ from ports.inbound.http.error.http_error import HttpError
 from ports.inbound.http.controllers.farmer_controller import FarmerController
 from adapters.inbound.http.inbound_farmer_adapter import InboundFarmerAdapter
 
+from ports.inbound.http.middleware.uuid_middleware import UuidMiddleware
 from ports.outbound.database.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
 from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 from ports.outbound.database.outbound_crop_repository_port import OutboundCropRepositoryPort
@@ -23,6 +24,9 @@ from ports.outbound.database.db import DatabaseSingleton
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.middleware.cors import CORSMiddleware
+
+from shared.loggable import Loggable
+from shared.metricable import Metricable
 
 app = FastAPI()
 
@@ -37,6 +41,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(UuidMiddleware)
+
+import logging
+
+logging.getLogger("sqlalchemy.engine").disabled = True
 
 async def init_dependencies(db: AsyncSession):
     outbound_farmer_repository_port = OutboundFarmerRepositoryPort(db)
@@ -83,15 +93,29 @@ async def init_app():
 import asyncio
 asyncio.run(init_app())
 
+app_logger = Loggable(prefix="AppLogger")
+app_metrics = Metricable("app")
+metrics = app_metrics.create_metrics()
+
 @app.exception_handler(HttpError)
-async def http_error_handler(_: Request, exc: HttpError):
+async def http_error_handler(request: Request, exc: HttpError):
+    app_logger.log.error(
+        f"HTTP Error: {exc.message} | Path: {request.url.path} | Method: {request.method}",
+        trace_id=request.headers.get("X-Trace-Id")
+    )
+    metrics.increment("http_error", tags=[f"status_code:{exc.status_code}"])
     return JSONResponse(
         status_code=exc.status_code,
         content={"message": exc.message},
     )
 
 @app.exception_handler(Exception)
-async def global_exception_handler(_: Request, __: Exception):
+async def global_exception_handler(request: Request, exc: Exception):
+    app_logger.log.error(
+        f"HTTP Error: {exc.message} | Path: {request.url.path} | Method: {request.method} | Headers: {dict(request.headers)}",
+        trace_id=request.headers.get("X-Trace-Id")
+    )
+    metrics.increment("http_error", tags=[f"status_code:500"])
     return JSONResponse(
         status_code=500,
         content={"message": "An internal server error occurred"},
