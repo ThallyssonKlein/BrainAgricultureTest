@@ -63,11 +63,11 @@ class OutboundCultureRepositoryPort:
 
     async def delete_culture_by_id(self, culture_id: int):
         try:
-            await self.session.execute(
+            result = await self.session.execute(
                 delete(Culture).where(Culture.id == culture_id)
             )
             await self.session.commit()
-            return culture_id
+            return result
         except Exception as e:
             await self.session.rollback()
             raise e

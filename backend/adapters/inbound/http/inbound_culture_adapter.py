@@ -2,8 +2,8 @@ from adapters.inbound.http.schemas import CultureSchema
 from domain.culture.culture_already_exists_error import CultureAlreadyExistsError
 from domain.culture.culture_service import CultureService
 from ports.inbound.http.error.conflict_error import ConflictError
+from ports.inbound.http.error.not_found_error import NotFoundError
 from ports.outbound.database.outbound_culture_repository_port import OutboundCultureRepositoryPort
-
 
 class InboundCultureAdapter:
     def __init__(self, outbound_culture_repository_port: OutboundCultureRepositoryPort, culture_service: CultureService):
@@ -24,8 +24,11 @@ class InboundCultureAdapter:
         return await self.outbound_culture_repository_port.update_culture_by_id(culture_id, culture)
     
     async def delete_culture_by_id(self, culture_id: int):
+        result = None
         try:
-            return await self.outbound_culture_repository_port.delete_culture_by_id(culture_id)
+            result = await self.outbound_culture_repository_port.delete_culture_by_id(culture_id)
         except Exception as err:
             if "violates foreign key constraint" in str(err):
                 raise ConflictError("This culture is being used by a crop")
+        if result.rowcount == 0:
+            raise NotFoundError("Culture not found")
