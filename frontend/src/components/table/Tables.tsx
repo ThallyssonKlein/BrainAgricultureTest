@@ -3,18 +3,36 @@ import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
 import { FarmModalContext } from '../../context/FarmModalContext';
+import API from '../../API';
+import { OptionsContext } from '../../context/OptionsContext';
 
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
-  const { farms, crops, setSelectedFarm, selectedFarm } = useContext(TablesContext);
+  const { setFarms, farms, crops, setSelectedFarm, selectedFarm } = useContext(TablesContext);
   const { setModalIsOpen, setISEdit } = useContext(FarmModalContext);
+  const { setRefreshKey } = useContext(OptionsContext);
 
   const handleFarmClick = (farmId: number) => {
     setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
     setSelectedFarm(farms.find((farm) => farm.id === farmId) || null);
   };
 
-  const handleDeleteFarm = async (id: number) => {}
+  const handleDeleteFarm = async (id: number) => {
+    const userResponse = window.confirm("Do you want to proceed?");
+    if (userResponse) {
+        const response = await API.delete(`/api/v1/farm/${id}`);
+
+        if (response.status === 200){
+            setSelectedFarm(null);
+            setFarms(farms.filter((farm) => farm.id !== id));
+            setRefreshKey(previos => previos + 1);
+        } else if(response.status === 409){
+            alert("Culture is being used in a crop, cannot delete!");
+        } else {
+            alert("Error deleting!");
+        }
+     }
+  }
 
   return (
     <div className="farms-table-container">

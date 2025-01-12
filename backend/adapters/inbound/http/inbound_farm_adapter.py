@@ -18,3 +18,6 @@ class InboundFarmAdapter:
     
     async def update_farm_by_id(self, farm_id: int, farm: dict):
         return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, farm)
+    
+    async def delete_farm_by_id(self, farm_id: int):
+        return await self.outbound_farm_repository_port.delete_farm_by_id(farm_id)

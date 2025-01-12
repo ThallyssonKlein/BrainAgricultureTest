@@ -140,3 +140,10 @@ class OutboundFarmRepositoryPort():
             )
         )
         return result.scalars().first()
+
+    async def delete_farm_by_id(self, farm_id: int):
+        await self.session.execute(
+            delete(Farm)
+            .where(Farm.id == farm_id)
+        )
+        await self.session.commit()

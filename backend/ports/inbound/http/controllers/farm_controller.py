@@ -22,6 +22,11 @@ class FarmController:
             self.update_farm_by_id, 
             methods=["PUT"]
         )
+        self.router.add_api_route(
+            "/api/v1/farm/{farm_id}", 
+            self.delete_farm_by_id, 
+            methods=["DELETE"]
+        )
 
     async def find_farm(self, farmer_id: int, state: str = Query(None), order_by: str = Query(None)):
         if state:
@@ -47,6 +52,9 @@ class FarmController:
     
     async def update_farm_by_id(self, farm_id: int, farm: FarmSchema = Body(...)):
         return await self.inbound_farm_adapter.update_farm_by_id(farm_id, farm)
+    
+    async def delete_farm_by_id(self, farm_id: int):
+        return await self.inbound_farm_adapter.delete_farm_by_id(farm_id)
 
     def get_router(self):
         return self.router

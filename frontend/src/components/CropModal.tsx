@@ -180,7 +180,7 @@ export default function CropModal({ setSelectedFarm, selectedFarm }: ICreateCrop
         } else {
             alert("Error deleting!");
         }
-        }
+      }
     }
 
     return (
