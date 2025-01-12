@@ -7,26 +7,26 @@ import { TablesContext } from "../context/TablesContext";
 import { IFarm } from "./IFarmer";
 
 export default function FarmModal() {
-    const [vegetationArea, setVegetationArea] = useState<number>(0);
-    const [state, setState] = useState<string>("");
-    const [name, setName] = useState<string>("");
-    const [arableArea, setArableArea] = useState<number>(0);
-    const [totalArea, setTotalArea] = useState<number>(0);
-    const [city, setCity] = useState<string>("");
+    const [vegetationArea, setVegetationArea] = useState<number | undefined>(0);
+    const [state, setState] = useState<string | undefined>("");
+    const [name, setName] = useState<string | undefined>("");
+    const [arableArea, setArableArea] = useState<number | undefined>(0);
+    const [totalArea, setTotalArea] = useState<number | undefined>(0);
+    const [city, setCity] = useState<string | undefined>("");
     const { modalIsOpen, setModalIsOpen, isEdit } = useContext(FarmModalContext);
     const { selectedOption, setRefreshKey } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
-    const { setFarms } = useContext(TablesContext);
+    const { setFarms, selectedFarm } = useContext(TablesContext);
 
     useEffect(() => {
-        if (isEdit && selectedOption) {
-            // setVegetationArea(selectedOption.vegetation_area);
-            // setState(selectedOption.state);
-            // setName(selectedOption.name);
-            // setArableArea(selectedOption.arable_area);
-            // setTotalArea(selectedOption.total_area);
-            // setCity(selectedOption.city);
+        if (isEdit && selectedFarm) {
+            setVegetationArea(selectedFarm?.vegetation_area);
+            setState(selectedFarm?.state);
+            setName(selectedFarm?.name);
+            setArableArea(selectedFarm?.arable_area);
+            setTotalArea(selectedFarm?.total_area);
+            setCity(selectedFarm?.city);
         } else {
             setVegetationArea(0);
             setState("");
@@ -35,13 +35,13 @@ export default function FarmModal() {
             setTotalArea(0);
             setCity("");
         }
-    }, [isEdit, selectedOption]);
+    }, [isEdit, selectedFarm]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const newFarm = { vegetation_area: vegetationArea, state, name, arable_area: arableArea, total_area: totalArea, city, id: selectedOption?.id };
         if (isEdit) {
-            const response = await API.put(`/api/v1/farmer/${selectedOption}/farm`, newFarm);
+            const response = await API.put(`/api/v1/farm/${selectedFarm?.id}`, newFarm);
 
             if (response.status === 200) {
                 setSavedSuccessFullyMessage(true);

@@ -2,15 +2,19 @@ import React, { useState, useContext } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
+import { FarmModalContext } from '../../context/FarmModalContext';
 
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
   const { farms, crops, setSelectedFarm, selectedFarm } = useContext(TablesContext);
+  const { setModalIsOpen, setISEdit } = useContext(FarmModalContext);
 
   const handleFarmClick = (farmId: number) => {
     setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
     setSelectedFarm(farms.find((farm) => farm.id === farmId) || null);
   };
+
+  const handleDeleteFarm = async (id: number) => {}
 
   return (
     <div className="farms-table-container">
@@ -29,6 +33,8 @@ const FarmTable: React.FC = () => {
               <th>Área Arável</th>
               <th>Estado</th>
               <th>Cidade</th>
+              <th>Editar</th>
+              <th>Excluir</th>
             </tr>
           </thead>
           <tbody>
@@ -45,17 +51,32 @@ const FarmTable: React.FC = () => {
                 <td>{farm.arable_area}</td>
                 <td>{farm.state}</td>
                 <td>{farm.city}</td>
+                <td>
+                  <button
+                    onClick={() => {
+                      setISEdit(true);
+                      setSelectedFarm(null);
+                      setSelectedFarm(farm);
+                      setModalIsOpen(true);
+                    }}
+                  >Edit</button>
+                </td>
+                <td>
+                  <button onClick={(event) => handleDeleteFarm(farm.id)}>Delete</button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <h3>Crops</h3>
         {selectedFarm && (
-          <CropsTable
-            selectedFarm={selectedFarm}
-            setSelectedFarm={setSelectedFarm}
-          />
+          <div>
+            <h3>Crops</h3>
+            <CropsTable
+              selectedFarm={selectedFarm}
+              setSelectedFarm={setSelectedFarm}
+            />
+          </div>
         )}
       </div>
       }

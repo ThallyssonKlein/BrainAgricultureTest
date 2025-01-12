@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import func, delete
+from sqlalchemy import func, delete, update
 from sqlalchemy.orm import selectinload
 
 from adapters.inbound.http.schemas import FarmSchema
@@ -115,3 +115,28 @@ class OutboundFarmRepositoryPort():
         await self.session.commit()
         await self.session.refresh(farm)
         return farm
+
+    async def update_farm_by_id(self, farm_id: int, farm: dict):
+        d = farm.dict()
+        await self.session.execute(
+            update(Farm)
+            .where(Farm.id == farm_id)
+            .values(
+                name=d["name"],
+                arable_area=d["arable_area"],
+                vegetation_area=d["vegetation_area"],
+                total_area=d["total_area"],
+                city=d["city"],
+                state=d["state"]
+            )
+        )
+        await self.session.commit()
+        
+        result = await self.session.execute(
+            select(Farm)
+            .where(Farm.id == farm_id)
+            .options(
+                selectinload(Farm.crops).selectinload(Crop.culture)
+            )
+        )
+        return result.scalars().first()

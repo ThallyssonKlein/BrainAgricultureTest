@@ -15,3 +15,6 @@ class InboundFarmAdapter:
     
     async def create_farm_for_a_farmer(self, farmer_id: int, farm: dict):
         return await self.outbound_farm_repository_port.create_farm_for_a_farmer(farmer_id, farm)
+    
+    async def update_farm_by_id(self, farm_id: int, farm: dict):
+        return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, farm)
