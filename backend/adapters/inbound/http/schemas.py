@@ -5,10 +5,13 @@ from datetime import date
 class CultureSchema(BaseModel):
     name: str
 
+class ResumedCultureSchema(BaseModel):
+    id: int
+
 
 class CropSchema(BaseModel):
     date: date
-    culture: CultureSchema
+    culture: ResumedCultureSchema
 
 
 class FarmSchema(BaseModel):

@@ -48,5 +48,6 @@ class Culture(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
+    farmer_id = Column(Integer, ForeignKey("farmers.id"), nullable=False)
 
     crops = relationship("Crop", back_populates="culture")

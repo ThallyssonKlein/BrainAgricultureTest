@@ -24,3 +24,11 @@ class OutboundCultureRepositoryPort:
             .where(Culture.id == culture_id)
         )
         await self.session.commit()
+    
+    async def create_culture_for_a_farmer_id(self, farmer_id: int, culture: dict):
+        d = culture.dict()
+        culture = Culture(**d, farmer_id=farmer_id)
+        self.session.add(culture)
+        await self.session.commit()
+        await self.session.refresh(culture)
+        return culture

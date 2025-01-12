@@ -19,7 +19,8 @@ CREATE TABLE farms (
 
 CREATE TABLE cultures (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL,
+    farmer_id INTEGER NOT NULL REFERENCES farmers(id)
 );
 
 CREATE TABLE crops (
