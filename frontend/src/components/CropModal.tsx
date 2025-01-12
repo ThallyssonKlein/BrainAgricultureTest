@@ -141,7 +141,7 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
             return;
         }
 
-        const userResponse = window.confirm("Do you want to proceed?");
+        const userResponse = window.confirm("Quer prosseguir?");
         if (userResponse) {
         const response = await API.delete(`/api/v1/culture/${id}`);
 

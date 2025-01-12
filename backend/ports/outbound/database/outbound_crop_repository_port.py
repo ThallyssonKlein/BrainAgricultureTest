@@ -26,23 +26,22 @@ class OutboundCropRepositoryPort:
     async def find_crops_by_culture_name_and_farmer_id(self, culture_name: str, farmer_id: int):
         try:
             stmt = (
-                select(
-                    Crop.id,
-                    Crop.farm_id,
-                    Crop.date,
-                    Crop.culture_id,
-                    literal(culture_name).label("culture_name")
-                )
+                select(Crop)
                 .join(Crop.farm)
                 .join(Crop.culture)
                 .where(Culture.name == culture_name)
                 .where(Farm.farmer_id == farmer_id)
+                .options(
+                    selectinload(Crop.culture)
+                )
             )
             result = await self.session.execute(stmt)
-            return result.mappings().all()
+            crops = result.scalars().all()
+            return crops
         except Exception as e:
             await self.session.rollback()
             raise e
+
 
     async def create_crop_for_a_farm_and_return_with_culture(self, farm_id: int, crop: dict):
         try:

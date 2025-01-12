@@ -62,7 +62,7 @@ export default function FarmModal() {
                 }, 2000);
             }
         } else {
-            const response = await API.post(`/api/v1/farmer/${selectedOption}/farm`, newFarm);
+            const response = await API.post(`/api/v1/farmer/${selectedOption.id}/farm`, newFarm);
 
             if (response.status === 201) {
                 setSavedSuccessFullyMessage(true);
@@ -118,11 +118,11 @@ export default function FarmModal() {
             <h2>{isEdit ? "Edite a Fazenda" : "Crie uma Fazenda"}</h2>
             <form
                 style={{
-                    display: 'grid',          // Define o layout como grid
-                    gridTemplateColumns: '1fr 1fr', // Duas colunas iguais
-                    gap: '20px',              // Espaçamento entre os itens
-                    position: 'relative',     // Necessário para posicionar o botão corretamente
-                    paddingBottom: '60px',    // Espaço inferior para o botão
+                    display: 'grid',          
+                    gridTemplateColumns: '1fr 1fr', 
+                    gap: '20px',              
+                    position: 'relative',     
+                    paddingBottom: '60px',    
                 }}
                 onSubmit={handleSubmit}>
                 <label style={{ marginRight: 20}}>Área de Vegetação</label>

@@ -19,7 +19,7 @@ const Tables: React.FC = () => {
   };
 
   const handleDeleteFarm = async (id: number) => {
-    const userResponse = window.confirm("Do you want to proceed?");
+    const userResponse = window.confirm("Quer prosseguir?");
     if (userResponse) {
         const response = await API.delete(`/api/v1/farm/${id}`);
 
@@ -28,7 +28,7 @@ const Tables: React.FC = () => {
             setFarms(farms.filter((farm) => farm.id !== id));
             setRefreshCharts(previos => previos + 1);
         } else {
-            alert("Error deleting!");
+            alert("Error deletando a fazenda!");
         }
      }
   }

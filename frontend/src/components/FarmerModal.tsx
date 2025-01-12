@@ -102,27 +102,39 @@ export default function FarmerModal() {
             >
                 &times;
             </button>
-            <h2>{isEdit ? "Edit Farmer" : "Create Farmer"}</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Name</label>
-                    <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div>
-                    <label>State</label>
-                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
-                </div>
-                <div>
-                    <label>City</label>
-                    <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
-                </div>
-                <div>
-                    <label>Document</label>
-                    <input type="text" value={document} onChange={(e) => setDocument(e.target.value)} required />
-                </div>
-                <button type="submit">{isEdit ? "Update" : "Save"}</button>
-                {savedSuccessFullyMessage && <p>Saved successfully!</p>}
-                {savedWithErrorMessage && <p>Something went wrong!</p>}
+            <h2>{isEdit ? "Editar Fazendeiro" : "Cadastrar Fazendeiro"}</h2>
+            <form 
+                style={{
+                    display: 'grid',          // Define o layout como grid
+                    gridTemplateColumns: '1fr 1fr', // Duas colunas iguais
+                    gap: '20px',              // Espaçamento entre os itens
+                    position: 'relative',     // Necessário para posicionar o botão corretamente
+                    paddingBottom: '60px',    // Espaço inferior para o botão
+                }}
+                onSubmit={handleSubmit}>
+                <label>Nome</label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+               
+                <label>Estado</label>
+                <input type="text" value={state} onChange={(e) => setState(e.target.value)} required />
+                
+                <label>Cidade</label>
+                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />
+
+                <label>Documento (CPF ou CNPJ)</label>
+                <input type="text" value={document} onChange={(e) => setDocument(e.target.value)} required />
+
+                <button
+                    style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        right: '20px',
+                        marginLeft: '30px',
+                        cursor: 'pointer',
+                    }}                     
+                    type="submit">{isEdit ? "Atualizar" : "Salvar"}</button>
+                {savedSuccessFullyMessage && <p>Salvo com sucesso!</p>}
+                {savedWithErrorMessage && <p>Algo deu errado!</p>}
             </form>
         </Modal>
     );

@@ -1,4 +1,4 @@
-import React, { JSX, useContext, useState } from "react";
+import React, { JSX, useContext, useEffect, useState } from "react";
 import { ICrop } from "../IFarmer";
 import { CropModalContext } from "../../context/CropModalContext";
 import CropModal from "../CropModal";
@@ -13,7 +13,7 @@ export default function CropsTable(): JSX.Element {
     const { crops, farms, setCrops, selectedFarmId, setFarms } = useContext(TablesContext);
 
     const handleDeleteCrop = async (id: number) => {
-      const userResponse = window.confirm("Do you want to proceed?");
+      const userResponse = window.confirm("Quer prosseguir?");
       if (userResponse) {
         const response = await API.delete(`/api/v1/crop/${id}`);
 
@@ -30,10 +30,16 @@ export default function CropsTable(): JSX.Element {
             }
             setRefreshCharts(previos => previos + 1);
         } else {
-          alert("Error deleting!");
+          alert("Error deletando a safra!");
         }
       }
     }
+
+    useEffect(() => {
+      console.log("---------")
+      console.log(crops)
+      console.log("---------")
+    }, [crops])
 
     return (
         <div>
@@ -49,7 +55,7 @@ export default function CropsTable(): JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {selectedFarmId ? farms.find(farm => farm.id === selectedFarmId)?.crops?.map((crop) => (
+              {farms && selectedFarmId ? farms.find(farm => farm.id === selectedFarmId)?.crops?.map((crop) => (
                 <tr
                   key={crop.id}
                   style={{ cursor: 'pointer', background: 'white' }}

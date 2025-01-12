@@ -6,7 +6,7 @@ export default function DeleteFarmerButton() {
     const { selectedOption } = useContext(OptionsContext);
 
     const handleOnClick = async () => {
-        const response = await API.delete(`/api/v1/farmer/${selectedOption}`);
+        const response = await API.delete(`/api/v1/farmer/${selectedOption.id}`);
 
         if (response.status !== 200) {
             alert('Error deleting farmer!');
