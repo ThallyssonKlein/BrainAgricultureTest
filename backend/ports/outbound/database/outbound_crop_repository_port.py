@@ -18,7 +18,7 @@ class OutboundCropRepositoryPort:
         await self.session.refresh(crop)
         return crop
     
-    async def find_crops_where_associated_culture_has_the_name_and_by_farmer_id(self, culture_name: str, farmer_id: int):
+    async def find_crops_by_culture_name_and_farmer_id(self, culture_name: str, farmer_id: int):
         stmt = (
             select(
                 Crop.id,
@@ -36,29 +36,33 @@ class OutboundCropRepositoryPort:
         return result.mappings().all()
 
     async def create_crop_for_a_farm_and_return_culture_name(self, farm_id: int, crop: dict):
-        new_crop = Crop(
-            date=crop["date"],
-            farm_id=farm_id,
-            culture_id=crop["culture"]["id"],
-        )
-        self.session.add(new_crop)
-        await self.session.commit()
-        await self.session.refresh(new_crop)
-        
-        stmt = (
-            select(
-                Crop.id,
-                Crop.date,
-                Culture.name.label("culture_name"),
-                Culture.id.label("culture_id"),
-                Farm.id.label("farm_id"),
+        try:
+            new_crop = Crop(
+                date=crop["date"],
+                farm_id=farm_id,
+                culture_id=crop["culture"]["id"],
             )
-            .join(Culture, Culture.id == Crop.culture_id)
-            .join(Farm, Farm.id == Crop.farm_id)
-            .where(Crop.id == new_crop.id)
-        )
-        result = await self.session.execute(stmt)
-        return result.mappings().first()
+            self.session.add(new_crop)
+            await self.session.commit()
+            await self.session.refresh(new_crop)
+            
+            stmt = (
+                select(
+                    Crop.id,
+                    Crop.date,
+                    Culture.name.label("culture_name"),
+                    Culture.id.label("culture_id"),
+                    Farm.id.label("farm_id"),
+                )
+                .join(Culture, Culture.id == Crop.culture_id)
+                .join(Farm, Farm.id == Crop.farm_id)
+                .where(Crop.id == new_crop.id)
+            )
+            result = await self.session.execute(stmt)
+            return result.mappings().first()
+        except Exception as e:
+            await self.session.rollback()
+            raise e
     
     async def update_crop_by_id(self, crop_id: int, crop: dict):
         d = crop.model_dump()
