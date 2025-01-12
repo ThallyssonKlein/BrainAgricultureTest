@@ -1,3 +1,4 @@
+from adapters.inbound.http.schemas import CultureSchema
 from domain.culture.culture_already_exists_error import CultureAlreadyExistsError
 from domain.culture.culture_service import CultureService
 from ports.inbound.http.error.conflict_error import ConflictError
@@ -9,9 +10,10 @@ class InboundCultureAdapter:
         self.outbound_culture_repository_port = outbound_culture_repository_port
         self.culture_service = culture_service
 
-    async def create_culture_for_a_farmer_id(self, farmer_id: int, culture: dict):
+    async def create_culture_for_a_farmer(self, farmer_id: int, culture: CultureSchema):
+        c = culture.dict()
         try:
-            return await self.culture_service.create_culture_for_a_farmer_id(farmer_id, culture)
+            return await self.culture_service.create_culture_for_a_farmer(farmer_id, c)
         except CultureAlreadyExistsError as err:
             raise ConflictError(err.get_message)
     

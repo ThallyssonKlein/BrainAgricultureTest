@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import delete, update
+from sqlalchemy import delete, insert, update
 
 from ports.outbound.database.models import Culture
 
@@ -25,13 +25,22 @@ class OutboundCultureRepositoryPort:
         )
         await self.session.commit()
     
-    async def create_culture_for_a_farmer_id(self, farmer_id: int, culture: dict):
-        d = culture.dict()
-        culture = Culture(**d, farmer_id=farmer_id)
-        self.session.add(culture)
-        await self.session.commit()
-        await self.session.refresh(culture)
-        return culture
+    async def create_culture_for_a_farmer(self, farmer_id: int, culture: dict):
+        stmt = (
+            insert(Culture)
+            .values(**culture, farmer_id=farmer_id)
+            .returning(Culture)
+        )
+
+        try:
+            result = await self.session.execute(stmt)
+            await self.session.commit()
+
+            created_culture = result.scalars().first()
+            return created_culture
+        except Exception as e:
+            await self.session.rollback()
+            raise e
     
     async def get_cultures_for_a_farmer_id(self, farmer_id: int):
         result = await self.session.execute(select(Culture).where(Culture.farmer_id == farmer_id))
