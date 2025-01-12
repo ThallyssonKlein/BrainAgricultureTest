@@ -21,7 +21,7 @@ export default function CropModal({ setSelectedFarm, selectedFarm }: ICreateCrop
     const [isEditCulture, setIsEditCulture] = useState(false);
     const [cultureModalIsOpen, setCultureModalIsOpen] = useState(false);
     const [cultures, setCultures] = useState<ICulture[] | null>([]);
-    const [selectedCulture, setSelectedCulture] = useState<number | null>(null);
+    const [selectedCulture, setSelectedCulture] = useState<number | undefined>(undefined);
     const [selectedCultureObject, setSelectedCultureObject] = useState<ICulture | null>(null);
     const [refreshKey2, setRefreshKey2] = useState(0);
     const { setCrops } = useContext(TablesContext);
@@ -93,7 +93,7 @@ export default function CropModal({ setSelectedFarm, selectedFarm }: ICreateCrop
                     setSavedSuccessFullyMessage(false);
                 }, 2000);
                 setDate("");
-                setSelectedCulture(null);
+                setSelectedCulture(undefined);
                 const updatedResponseData = response.data as ICrop;
                 updatedResponseData.culture = {
                     id: updatedResponseData.culture_id,
@@ -126,13 +126,17 @@ export default function CropModal({ setSelectedFarm, selectedFarm }: ICreateCrop
             if (response.status === 200) {
                 setCultures(response.data as ICulture[]);
                 if (isEdit) {
-                    setSelectedCulture(selectedCrop?.culture_id ?? null);
+                    setSelectedCulture(selectedCrop?.culture_id ?? undefined);
                 }
             }
         })()
     }, [refreshKey2, selectedCrop]);
 
-    const handleDeleteCulture = async (id: number) => {
+    const handleDeleteCulture = async (id?: number) => {
+        if (!id) {
+            return;
+        }
+
         const userResponse = window.confirm("Do you want to proceed?");
         if (userResponse) {
         const response = await API.delete(`/api/v1/culture/${id}`);
@@ -140,16 +144,39 @@ export default function CropModal({ setSelectedFarm, selectedFarm }: ICreateCrop
         if (response.status === 200){
             if (selectedFarm && setSelectedFarm) {
                 const updatedFarm = selectedFarm;
-                updatedFarm.crops = updatedFarm.crops?.find(crop => crop.culture_id === id) ? updatedFarm.crops?.filter(crop => crop.culture_id !== id) : updatedFarm.crops;
+                
+                updatedFarm.crops = updatedFarm.crops?.map(crop => {
+                    if (crop.culture_id === id) {
+                        crop.culture = undefined;
+                        crop.culture_id = undefined;
+                        crop.culture_name = undefined;
+                    }
+
+                    return crop;
+                });
+
                 setSelectedFarm(
                     updatedFarm
                 )
             } else {
                 setCrops((prevState) => {
-                    return prevState?.filter(crop => crop.culture_id !== id);
+                    return prevState?.map(crop => {
+                        if (crop.culture_id === id) {
+                            crop.culture = undefined;
+                            crop.culture_id = undefined;
+                            crop.culture_name = undefined;
+                        }
+
+                        return crop;
+                    });
                 });
             }
+            setCultures(prevState => {
+                return prevState ? prevState.filter(culture => culture.id !== id) : null;
+            });
             setRefreshKey(previos => previos + 1);
+        } else if(response.status === 409){
+            alert("Culture is being used in a crop, cannot delete!");
         } else {
             alert("Error deleting!");
         }

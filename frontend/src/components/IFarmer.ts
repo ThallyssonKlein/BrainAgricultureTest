@@ -1,11 +1,11 @@
 export interface ICulture {
-    id: number;
+    id?: number;
     name: string;
 }
 
 export interface ICrop {
     id: number;
-    culture_id: number;
+    culture_id?: number;
     date: string;
     farm_id: number;
     culture?: ICulture;

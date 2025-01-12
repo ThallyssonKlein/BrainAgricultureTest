@@ -20,3 +20,10 @@ class InboundCultureAdapter:
 
     async def update_culture_by_id(self, culture_id: int, culture: dict):
         return await self.outbound_culture_repository_port.update_culture_by_id(culture_id, culture)
+    
+    async def delete_culture_by_id(self, culture_id: int):
+        try:
+            return await self.outbound_culture_repository_port.delete_culture_by_id(culture_id)
+        except Exception as err:
+            if "violates foreign key constraint" in str(err):
+                raise ConflictError("This culture is being used by a crop")
