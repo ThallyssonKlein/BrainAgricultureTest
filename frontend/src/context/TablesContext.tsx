@@ -6,11 +6,15 @@ export const TablesContext = createContext<{
     setFarms: React.Dispatch<React.SetStateAction<IFarm[]>>
     crops: ICrop[],
     setCrops: React.Dispatch<React.SetStateAction<ICrop[]>>
+    selectedFarm: IFarm | null,
+    setSelectedFarm: React.Dispatch<React.SetStateAction<IFarm | null>>
   }>({
     farms: [],
     setFarms: () => null,
     crops: [],
     setCrops: () => null,
+    selectedFarm: null,
+    setSelectedFarm: () => null,
 });
 
 interface TablesContextProps {
@@ -20,9 +24,17 @@ interface TablesContextProps {
 export const TablesContextProvider = ({ children }: TablesContextProps) => {
   const [farms, setFarms] = useState<IFarm[]>([]);
   const [crops, setCrops] = useState<ICrop[]>([]);
+  const [selectedFarm, setSelectedFarm] = useState<IFarm | null>(null);
 
   return (
-    <TablesContext.Provider value={{ farms, setFarms, crops, setCrops }}>
+    <TablesContext.Provider value={{ 
+                  farms, 
+                  setFarms,
+                  crops,
+                  setCrops,
+                  selectedFarm,
+                  setSelectedFarm
+        }}>
       {children}
     </TablesContext.Provider>
   );

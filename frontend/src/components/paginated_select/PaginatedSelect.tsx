@@ -3,6 +3,7 @@ import './PaginatedSelect.css';
 import IFarmer from '../IFarmer';
 import API from '../../API';
 import { OptionsContext } from '../../context/OptionsContext';
+import { TablesContext } from '../../context/TablesContext';
 
 export const PaginatedSelect: React.FC = () => {
   const { selectedOption, setSelectedOption, options, setOptions, setSelectedObject } = useContext(OptionsContext)
@@ -12,6 +13,7 @@ export const PaginatedSelect: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const { setCrops, setSelectedFarm } = useContext(TablesContext);
 
   const fetchOptions = async (page: number, searchTerm: string): Promise<IFarmer[]> => {
     const response = await API.get(`/api/v1/farmer?page=${page}&limit=10&query=${searchTerm}`);
@@ -67,6 +69,8 @@ export const PaginatedSelect: React.FC = () => {
 
   const handleOptionClick = (name: string, id: number) => {
     setSelectedOption(id);
+    setSelectedFarm(null);
+    setCrops([]);
     setSelectedObject(options.find(option => option.id === id));
     setSearchTerm(name);
     setTimeout(() => setIsOpen(false), 100)

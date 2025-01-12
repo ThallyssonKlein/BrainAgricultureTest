@@ -20,23 +20,23 @@ export default function Dashboard() {
             <FarmerModalContextProvider>
                 <FarmModalContextProvider>
                     <TablesContextProvider>
-                    <CreateFarmerModal />
-                    <CreateFarmModal />
-                    <div>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                <PaginatedSelect />
-                                <CreateFarmerButton />
-                                <EditFarmerButton />
-                                <DeleteFarmerButton />
+                        <CreateFarmerModal />
+                        <CreateFarmModal />
+                        <div>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                    <PaginatedSelect />
+                                    <CreateFarmerButton />
+                                    <EditFarmerButton />
+                                    <DeleteFarmerButton />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                    <CreateFarmButton />
+                            </div>
+                                <Charts />
+                                <CropModalContextProvider>
+                                    <Tables />
+                                </CropModalContextProvider>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                <CreateFarmButton />
-                        </div>
-                            <Charts />
-                            <CropModalContextProvider>
-                                <Tables />
-                            </CropModalContextProvider>
-                    </div>
                     </TablesContextProvider>
                 </FarmModalContextProvider>
             </FarmerModalContextProvider>

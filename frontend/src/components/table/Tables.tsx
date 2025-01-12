@@ -6,8 +6,7 @@ import { IFarm } from '../IFarmer';
 
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
-  const { farms, crops } = useContext(TablesContext);
-  const [selectedFarm, setSelectedFarm] = useState<IFarm | null>(farms.find((farm) => farm.id === selectedFarmId) || null);
+  const { farms, crops, setSelectedFarm, selectedFarm } = useContext(TablesContext);
 
   const handleFarmClick = (farmId: number) => {
     setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
