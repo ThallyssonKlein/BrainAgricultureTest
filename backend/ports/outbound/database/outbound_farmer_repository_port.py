@@ -66,3 +66,10 @@ class OutboundFarmerRepositoryPort():
 
         result = await self.session.execute(stmt)
         return result.scalars().all()
+    
+    async def delete_farmer_by_id(self, farmer_id: int):
+        await self.session.execute(
+            delete(Farmer)
+            .where(Farmer.id == farmer_id)
+        )
+        await self.session.commit()
