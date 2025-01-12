@@ -10,12 +10,12 @@ class DatabaseSingleton:
 
     @staticmethod
     def get_instance():
-        if DatabaseSingleton.__instance == None:
+        if DatabaseSingleton.__instance is None:
             DatabaseSingleton()
         return DatabaseSingleton.__instance
 
     def __init__(self):
-        if DatabaseSingleton.__instance != None:
+        if DatabaseSingleton.__instance is not None:
             raise Exception("This class is a singleton!")
         else:
             config = Config()
@@ -26,6 +26,9 @@ class DatabaseSingleton:
             self.async_session = sessionmaker(
                 bind=engine, class_=AsyncSession, expire_on_commit=False
             )
+
+            # Atribui o objeto atual à variável de classe
+            DatabaseSingleton.__instance = self
 
     async def get_db(self):
         async with self.async_session() as session:

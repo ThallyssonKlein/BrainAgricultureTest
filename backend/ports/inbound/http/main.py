@@ -9,6 +9,7 @@ from ports.inbound.http.controllers.crop_controller import CropController
 from ports.inbound.http.controllers.culture_controller import CultureController
 from ports.inbound.http.controllers.dashboard_controller import DashboardController
 from ports.inbound.http.controllers.farm_controller import FarmController
+from ports.inbound.http.controllers.ping_controller import PingController
 from ports.inbound.http.error.http_error import HttpError
 from ports.inbound.http.controllers.farmer_controller import FarmerController
 from adapters.inbound.http.inbound_farmer_adapter import InboundFarmerAdapter
@@ -70,12 +71,14 @@ async def init_app():
     farm_controller = FarmController(inbound_farm_adapter)
     crop_controller = CropController(inbound_crop_adapter)
     culture_controller = CultureController(inbound_culture_adapter)
+    ping_controller = PingController()
 
     app.include_router(farmer_controller.get_router())
     app.include_router(dashboard_controller.get_router())
     app.include_router(farm_controller.get_router())
     app.include_router(crop_controller.get_router())
     app.include_router(culture_controller.get_router())
+    app.include_router(ping_controller.get_router())
 
 import asyncio
 asyncio.run(init_app())

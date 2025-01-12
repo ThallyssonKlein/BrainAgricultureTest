@@ -10,6 +10,16 @@ services:
     ports:
       - "5432:5432"
     restart: unless-stopped
+  backend_brain_agriculture_test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: backend_brain_agriculture_test
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres_db_brain_agriculture_test
+    restart: unless-stopped
 
 volumes:
   postgres_data_brain_agriculture:

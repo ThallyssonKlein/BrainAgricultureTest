@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /app
 
-CMD ["ENV=development-docker python", "-m","main"]
+CMD ["sh", "-c", "ENV=development-docker python -m main"]
