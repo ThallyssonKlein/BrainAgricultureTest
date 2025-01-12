@@ -1,4 +1,4 @@
-from sqlalchemy import literal, select
+from sqlalchemy import literal, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ports.outbound.database.models import Crop, Culture, Farm
@@ -28,6 +28,7 @@ class OutboundCropRepositoryPort:
                 literal(culture_name).label("culture_name")
             )
             .join(Crop.farm)
+            .join(Crop.culture)
             .where(Culture.name == culture_name)
             .where(Farm.farmer_id == farmer_id)
         )
@@ -59,4 +60,35 @@ class OutboundCropRepositoryPort:
         )
         result = await self.session.execute(stmt)
         return result.mappings().first()
-
+    
+    async def update_crop_by_id(self, crop_id: int, crop: dict):
+        d = crop.dict()
+        
+        # Atualizar os dados do crop
+        stmt_update = (
+            update(Crop)
+            .where(Crop.id == crop_id)
+            .values(
+                date=d["date"],
+                culture_id=d["culture"]["id"],
+            )
+            .execution_options(synchronize_session="fetch")
+        )
+        await self.session.execute(stmt_update)
+        await self.session.commit()
+        
+        # Consultar os dados atualizados, incluindo culture_name
+        stmt_select = (
+            select(
+                Crop.id,
+                Crop.date,
+                Culture.name.label("culture_name"),
+                Culture.id.label("culture_id"),
+                Farm.id.label("farm_id"),
+            )
+            .join(Culture, Culture.id == Crop.culture_id)
+            .join(Farm, Farm.id == Crop.farm_id)
+            .where(Crop.id == crop_id)
+        )
+        result = await self.session.execute(stmt_select)
+        return result.mappings().first()

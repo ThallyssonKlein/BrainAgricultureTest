@@ -5,6 +5,7 @@ import API from "../API";
 import CreateCultureModal from "../components/CreateCultureModal";
 import { ICrop, ICulture, IFarm } from "../components/IFarmer";
 import { CropModalContext } from "../context/CropModalContext";
+import { TablesContext } from "../context/TablesContext";
 
 interface ICreateCropModalProps {
     selectedFarm?: IFarm
@@ -13,7 +14,7 @@ interface ICreateCropModalProps {
 
 export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICreateCropModalProps) {
     const [date, setDate] = useState<string>("");
-    const { modalIsOpen, setModalIsOpen, isEdit } = useContext(CropModalContext);
+    const { modalIsOpen, setModalIsOpen, isEdit, selectedCrop } = useContext(CropModalContext);
     const { selectedOption } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
@@ -22,20 +23,16 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
     const [cultures, setCultures] = useState<ICulture[] | null>([]);
     const [selectedCulture, setSelectedCulture] = useState<number | null>(null);
     const [refreshKey2, setRefreshKey2] = useState(0);
+    const { setCrops } = useContext(TablesContext);
 
     useEffect(() => {
-        if (isEdit && selectedOption) {
-            // setVegetationArea(selectedOption.vegetation_area);
-            // setState(selectedOption.state);
-            // setName(selectedOption.name);
-            // setArableArea(selectedOption.arable_area);
-            // setTotalArea(selectedOption.total_area);
-            // setCity(selectedOption.city);
+        if (isEdit && selectedOption && selectedCrop) {
+            setDate(selectedCrop.date);
         } else {
             setDate("");
             setCultures(null);
         }
-    }, [isEdit, selectedOption]);
+    }, [isEdit, selectedOption, selectedCrop]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -47,25 +44,39 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
             }
     
             const newCrop = { date, culture: { id: selectedCulture } };
+            console.log(newCrop)
             if (isEdit) {
-                const response = await API.put(`/api/v1/farm/${selectedOption}/crop`, newCrop);
+                const response = await API.put(`/api/v1/crop/${selectedCrop?.id}`, newCrop);
     
                 if (response.status === 200) {
                     setSavedSuccessFullyMessage(true);
                     setTimeout(() => {
                         setSavedSuccessFullyMessage(false);
                     }, 2000);
+                    const updatedResponseData = response.data as ICrop;
+                    updatedResponseData.culture = {
+                        id: updatedResponseData.culture_id,
+                        name: updatedResponseData.culture_name ?? ""
+                    }
+
                     if (selectedFarm && setSelectedFarm) {
                         const updatedFarm = selectedFarm;
-                        const updatedResponseData = response.data as ICrop;
-                        updatedResponseData.culture = {
-                            id: updatedResponseData.culture_id,
-                            name: updatedResponseData.culture_name ?? ""
-                        }
-                        updatedFarm.crops = [...updatedFarm.crops ? updatedFarm.crops : [], response.data as ICrop];
+                        updatedFarm.crops = updatedFarm.crops?.map(crop => {
+                            if (crop.id === updatedResponseData.id) {
+                                return updatedResponseData;
+                            }
+                            return crop;
+                        });
                         setSelectedFarm(
                             updatedFarm
                         )
+                    } else {
+                        setCrops((prevState) => prevState.map(crop => {
+                            if (crop.id === updatedResponseData.id) {
+                                return updatedResponseData;
+                            }
+                            return crop;
+                        }));
                     }
                 } else {
                     setSavedWithErrorMessage(true);
@@ -83,17 +94,20 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
                     }, 2000);
                     setDate("");
                     setSelectedCulture(null);
+                    const updatedResponseData = response.data as ICrop;
+                    updatedResponseData.culture = {
+                        id: updatedResponseData.culture_id,
+                        name: updatedResponseData.culture_name ?? ""
+                    }
+
                     if (selectedFarm && setSelectedFarm) {
                         const updatedFarm = selectedFarm;
-                        const updatedResponseData = response.data as ICrop;
-                        updatedResponseData.culture = {
-                            id: updatedResponseData.culture_id,
-                            name: updatedResponseData.culture_name ?? ""
-                        }
-                        updatedFarm.crops = [...updatedFarm.crops ? updatedFarm.crops : [], response.data as ICrop];
+                        updatedFarm.crops = [...updatedFarm.crops ? updatedFarm.crops : [], updatedResponseData];
                         setSelectedFarm(
                             updatedFarm
                         )
+                    } else {
+                        setCrops((prevState) => [...prevState, updatedResponseData]);
                     }
                 } else {
                     setSavedWithErrorMessage(true);
@@ -115,9 +129,12 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
             
             if (response.status === 200) {
                 setCultures(response.data as ICulture[]);
+                if (isEdit) {
+                    setSelectedCulture(selectedCrop?.culture_id ?? null);
+                }
             }
         })()
-    }, [refreshKey2]);
+    }, [refreshKey2, selectedCrop]);
 
     return (
         <Modal
@@ -179,7 +196,7 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
                                             setSelectedCulture(culture.id)
                                             console.log(selectedCulture === culture.id)
                                         }}
-                                        style={{ cursor: 'pointer', background: selectedCulture === culture.id ? '#f0f0f0' : 'white' }}
+                                        style={{ cursor: 'pointer', background: selectedCulture === culture.id ? 'red' : 'white' }}
                                     >
                                         <td>{culture.id}</td>
                                         <td>{culture.name}</td>

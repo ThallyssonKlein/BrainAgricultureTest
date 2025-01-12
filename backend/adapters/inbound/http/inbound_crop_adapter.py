@@ -9,3 +9,6 @@ class InboundCropAdapter:
     
     async def create_crop_for_a_farm(self, farm_id: int, crop: dict):
         return await self.outbound_crop_repository_port.create_crop_for_a_farm(farm_id, crop)
+
+    async def update_crop_by_id(self, crop_id: int, crop: dict):
+        return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, crop)

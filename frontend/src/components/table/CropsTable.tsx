@@ -10,17 +10,19 @@ interface ICropsTableProps {
 }
 
 export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICropsTableProps): JSX.Element {
-    const { setModalIsOpen } = useContext(CropModalContext);
+    const { setModalIsOpen, setISEdit, setSelectedCrop } = useContext(CropModalContext);
 
     return (
         <div>
           <CreateCropModal selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm} />
-          <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
+          <table border={1} style={{ width: '100%', marginBottom: '20px', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                <th>Id</th>
-                <th>Data</th>
-                <th>Nome da Cultura</th>
+                <th style={{ minWidth: '50px', width: '1%' }}>Id</th>
+                <th style={{ minWidth: '100px', width: '10%' }}>Data</th>
+                <th style={{ width: 'auto' }}>Nome da Cultura</th>
+                <th style={{ minWidth: '80px', width: '1%' }}>Editar</th>
+                <th style={{ minWidth: '80px', width: '1%' }}>Excluir</th>
               </tr>
             </thead>
             <tbody>
@@ -32,6 +34,18 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
                   <td>{crop.id}</td>
                   <td>{crop.date}</td>
                   <td>{crop.culture?.name}</td>
+                  <td>
+                    <button
+                      onClick={() => {
+                        setISEdit(true);
+                        setSelectedCrop(crop);
+                        setModalIsOpen(true);
+                      }}
+                    >Edit</button>
+                  </td>
+                  <td>
+                    <button>Delete</button>
+                  </td>
                 </tr>
               )) : crops?.map((crop) => (
                 <tr
@@ -41,6 +55,19 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
                   <td>{crop.id}</td>
                   <td>{crop.date}</td>
                   <td>{crop.culture_name}</td>
+                  <td>
+                    <button
+                      onClick={() => {
+                        setISEdit(true);
+                        setSelectedCrop(null);
+                        setSelectedCrop(crop);
+                        setModalIsOpen(true);
+                      }}
+                    >Edit</button>
+                  </td>
+                  <td>
+                    <button>Delete</button>
+                  </td>
                 </tr>
               ))}
             </tbody>
