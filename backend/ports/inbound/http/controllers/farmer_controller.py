@@ -9,13 +9,13 @@ class FarmerController:
         self.farmer_adapter = farmer_adapter
         self.router.add_api_route("/api/v1/farmer", self.create_farmer, methods=["POST"], status_code=201)
         self.router.add_api_route("/api/v1/farmer", self.find_farmers_paginated_and_with_query, methods=["GET"])
-        self.router.add_api_route("/api/v1/farmer/{farmer_id}", self.update_farmer, methods=["PUT"], status_code=200)
+        self.router.add_api_route("/api/v1/farmer/{farmer_id}", self.update_farmer_by_id, methods=["PUT"], status_code=200)
         self.router.add_api_route("/api/v1/farmer/{farmer_id}", self.delete_farmer_by_id, methods=["DELETE"], status_code=200)
 
     async def create_farmer(self, farm_data: FarmerSchema = Body(...)):
         return await self.farmer_adapter.create_farmer(farm_data)
     
-    async def update_farmer(self, farmer_id: int, farm_data: FarmerSchema = Body(...)):
+    async def update_farmer_by_id(self, farmer_id: int, farm_data: FarmerSchema = Body(...)):
         return await self.farmer_adapter.update_farmer(farmer_id, farm_data)
     
     async def find_farmers_paginated_and_with_query(self, limit: int = Query(10), page: int = Query(0), query: str = Query(None)):
