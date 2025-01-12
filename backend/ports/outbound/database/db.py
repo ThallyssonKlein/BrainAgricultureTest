@@ -4,15 +4,29 @@ from urllib.parse import quote_plus
 
 from config.config import Config
 
-config = Config()
+class DatabaseSingleton:
+    __instance = None
+    async_session = None
 
-DATABASE_URL = f"postgresql+asyncpg://{config.get('db')['user']}:{quote_plus(config.get('db')['password'])}@{config.get('db')['host']}:{config.get('db')['port']}/{config.get('db')['database']}"
+    @staticmethod
+    def get_instance():
+        if DatabaseSingleton.__instance == None:
+            DatabaseSingleton()
+        return DatabaseSingleton.__instance
 
-engine = create_async_engine(DATABASE_URL, echo=True)
-async_session = sessionmaker(
-    bind=engine, class_=AsyncSession, expire_on_commit=False
-)
+    def __init__(self):
+        if DatabaseSingleton.__instance != None:
+            raise Exception("This class is a singleton!")
+        else:
+            config = Config()
 
-async def get_db():
-    async with async_session() as session:
-        yield session
+            DATABASE_URL = f"postgresql+asyncpg://{config.get('db')['user']}:{quote_plus(config.get('db')['password'])}@{config.get('db')['host']}:{config.get('db')['port']}/{config.get('db')['database']}"
+
+            engine = create_async_engine(DATABASE_URL, echo=True)
+            self.async_session = sessionmaker(
+                bind=engine, class_=AsyncSession, expire_on_commit=False
+            )
+
+    async def get_db(self):
+        async with self.async_session() as session:
+            yield session
