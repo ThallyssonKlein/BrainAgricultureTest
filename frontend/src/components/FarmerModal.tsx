@@ -4,6 +4,7 @@ import API from "../API";
 import { FarmerModalContext } from "../context/FarmerModalContext";
 import { OptionsContext } from "../context/OptionsContext";
 import StatesSelect from "./StatesSelect";
+import messageTranslations from '../messageTranslations'
 
 export default function FarmerModal() {
     const [name, setName] = useState("");
@@ -38,7 +39,7 @@ export default function FarmerModal() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newFarmer = { name, state, city, document, id: selectedOption?.id };
+        const newFarmer = { name, state, city, document: document.replace(/\D/g, ""), id: selectedOption?.id };
         if (isEdit) {
             const response = await API.put(`/api/v1/farmer/${selectedOption?.id}`, newFarmer);
 
@@ -47,12 +48,22 @@ export default function FarmerModal() {
                 setTimeout(() => {
                     setSavedSuccessFullyMessage(false);
                 }, 2000);
+                return
             } else {
+                if(response.status === 400) {
+                    const data = response.data as { message: string };
+                    const message = data.message;
+                    if (messageTranslations[message]) {
+                        alert(messageTranslations[message])
+                    }
+                }
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);
                 }, 2000);
             }
+            
+            
         } else {
             const response = await API.post("/api/v1/farmer", newFarmer);
 
@@ -66,6 +77,13 @@ export default function FarmerModal() {
                 setCity("");
                 setDocument("");
             } else {
+                if(response.status === 400) {
+                    const data = response.data as { message: string };
+                    const message = data.message;
+                    if (messageTranslations[message]) {
+                        alert(messageTranslations[message])
+                    }
+                }
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);

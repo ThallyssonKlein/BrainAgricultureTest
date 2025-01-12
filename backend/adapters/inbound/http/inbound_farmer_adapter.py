@@ -35,17 +35,17 @@ class InboundFarmerAdapter(Loggable):
                 self.log.info(f"Validating CNPJ: {farmer_data['document']}", trace_id)
                 self.person_service.validate_cnpj(farmer_data['document'])
         except InvalidCPFError as err:
-            self.log.error(err.get_message(), trace_id)
-            raise BadRequestError(err)
+            self.log.error(err.get_message, trace_id)
+            raise BadRequestError(err.get_message)
         except InvalidCNPJError as err:
-            self.log.error(err.get_message(), trace_id)
-            raise BadRequestError(err)
+            self.log.error(err.get_message, trace_id)
+            raise BadRequestError(err.get_message)
 
 
     async def create_farmer(self, farmer_schema: FarmerSchema, trace_id: str):
         farmer_data = farmer_schema.model_dump()
         
-        self.__farmer_validations(farmer_data)
+        self.__farmer_validations(farmer_data, trace_id)
 
         try:
             self.log.info(f"Creating farmer with data: {farmer_data}", trace_id)
@@ -60,7 +60,7 @@ class InboundFarmerAdapter(Loggable):
         farmer_data = farmer_schema.model_dump()
         farmer_data['id'] = farmer_id
 
-        self.__farmer_validations(farmer_data)
+        self.__farmer_validations(farmer_data, trace_id)
 
         try:
             self.log.info(f"Updating farmer with id: {farmer_id} and data: {farmer_data}", trace_id)

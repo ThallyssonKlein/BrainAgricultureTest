@@ -23,7 +23,7 @@ class CultureService(Loggable):
     async def create_culture_for_a_farmer(self, farmer_id, culture_data: dict, trace_id: str):
         await self.__validate_culture_exists(farmer_id, culture_data, trace_id)
         self.log.info(f"Creating culture for farmer with id: {farmer_id} and data: {culture_data}", trace_id)
-        return await self.outbound_culture_repository_port.create_culture_for_a_farmer(farmer_id, culture_data)
+        return await self.outbound_culture_repository_port.create_culture_for_a_farmer(farmer_id, culture_data, trace_id)
     
     async def update_culture_by_id(self, farmer_id, culture_data: dict, trace_id: str):
         await self.__validate_culture_exists(farmer_id, culture_data, trace_id, True)
