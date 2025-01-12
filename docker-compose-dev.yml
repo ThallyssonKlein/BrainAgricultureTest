@@ -3,7 +3,7 @@ services:
     image: postgres:14
     container_name: postgres_db_brain_agriculture_test
     env_file:
-      - .env
+      - .env.dev
     volumes:
       - postgres_data_brain_agriculture:/var/lib/postgresql/data
       - ./init.dev.sql:/docker-entrypoint-initdb.d/init.sql
