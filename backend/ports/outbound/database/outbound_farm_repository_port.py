@@ -34,20 +34,20 @@ class OutboundFarmRepositoryPort():
 
     async def find_farm_counts_grouped_by_state_by_farmer_id(self, farmer_id: int):
         query = select(
-            Farm.state,
+            Farm.state.label("state"),
             func.count(Farm.id).label('farm_count')
         ).where(Farm.farmer_id == farmer_id).group_by(Farm.state)
         result = await self.session.execute(query)
-        return result.all()
+        return result.mappings().all()
     
     async def find_farms_count_grouped_by_culture_by_farmer_id(self, farmer_id: int):
         query = select(
-            Culture.name,
+            Culture.name.label('culture'),
             func.count(Farm.id).label('farm_count')
         ).join(Crop, Crop.farm_id == Farm.id).join(Culture, Culture.id == Crop.culture_id).where(Farm.farmer_id == farmer_id).group_by(Culture.name)
         
         result = await self.session.execute(query)
-        return result.all()
+        return result.mappings().all()
     
     async def find_average_land_use_by_farmer_id(self, farmer_id: int):
         query = select(

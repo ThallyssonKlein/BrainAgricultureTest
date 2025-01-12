@@ -21,22 +21,10 @@ class InboundDashboardAdapter:
         data_for_chats["total_hectares"] = result1["total_hectares"]
 
         result2 = await self.outbound_farm_repository.find_farm_counts_grouped_by_state_by_farmer_id(farmer_id)
-        end_array = []
-        for result in result2:
-            end_array.append({
-                "state": result[0],
-                "farm_count": result[1]
-            })
-        data_for_chats["farm_counts_grouped_by_state"] = end_array
+        data_for_chats["farm_counts_grouped_by_state"] = result2
 
         result4 = await self.outbound_farm_repository.find_farms_count_grouped_by_culture_by_farmer_id(farmer_id)
-        end_array2 = []
-        for result in result4:
-            end_array2.append({
-                "culture": result[0],
-                "farm_count": result[1]
-            })
-        data_for_chats["farms_count_grouped_by_culture"] = end_array2
+        data_for_chats["farms_count_grouped_by_culture"] = result4
 
         result6 = await self.outbound_farm_repository.find_average_land_use_by_farmer_id(farmer_id)
         data_for_chats["average_land_use"]["average_arable_area"] = result6["average_arable_area"]
