@@ -4,7 +4,7 @@ import API from "../API";
 import { FarmerModalContext } from "../context/FarmerModalContext";
 import { OptionsContext } from "../context/OptionsContext";
 
-export default function CreateFarmerModal() {
+export default function FarmerModal() {
     const [name, setName] = useState("");
     const [state, setState] = useState("");
     const [city, setCity] = useState("");

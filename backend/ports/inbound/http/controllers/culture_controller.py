@@ -14,6 +14,12 @@ class CultureController:
             status_code=201
         )
         self.router.add_api_route(
+            "/api/v1/culture/{culture_id}", 
+            self.update_culture_by_id, 
+            methods=["PUT"],
+            status_code=200
+        )
+        self.router.add_api_route(
             "/api/v1/farmer/{farmer_id}/culture", 
             self.get_cultures_for_a_farmer, 
             methods=["GET"]
@@ -24,6 +30,9 @@ class CultureController:
     
     async def get_cultures_for_a_farmer(self, farmer_id: int = Path(...)):
         return await self.inbound_culture_adapter.get_cultures_for_a_farmer_id(farmer_id)
-
+    
+    async def update_culture_by_id(self, culture_id: int = Path(...), culture: CultureSchema = Body(...)):
+        return await self.inbound_culture_adapter.update_culture_by_id(culture_id, culture)
+    
     def get_router(self):
         return self.router

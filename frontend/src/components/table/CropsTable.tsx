@@ -1,7 +1,7 @@
 import React, { JSX, useContext } from "react";
 import { ICrop, IFarm } from "../IFarmer";
 import { CropModalContext } from "../../context/CropModalContext";
-import CreateCropModal from "../CreateCropModal";
+import CropModal from "../CropModal";
 import API from "../../API";
 import { OptionsContext } from "../../context/OptionsContext";
 import { TablesContext } from "../../context/TablesContext";
@@ -24,7 +24,6 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
 
         if (response.status === 200){
             if (selectedFarm && setSelectedFarm) {
-                // find and delete selectedFarm.crop with id
                 const updatedFarm = selectedFarm;
                 updatedFarm.crops = updatedFarm.crops?.filter(crop => crop.id !== id);
                 setSelectedFarm(
@@ -44,7 +43,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
 
     return (
         <div>
-          <CreateCropModal selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm} />
+          <CropModal selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm} />
           <table border={1} style={{ width: '100%', marginBottom: '20px', borderCollapse: 'collapse' }}>
             <thead>
               <tr>

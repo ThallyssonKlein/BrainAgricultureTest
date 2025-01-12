@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import delete
+from sqlalchemy import delete, update
 
 from ports.outbound.database.models import Culture
 
@@ -40,3 +40,14 @@ class OutboundCultureRepositoryPort:
     async def get_by_farmer_id_and_name(self, farmer_id: int, culture_name: str):
         result = await self.session.execute(select(Culture).where(Culture.farmer_id == farmer_id, Culture.name == culture_name).limit(1))
         return result.scalar_one_or_none()
+    
+    async def update_culture_by_id(self, culture_id: int, culture: dict):
+        d = culture.dict()
+        await self.session.execute(
+            update(Culture)
+            .where(Culture.id == culture_id)
+            .values(**d)
+        )
+        await self.session.commit()
+        result = await self.session.execute(select(Culture).where(Culture.id == culture_id))
+        return result.scalar_one()

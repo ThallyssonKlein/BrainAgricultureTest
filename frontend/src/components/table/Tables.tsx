@@ -1,8 +1,7 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
-import { IFarm } from '../IFarmer';
 
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);

@@ -6,7 +6,7 @@ import API from "../API";
 import { TablesContext } from "../context/TablesContext";
 import { IFarm } from "./IFarmer";
 
-export default function CreateFarmModal() {
+export default function FarmModal() {
     const [vegetationArea, setVegetationArea] = useState<number>(0);
     const [state, setState] = useState<string>("");
     const [name, setName] = useState<string>("");

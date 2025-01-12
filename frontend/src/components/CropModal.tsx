@@ -2,8 +2,8 @@ import React, { useState, useContext, useEffect } from "react";
 import Modal from "react-modal";
 import { OptionsContext } from "../context/OptionsContext";
 import API from "../API";
-import CreateCultureModal from "../components/CreateCultureModal";
-import { ICrop, ICulture, IFarm } from "../components/IFarmer";
+import CultureModal from "./CultureModal";
+import { ICrop, ICulture, IFarm } from "./IFarmer";
 import { CropModalContext } from "../context/CropModalContext";
 import { TablesContext } from "../context/TablesContext";
 
@@ -12,7 +12,7 @@ interface ICreateCropModalProps {
     setSelectedFarm?: React.Dispatch<React.SetStateAction<IFarm | null>>;
 }
 
-export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICreateCropModalProps) {
+export default function CropModal({ setSelectedFarm, selectedFarm }: ICreateCropModalProps) {
     const [date, setDate] = useState<string>("");
     const { modalIsOpen, setModalIsOpen, isEdit, selectedCrop } = useContext(CropModalContext);
     const { selectedOption, setRefreshKey } = useContext(OptionsContext);
@@ -22,6 +22,7 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
     const [cultureModalIsOpen, setCultureModalIsOpen] = useState(false);
     const [cultures, setCultures] = useState<ICulture[] | null>([]);
     const [selectedCulture, setSelectedCulture] = useState<number | null>(null);
+    const [selectedCultureObject, setSelectedCultureObject] = useState<ICulture | null>(null);
     const [refreshKey2, setRefreshKey2] = useState(0);
     const { setCrops } = useContext(TablesContext);
 
@@ -43,7 +44,6 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
         }
 
         const newCrop = { date, culture: { id: selectedCulture } };
-        console.log(newCrop)
         if (isEdit) {
             const response = await API.put(`/api/v1/crop/${selectedCrop?.id}`, newCrop);
 
@@ -132,6 +132,30 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
         })()
     }, [refreshKey2, selectedCrop]);
 
+    const handleDeleteCulture = async (id: number) => {
+        const userResponse = window.confirm("Do you want to proceed?");
+        if (userResponse) {
+        const response = await API.delete(`/api/v1/culture/${id}`);
+
+        if (response.status === 200){
+            if (selectedFarm && setSelectedFarm) {
+                const updatedFarm = selectedFarm;
+                updatedFarm.crops = updatedFarm.crops?.find(crop => crop.culture_id === id) ? updatedFarm.crops?.filter(crop => crop.culture_id !== id) : updatedFarm.crops;
+                setSelectedFarm(
+                    updatedFarm
+                )
+            } else {
+                setCrops((prevState) => {
+                    return prevState?.filter(crop => crop.culture_id !== id);
+                });
+            }
+            setRefreshKey(previos => previos + 1);
+        } else {
+            alert("Error deleting!");
+        }
+        }
+    }
+
     return (
         <Modal
             isOpen={modalIsOpen}
@@ -147,11 +171,14 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
                 },
             }}
         >
-            <CreateCultureModal 
+            <CultureModal 
                     isEdit={isEditCulture}
                     modalIsOpen={cultureModalIsOpen}
                     setModalIsOpen={setCultureModalIsOpen}
-                    setRefreshKey2={setRefreshKey2} />
+                    setRefreshKey2={setRefreshKey2}
+                    selectedCultureObject={selectedCultureObject}
+                    selectedCrop={selectedCrop}
+                    />
             <button
                 onClick={() => setModalIsOpen(false)}
                 style={{
@@ -175,26 +202,40 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
                 <h1>Select One Culture or Create It</h1>
                 {cultures && cultures.length > 0 ? 
                     <div>
-                        <table border={1} style={{ width: '100%' }}>
-                            <thead>
+                        <table border={1} style={{ width: '100%', marginBottom: '20px', borderCollapse: 'collapse' }}>
+                        <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>Nome da Cultura</th>
+                                <th style={{ minWidth: '50px', width: '1%' }}>Id</th>
+                                <th style={{ minWidth: '100px', width: '10%' }}>Nome da Cultura</th>
+                                <th style={{ minWidth: '80px', width: '0.1%' }}>Editar</th>
+                                <th style={{ minWidth: '80px', width: '0.1%' }}>Excluir</th>
                             </tr>
-                            </thead>
-                            <tbody>
+                        </thead>
+                        <tbody>
                             {
                                 cultures.map(culture => (
                                     <tr
                                         key={culture.id}
                                         onClick={() => {
                                             setSelectedCulture(culture.id)
-                                            console.log(selectedCulture === culture.id)
                                         }}
                                         style={{ cursor: 'pointer', background: selectedCulture === culture.id ? 'red' : 'white' }}
                                     >
                                         <td>{culture.id}</td>
                                         <td>{culture.name}</td>
+                                        <td>
+                                        <button
+                                            onClick={() => {
+                                                setIsEditCulture(true);
+                                                setSelectedCultureObject(null);
+                                                setSelectedCultureObject(culture);
+                                                setCultureModalIsOpen(true);
+                                            }}
+                                            >Edit</button>
+                                        </td>
+                                        <td>
+                                            <button onClick={(event) => handleDeleteCulture(culture.id)}>Delete</button>
+                                        </td>
                                     </tr>                  
                                 ))
                             }

@@ -4,14 +4,14 @@ import { OptionsContextProvider } from "../../context/OptionsContext";
 import Charts from "../../components/charts/Charts";
 import { TablesContextProvider } from "../../context/TablesContext";
 import Tables from "../../components/table/Tables";
-import CreateFarmerModal from "../../components/CreateFarmerModal";
+import FarmerModal from "../../components/FarmerModal";
 import { FarmerModalContextProvider } from "../../context/FarmerModalContext";
 import CreateFarmerButton from "../../components/CreateFarmerButton";
 import EditFarmerButton from "../../components/EditFarmerButton";
 import DeleteFarmerButton from "../../components/DeleteFarmerButton";
 import { FarmModalContextProvider } from "../../context/FarmModalContext";
 import CreateFarmButton from "../../components/CreateFarmButton";
-import CreateFarmModal from "../../components/CreateFarmModal";
+import FarmModal from "../../components/FarmModal";
 import { CropModalContextProvider } from "../../context/CropModalContext";
 
 export default function Dashboard() {
@@ -20,8 +20,8 @@ export default function Dashboard() {
             <FarmerModalContextProvider>
                 <FarmModalContextProvider>
                     <TablesContextProvider>
-                        <CreateFarmerModal />
-                        <CreateFarmModal />
+                        <FarmerModal />
+                        <FarmModal />
                         <div>
                             <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                                     <PaginatedSelect />
