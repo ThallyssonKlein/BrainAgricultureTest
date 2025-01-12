@@ -1,4 +1,4 @@
-from sqlalchemy import literal, select, update
+from sqlalchemy import delete, literal, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ports.outbound.database.models import Crop, Culture, Farm
@@ -92,3 +92,9 @@ class OutboundCropRepositoryPort:
         )
         result = await self.session.execute(stmt_select)
         return result.mappings().first()
+
+    async def delete_crop_by_id(self, crop_id: int):
+        stmt = delete(Crop).where(Crop.id == crop_id)
+        await self.session.execute(stmt)
+        await self.session.commit()
+

@@ -12,3 +12,6 @@ class InboundCropAdapter:
 
     async def update_crop_by_id(self, crop_id: int, crop: dict):
         return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, crop)
+    
+    async def delete_crop_by_id(self, crop_id: int):
+        await self.outbound_crop_repository_port.delete_crop_by_id(crop_id)

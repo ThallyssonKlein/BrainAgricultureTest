@@ -23,6 +23,11 @@ class CropController:
             self.update_crop_by_id,
             methods=["PUT"]
         )
+        self.router.add_api_route(
+            "/api/v1/crop/{crop_id}",
+            self.delete_crop_by_id,
+            methods=["DELETE"]
+        )
 
 
     async def find_crops_where_associated_culture_has_the_name_and_by_farmer_id(self, culture_name: str, farmer_id: int):
@@ -33,6 +38,9 @@ class CropController:
 
     async def update_crop_by_id(self, crop_id: int = Path(...), crop: CropSchema = Body(...)):
         return await self.inbound_crop_adapter.update_crop_by_id(crop_id, crop)
+    
+    async def delete_crop_by_id(self, crop_id: int = Path(...)):
+        await self.inbound_crop_adapter.delete_crop_by_id(crop_id)
     
     def get_router(self):
         return self.router

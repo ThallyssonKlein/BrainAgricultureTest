@@ -14,7 +14,7 @@ export default function CreateFarmModal() {
     const [totalArea, setTotalArea] = useState<number>(0);
     const [city, setCity] = useState<string>("");
     const { modalIsOpen, setModalIsOpen, isEdit } = useContext(FarmModalContext);
-    const { selectedOption, refreshKey, setRefreshKey } = useContext(OptionsContext);
+    const { selectedOption, setRefreshKey } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
     const { setFarms } = useContext(TablesContext);
@@ -69,7 +69,7 @@ export default function CreateFarmModal() {
                 setArableArea(0);
                 setTotalArea(0);
                 setCity("");
-                setRefreshKey(refreshKey + 1);
+                setRefreshKey(previous => previous + 1);
                 setFarms((prevFarms) => [...prevFarms, response.data as IFarm]);
             } else {
                 setSavedWithErrorMessage(true);

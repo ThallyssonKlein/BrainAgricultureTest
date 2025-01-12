@@ -9,13 +9,12 @@ interface ICreateCultureModalProps {
     culture?: ICulture
     modalIsOpen: boolean;
     setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    refreshKey2: number;
     setRefreshKey2: React.Dispatch<React.SetStateAction<number>>;
 }
 
-export default function CreateCultureModal({ isEdit, culture, modalIsOpen, setModalIsOpen, refreshKey2, setRefreshKey2 }: ICreateCultureModalProps) {
+export default function CreateCultureModal({ isEdit, culture, modalIsOpen, setModalIsOpen, setRefreshKey2 }: ICreateCultureModalProps) {
     const [name, setName] = useState<string>("");
-    const { selectedOption, refreshKey, setRefreshKey } = useContext(OptionsContext);
+    const { selectedOption, setRefreshKey } = useContext(OptionsContext);
 
     useEffect(() => {
         if (isEdit && culture) {
@@ -33,8 +32,8 @@ export default function CreateCultureModal({ isEdit, culture, modalIsOpen, setMo
 
             if (response.status === 200) {
                 setModalIsOpen(false);
-                setRefreshKey(refreshKey + 1);
-                setRefreshKey2(refreshKey2 + 1);
+                setRefreshKey(previous => previous + 1);
+                setRefreshKey2(previous => previous + 1);
             } else {
                 alert("Error editing culture!")
             }
@@ -43,8 +42,8 @@ export default function CreateCultureModal({ isEdit, culture, modalIsOpen, setMo
 
             if (response.status === 201) {
                 setModalIsOpen(false);
-                setRefreshKey(refreshKey + 1);
-                setRefreshKey2(refreshKey2 + 1);
+                setRefreshKey(previous => previous + 1);
+                setRefreshKey2(previous => previous + 1);
             } else {
                 alert("Error creating culture!")
             }

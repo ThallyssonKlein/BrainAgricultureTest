@@ -2,6 +2,9 @@ import React, { JSX, useContext } from "react";
 import { ICrop, IFarm } from "../IFarmer";
 import { CropModalContext } from "../../context/CropModalContext";
 import CreateCropModal from "../CreateCropModal";
+import API from "../../API";
+import { OptionsContext } from "../../context/OptionsContext";
+import { TablesContext } from "../../context/TablesContext";
 
 interface ICropsTableProps {
     selectedFarm?: IFarm;
@@ -11,6 +14,33 @@ interface ICropsTableProps {
 
 export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICropsTableProps): JSX.Element {
     const { setModalIsOpen, setISEdit, setSelectedCrop } = useContext(CropModalContext);
+    const { setRefreshKey } = useContext(OptionsContext);
+    const { setCrops } = useContext(TablesContext);
+
+    const handleDeleteCrop = async (id: number) => {
+      const userResponse = window.confirm("Do you want to proceed?");
+      if (userResponse) {
+        const response = await API.delete(`/api/v1/crop/${id}`);
+
+        if (response.status === 200){
+            if (selectedFarm && setSelectedFarm) {
+                // find and delete selectedFarm.crop with id
+                const updatedFarm = selectedFarm;
+                updatedFarm.crops = updatedFarm.crops?.filter(crop => crop.id !== id);
+                setSelectedFarm(
+                    updatedFarm
+                )
+            } else {
+                setCrops((prevState) => {
+                    return prevState?.filter(crop => crop.id !== id);
+                });
+            }
+            setRefreshKey(previos => previos + 1);
+        } else {
+          alert("Error deleting!");
+        }
+      }
+    }
 
     return (
         <div>
@@ -44,7 +74,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
                     >Edit</button>
                   </td>
                   <td>
-                    <button>Delete</button>
+                    <button onClick={(event) => handleDeleteCrop(crop.id)}>Delete</button>
                   </td>
                 </tr>
               )) : crops?.map((crop) => (
@@ -66,7 +96,7 @@ export default function CropsTable({ selectedFarm, crops, setSelectedFarm }: ICr
                     >Edit</button>
                   </td>
                   <td>
-                    <button>Delete</button>
+                    <button onClick={(event) => handleDeleteCrop(crop.id)}>Delete</button>
                   </td>
                 </tr>
               ))}
