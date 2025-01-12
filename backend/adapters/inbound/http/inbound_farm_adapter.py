@@ -1,4 +1,5 @@
 from adapters.inbound.http.schemas import FarmSchema
+from ports.inbound.http.error.not_found_error import NotFoundError
 from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 
 class InboundFarmAdapter:
@@ -23,4 +24,6 @@ class InboundFarmAdapter:
         return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, f)
     
     async def delete_farm_by_id(self, farm_id: int):
-        return await self.outbound_farm_repository_port.delete_farm_by_id(farm_id)
+        result = await self.outbound_farm_repository_port.delete_farm_by_id(farm_id)
+        if result.rowcount == 0:
+            raise NotFoundError("Farm not found")

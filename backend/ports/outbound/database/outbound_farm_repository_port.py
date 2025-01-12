@@ -154,8 +154,13 @@ class OutboundFarmRepositoryPort():
 
 
     async def delete_farm_by_id(self, farm_id: int):
-        await self.session.execute(
-            delete(Farm)
-            .where(Farm.id == farm_id)
-        )
-        await self.session.commit()
+        try:
+            result = await self.session.execute(
+                delete(Farm)
+                .where(Farm.id == farm_id)
+            )
+            await self.session.commit()
+            return result
+        except Exception as e:
+            await self.session.rollback()
+            raise e

@@ -67,4 +67,6 @@ class InboundFarmerAdapter:
         return await self.outbound_farmer_repository_port.find_farmers_paginated_and_with_query(limit, offset, query)
     
     async def delete_farmer_by_id(self, farmer_id: int):
-        await self.outbound_farmer_repository_port.delete_farmer_by_id(farmer_id)
+        result = await self.outbound_farmer_repository_port.delete_farmer_by_id(farmer_id)
+        if result.rowcount == 0:
+            raise NotFoundError("Farmer not found")

@@ -55,7 +55,8 @@ class FarmController:
         return await self.inbound_farm_adapter.update_farm_by_id(farm_id, farm)
     
     async def delete_farm_by_id(self, farm_id: int):
-        return await self.inbound_farm_adapter.delete_farm_by_id(farm_id)
+        await self.inbound_farm_adapter.delete_farm_by_id(farm_id)
+        return {"message": "Farm deleted"}
 
     def get_router(self):
         return self.router

@@ -25,7 +25,8 @@ class FarmerController:
         return await self.farmer_adapter.find_farmers_paginated_and_with_query(limit, page, query)
     
     async def delete_farmer_by_id(self, farmer_id: int):
-        return await self.farmer_adapter.delete_farmer_by_id(farmer_id)
+        await self.farmer_adapter.delete_farmer_by_id(farmer_id)
+        return {"message": "Farmer deleted"}
 
     def get_router(self):
         return self.router

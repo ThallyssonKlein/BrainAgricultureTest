@@ -75,10 +75,11 @@ class OutboundFarmerRepositoryPort():
     
     async def delete_farmer_by_id(self, farmer_id: int):
         try:
-            await self.session.execute(
+            result = await self.session.execute(
                 delete(Farmer).where(Farmer.id == farmer_id)
             )
             await self.session.commit()
+            return result
         except Exception as e:
             await self.session.rollback()
             raise e
