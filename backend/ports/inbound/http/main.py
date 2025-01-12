@@ -4,6 +4,7 @@ from adapters.inbound.http.inbound_crop_adapter import InboundCropAdapter
 from adapters.inbound.http.inbound_culture_adapter import InboundCultureAdapter
 from adapters.inbound.http.inbound_dashboard_adapter import InboundDashboardAdapter
 from adapters.inbound.http.inbound_farm_adapter import InboundFarmAdapter
+from domain.culture.culture_service import CultureService
 from ports.inbound.http.controllers.crop_controller import CropController
 from ports.inbound.http.controllers.culture_controller import CultureController
 from ports.inbound.http.controllers.dashboard_controller import DashboardController
@@ -56,7 +57,7 @@ async def init_dependencies(db: AsyncSession):
     inbound_dashboard_adapter = InboundDashboardAdapter(outbound_farm_repository_port)
     inbound_farm_adapter = InboundFarmAdapter(outbound_farm_repository_port)
     inbound_crop_adapter = InboundCropAdapter(outbound_crop_repository_port)
-    inbound_culture_adapter = InboundCultureAdapter(outbound_culture_repository_port)
+    inbound_culture_adapter = InboundCultureAdapter(outbound_culture_repository_port, CultureService(outbound_culture_repository_port))
 
     return inbound_farmer_adapter, inbound_dashboard_adapter, inbound_farm_adapter, inbound_crop_adapter, inbound_culture_adapter
 

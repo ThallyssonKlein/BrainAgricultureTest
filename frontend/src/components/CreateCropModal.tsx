@@ -21,6 +21,7 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
     const [cultureModalIsOpen, setCultureModalIsOpen] = useState(false);
     const [cultures, setCultures] = useState<ICulture[] | null>([]);
     const [selectedCulture, setSelectedCulture] = useState<number | null>(null);
+    const [refreshKey2, setRefreshKey2] = useState(0);
 
     useEffect(() => {
         if (isEdit && selectedOption) {
@@ -116,7 +117,7 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
                 setCultures(response.data as ICulture[]);
             }
         })()
-    }, [])
+    }, [refreshKey2]);
 
     return (
         <Modal
@@ -133,7 +134,12 @@ export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICrea
                 },
             }}
         >
-            <CreateCultureModal isEdit={isEditCulture} modalIsOpen={cultureModalIsOpen} setModalIsOpen={setCultureModalIsOpen}/>
+            <CreateCultureModal 
+                    isEdit={isEditCulture}
+                    modalIsOpen={cultureModalIsOpen}
+                    setModalIsOpen={setCultureModalIsOpen}
+                    refreshKey2={refreshKey2}
+                    setRefreshKey2={setRefreshKey2} />
             <button
                 onClick={() => setModalIsOpen(false)}
                 style={{

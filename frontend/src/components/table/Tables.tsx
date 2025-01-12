@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
-import CulturesTable from './CulturesTable';
 import { ICrop, IFarm } from '../IFarmer';
 
 const FarmTable: React.FC = () => {
@@ -69,13 +68,6 @@ const FarmTable: React.FC = () => {
             handleCropClick={handleCropClick}
           />
         )}
-
-        <h3>Cultures</h3>
-        {selectedCrop && selectedCrop.culture ? (
-          <CulturesTable
-            selectedCrop={{ culture: selectedCrop.culture }}
-          />
-        ) : null}
       </div>
       }
       {crops && crops.length > 0 && (!farms || farms.length === 0) &&

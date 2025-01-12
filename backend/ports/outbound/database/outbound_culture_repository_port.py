@@ -36,3 +36,7 @@ class OutboundCultureRepositoryPort:
     async def get_cultures_for_a_farmer_id(self, farmer_id: int):
         result = await self.session.execute(select(Culture).where(Culture.farmer_id == farmer_id))
         return result.scalars().all()
+    
+    async def get_by_farmer_id_and_name(self, farmer_id: int, culture_name: str):
+        result = await self.session.execute(select(Culture).where(Culture.farmer_id == farmer_id, Culture.name == culture_name).limit(1))
+        return result.scalar_one_or_none()

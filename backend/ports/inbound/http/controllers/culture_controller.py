@@ -10,7 +10,8 @@ class CultureController:
         self.router.add_api_route(
             "/api/v1/farmer/{farmer_id}/culture", 
             self.create_a_culture_for_a_farmer, 
-            methods=["POST"]
+            methods=["POST"],
+            status_code=201
         )
         self.router.add_api_route(
             "/api/v1/farmer/{farmer_id}/culture", 
