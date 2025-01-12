@@ -20,13 +20,12 @@ class OutboundCultureRepositoryPort:
             raise e
     
     async def create_culture_for_a_farmer(self, farmer_id: int, culture: dict):
-        stmt = (
-            insert(Culture)
-            .values(**culture, farmer_id=farmer_id)
-            .returning(Culture)
-        )
-
         try:
+            stmt = (
+                insert(Culture)
+                .values(**culture, farmer_id=farmer_id)
+                .returning(Culture)
+            )
             result = await self.session.execute(stmt)
             await self.session.commit()
 

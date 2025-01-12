@@ -10,18 +10,17 @@ class OutboundFarmerRepositoryPort():
         self.session = session
 
     async def create_farmer(self, farmer_data: dict):
-        stmt = (
-            insert(Farmer)
-            .values(
-                document=farmer_data["document"],
-                name=farmer_data["name"],
-                city=farmer_data["city"],
-                state=farmer_data["state"],
-            )
-            .returning(Farmer)
-        )
-
         try:
+            stmt = (
+                insert(Farmer)
+                .values(
+                    document=farmer_data["document"],
+                    name=farmer_data["name"],
+                    city=farmer_data["city"],
+                    state=farmer_data["state"],
+                )
+                .returning(Farmer)
+            )
             result = await self.session.execute(stmt)
             await self.session.commit()
 
@@ -37,20 +36,19 @@ class OutboundFarmerRepositoryPort():
 
 
     async def update_farmer(self, farmer_data: dict):
-        stmt = (
-            update(Farmer)
-            .where(Farmer.id == farmer_data["id"])
-            .values(
-                document=farmer_data.get("document"),
-                name=farmer_data.get("name"),
-                city=farmer_data.get("city"),
-                state=farmer_data.get("state"),
-            )
-            .returning(Farmer)
-            .execution_options(synchronize_session="fetch")
-        )
-
         try:
+            stmt = (
+                update(Farmer)
+                .where(Farmer.id == farmer_data["id"])
+                .values(
+                    document=farmer_data.get("document"),
+                    name=farmer_data.get("name"),
+                    city=farmer_data.get("city"),
+                    state=farmer_data.get("state"),
+                )
+                .returning(Farmer)
+                .execution_options(synchronize_session="fetch")
+            )
             result = await self.session.execute(stmt)
             await self.session.commit()
 
