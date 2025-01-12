@@ -34,11 +34,11 @@ class FarmController(Loggable):
     async def find_farms(self, request: Request, farmer_id: int, state: str = Query(None), order_by: str = Query(None)):
         self.log.info(f"Request received to find farms with farmer_id: {farmer_id}, state: {state}, order_by: {order_by}", request.state.trace_id)
         if state:
-            return await self.find_farm_by_farmer_id_and_state(farmer_id, state, request.state.trace_id)
+            return await self.find_farm_by_farmer_id_and_state(request, farmer_id, state)
         elif order_by == "vegetation_area_desc":
-            return await self.find_farms_ordered_by_vegetation_area_desc_by_farmer_id(farmer_id, request.state.trace_id)
+            return await self.find_farms_ordered_by_vegetation_area_desc_by_farmer_id(request, farmer_id)
         elif order_by == "arable_area_desc":
-            return await self.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id, request.state.trace_id)
+            return await self.find_farms_ordered_by_arable_area_desc_by_farmer_id(request, farmer_id)
         else:
             self.log.error("Invalid parameters", request.state.trace_id)
             return {"error": "Invalid parameters"}
