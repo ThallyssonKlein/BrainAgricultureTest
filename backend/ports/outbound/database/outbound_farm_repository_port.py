@@ -144,7 +144,7 @@ class OutboundFarmRepositoryPort():
                     name=farm["name"],
                     arable_area=farm["arable_area"],
                     vegetation_area=farm["vegetation_area"],
-                    total_area=farm["total_area"],
+                    total_area=farm["vegetation_area"] + farm["arable_area"],
                     farmer_id=farmer_id,
                     city=farm["city"],
                     state=farm["state"],

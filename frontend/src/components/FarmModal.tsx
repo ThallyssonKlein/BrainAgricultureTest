@@ -86,6 +86,10 @@ export default function FarmModal() {
         }
     };
 
+    useEffect(() => {
+        setTotalArea((vegetationArea || 0) + (arableArea || 0));
+    }, [arableArea, vegetationArea]);
+
     return (
         <Modal
             isOpen={modalIsOpen}
@@ -140,7 +144,7 @@ export default function FarmModal() {
                 <input type="number" value={arableArea} onChange={(e) => setArableArea(Number(e.target.value))} required />
 
                 <label style={{ marginRight: 20}}>Área Total</label>
-                <input type="number" value={totalArea} onChange={(e) => setTotalArea(Number(e.target.value))} required />
+                <label>{totalArea}</label>
 
                 <label style={{ marginRight: 20}}>Cidade</label>
                 <input type="text" value={city} onChange={(e) => setCity(e.target.value)} required />

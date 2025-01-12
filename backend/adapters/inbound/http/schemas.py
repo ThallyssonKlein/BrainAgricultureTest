@@ -18,7 +18,6 @@ class FarmSchema(BaseModel):
     name: str
     arable_area: float
     vegetation_area: float
-    total_area: float
     city: str
     state: str
 
