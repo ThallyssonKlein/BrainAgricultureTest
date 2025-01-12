@@ -16,8 +16,9 @@ class InboundCropAdapter:
         c = crop.model_dump()
         return await self.outbound_crop_repository_port.create_crop_for_a_farm_and_return_culture_name(farm_id, c)
 
-    async def update_crop_by_id(self, crop_id: int, crop: dict):
-        return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, crop)
+    async def update_crop_by_id(self, crop_id: int, crop: CropSchema):
+        c = crop.model_dump()
+        return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, c)
     
     async def delete_crop_by_id(self, crop_id: int):
         await self.outbound_crop_repository_port.delete_crop_by_id(crop_id)

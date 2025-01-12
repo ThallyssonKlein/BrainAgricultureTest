@@ -64,23 +64,19 @@ class OutboundCropRepositoryPort:
             await self.session.rollback()
             raise e
     
-    async def update_crop_by_id(self, crop_id: int, crop: dict):
-        d = crop.model_dump()
-        
-        # Atualizar os dados do crop
+    async def update_crop_by_id(self, crop_id: int, crop: dict):        
         stmt_update = (
             update(Crop)
             .where(Crop.id == crop_id)
             .values(
-                date=d["date"],
-                culture_id=d["culture"]["id"],
+                date=crop["date"],
+                culture_id=crop["culture"]["id"],
             )
             .execution_options(synchronize_session="fetch")
         )
         await self.session.execute(stmt_update)
         await self.session.commit()
         
-        # Consultar os dados atualizados, incluindo culture_name
         stmt_select = (
             select(
                 Crop.id,
