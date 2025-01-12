@@ -1,16 +1,22 @@
-import React, { JSX } from "react";
+import React, { JSX, useContext } from "react";
 import { ICrop, IFarm } from "../IFarmer";
+import { CropModalContext } from "../../context/CropModalContext";
+import CreateCropModal from "../CreateCropModal";
 
 interface ICropsTableProps {
     selectedFarm?: IFarm;
+    setSelectedFarm?: React.Dispatch<React.SetStateAction<IFarm | null>>;
     selectedCropId?: number | null;
     handleCropClick: (cropId: number) => void;
     crops?: ICrop[]
 }
 
-export default function CropsTable({ selectedFarm, selectedCropId, handleCropClick, crops }: ICropsTableProps): JSX.Element {
+export default function CropsTable({ selectedFarm, selectedCropId, handleCropClick, crops, setSelectedFarm }: ICropsTableProps): JSX.Element {
+    const { setModalIsOpen } = useContext(CropModalContext);
+
     return (
         <div>
+          <CreateCropModal selectedFarm={selectedFarm} setSelectedFarm={setSelectedFarm} />
           <table border={1} style={{ width: '100%', marginBottom: '20px' }}>
             <thead>
               <tr>
@@ -44,7 +50,10 @@ export default function CropsTable({ selectedFarm, selectedCropId, handleCropCli
             </tbody>
           </table>
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <button style={{flex: 1}}>Create Crop</button>
+              <button 
+                style={{flex: 1}}
+                onClick={() => setModalIsOpen(true)}
+              >Create Crop</button>
           </div>
         </div>
     )

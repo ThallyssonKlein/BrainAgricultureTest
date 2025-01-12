@@ -15,7 +15,8 @@ class CropController:
         self.router.add_api_route(
             "/api/v1/farm/{farm_id}/crop",
             self.create_crop_for_a_farm,
-            methods=["POST"]
+            methods=["POST"],
+            status_code=201
         )
 
 

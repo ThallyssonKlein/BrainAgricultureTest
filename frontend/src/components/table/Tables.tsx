@@ -1,50 +1,27 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { TablesContext } from '../../context/TablesContext';
 import "./table.css"
 import CropsTable from './CropsTable';
 import CulturesTable from './CulturesTable';
-
-interface ICulture {
-  id: number;
-  name: string;
-}
-
-interface ICrop {
-  id: number;
-  culture_id: number;
-  date: string;
-  farm_id: number;
-  culture: ICulture;
-}
-
-export interface IFarm {
-  id: number;
-  vegetation_area: number;
-  farmer_id: number;
-  state: string;
-  name: string;
-  arable_area: number;
-  total_area: number;
-  city: string;
-  crops: ICrop[];
-}
+import { ICrop, IFarm } from '../IFarmer';
 
 const FarmTable: React.FC = () => {
   const [selectedFarmId, setSelectedFarmId] = useState<number | null>(null);
   const [selectedCropId, setSelectedCropId] = useState<number | null>(null);
   const { farms, crops } = useContext(TablesContext);
+  const [selectedFarm, setSelectedFarm] = useState<IFarm | null>(farms.find((farm) => farm.id === selectedFarmId) || null);
+  const [selectedCrop, setSelectedCrop] = useState<ICrop | null>(selectedFarm?.crops?.find((crop) => crop.id === selectedCropId) || null);
 
   const handleFarmClick = (farmId: number) => {
     setSelectedFarmId(farmId === selectedFarmId ? null : farmId);
-    setSelectedCropId(null); // Reseta o crop selecionado
+    setSelectedCropId(null);
+    setSelectedFarm(farms.find((farm) => farm.id === farmId) || null);
+    setSelectedCrop(selectedFarm?.crops?.find((crop) => crop.id === selectedCropId) || null)
   };
 
   const handleCropClick = (cropId: number) => {
     setSelectedCropId(cropId === selectedCropId ? null : cropId);
   };
-
-  const selectedFarm = farms.find((farm) => farm.id === selectedFarmId);
-  const selectedCrop = selectedFarm?.crops?.find((crop) => crop.id === selectedCropId);
 
   return (
     <div className="farms-table-container">
@@ -87,6 +64,7 @@ const FarmTable: React.FC = () => {
         {selectedFarm && (
           <CropsTable
             selectedFarm={selectedFarm}
+            setSelectedFarm={setSelectedFarm}
             selectedCropId={selectedCropId}
             handleCropClick={handleCropClick}
           />

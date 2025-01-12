@@ -10,6 +10,7 @@ export default function Charts() {
     const [data, setData] = React.useState<IData | null>(null);
 
     useEffect(() => {
+        console.log("recebeu o refresh key")
         if (selectedOption) {
             API.get(`/api/v1/dashboard/${selectedOption}`).then((response) => {
                 console.log(response.data)

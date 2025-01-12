@@ -12,6 +12,7 @@ import DeleteFarmerButton from "../../components/DeleteFarmerButton";
 import { FarmModalContextProvider } from "../../context/FarmModalContext";
 import CreateFarmButton from "../../components/CreateFarmButton";
 import CreateFarmModal from "../../components/CreateFarmModal";
+import { CropModalContextProvider } from "../../context/CropModalContext";
 
 export default function Dashboard() {
         return (
@@ -32,7 +33,9 @@ export default function Dashboard() {
                         </div>
                         <TablesContextProvider>
                             <Charts />
-                            <Tables />
+                            <CropModalContextProvider>
+                                <Tables />
+                            </CropModalContextProvider>
                         </TablesContextProvider>
                     </div>
                 </FarmModalContextProvider>

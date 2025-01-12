@@ -32,3 +32,7 @@ class OutboundCultureRepositoryPort:
         await self.session.commit()
         await self.session.refresh(culture)
         return culture
+    
+    async def get_cultures_for_a_farmer_id(self, farmer_id: int):
+        result = await self.session.execute(select(Culture).where(Culture.farmer_id == farmer_id))
+        return result.scalars().all()

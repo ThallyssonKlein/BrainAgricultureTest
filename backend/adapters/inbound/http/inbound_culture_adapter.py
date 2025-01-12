@@ -7,3 +7,6 @@ class InboundCultureAdapter:
 
     async def create_culture_for_a_farmer_id(self, farmer_id: int, culture: dict):
         return await self.outbound_culture_repository_port.create_culture_for_a_farmer_id(farmer_id, culture)
+    
+    async def get_cultures_for_a_farmer_id(self, farmer_id: int):
+        return await self.outbound_culture_repository_port.get_cultures_for_a_farmer_id(farmer_id)

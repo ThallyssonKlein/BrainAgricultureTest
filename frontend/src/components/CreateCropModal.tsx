@@ -2,20 +2,24 @@ import React, { useState, useContext, useEffect } from "react";
 import Modal from "react-modal";
 import { OptionsContext } from "../context/OptionsContext";
 import API from "../API";
-import { CropModalContext } from "./CropModalContext";
 import CreateCultureModal from "../components/CreateCultureModal";
-import { ICulture } from "../components/IFarmer";
+import { ICrop, ICulture, IFarm } from "../components/IFarmer";
+import { CropModalContext } from "../context/CropModalContext";
 
-export default function CreateCropModal() {
+interface ICreateCropModalProps {
+    selectedFarm?: IFarm
+    setSelectedFarm?: React.Dispatch<React.SetStateAction<IFarm | null>>;
+}
+
+export default function CreateCropModal({ setSelectedFarm, selectedFarm }: ICreateCropModalProps) {
     const [date, setDate] = useState<string>("");
-    const [cultureNames, setCultureNames] = useState<string[]>([]);
     const { modalIsOpen, setModalIsOpen, isEdit } = useContext(CropModalContext);
-    const { selectedOption, refreshKey, setRefreshKey } = useContext(OptionsContext);
+    const { selectedOption } = useContext(OptionsContext);
     const [savedSuccessFullyMessage, setSavedSuccessFullyMessage] = useState(false);
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
     const [isEditCulture, setIsEditCulture] = useState(false);
     const [cultureModalIsOpen, setCultureModalIsOpen] = useState(false);
-    const [cultures, setCultures] = useState<ICulture[]>([]);
+    const [cultures, setCultures] = useState<ICulture[] | null>([]);
     const [selectedCulture, setSelectedCulture] = useState<number | null>(null);
 
     useEffect(() => {
@@ -28,49 +32,85 @@ export default function CreateCropModal() {
             // setCity(selectedOption.city);
         } else {
             setDate("");
-            setCultureNames([]);
+            setCultures(null);
         }
     }, [isEdit, selectedOption]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const newCrop = { date, culture: { id: selectedCulture } };
-        if (isEdit) {
-            const response = await API.put(`/api/v1/farmer/${selectedOption}/crop`, newCrop);
 
-            if (response.status === 200) {
-                setSavedSuccessFullyMessage(true);
-                setTimeout(() => {
-                    setSavedSuccessFullyMessage(false);
-                }, 2000);
-            } else {
-                setSavedWithErrorMessage(true);
-                setTimeout(() => {
-                    setSavedWithErrorMessage(false);
-                }, 2000);
+        try {
+            if (!selectedCulture) {
+                alert("Select one culture");
+                return;
             }
-        } else {
-            const response = await API.post(`/api/v1/farmer/${selectedOption}/crop`, newCrop);
-            if (response.status === 201) {
-                setSavedSuccessFullyMessage(true);
-                setTimeout(() => {
-                    setSavedSuccessFullyMessage(false);
-                }, 2000);
-                setDate("");
-                setSelectedCulture(null);
-                setRefreshKey(refreshKey + 1);
+    
+            const newCrop = { date, culture: { id: selectedCulture } };
+            if (isEdit) {
+                const response = await API.put(`/api/v1/farm/${selectedOption}/crop`, newCrop);
+    
+                if (response.status === 200) {
+                    setSavedSuccessFullyMessage(true);
+                    setTimeout(() => {
+                        setSavedSuccessFullyMessage(false);
+                    }, 2000);
+                    if (selectedFarm && setSelectedFarm) {
+                        const updatedFarm = selectedFarm;
+                        const updatedResponseData = response.data as ICrop;
+                        updatedResponseData.culture = {
+                            id: updatedResponseData.culture_id,
+                            name: updatedResponseData.culture_name ?? ""
+                        }
+                        updatedFarm.crops = [...updatedFarm.crops ? updatedFarm.crops : [], response.data as ICrop];
+                        setSelectedFarm(
+                            updatedFarm
+                        )
+                    }
+                } else {
+                    setSavedWithErrorMessage(true);
+                    setTimeout(() => {
+                        setSavedWithErrorMessage(false);
+                    }, 2000);
+                }
             } else {
-                setSavedWithErrorMessage(true);
-                setTimeout(() => {
-                    setSavedWithErrorMessage(false);
-                }, 2000);
+                const response = await API.post(`/api/v1/farm/${selectedOption}/crop`, newCrop);
+    
+                if (response.status === 201) {
+                    setSavedSuccessFullyMessage(true);
+                    setTimeout(() => {
+                        setSavedSuccessFullyMessage(false);
+                    }, 2000);
+                    setDate("");
+                    setSelectedCulture(null);
+                    if (selectedFarm && setSelectedFarm) {
+                        const updatedFarm = selectedFarm;
+                        const updatedResponseData = response.data as ICrop;
+                        updatedResponseData.culture = {
+                            id: updatedResponseData.culture_id,
+                            name: updatedResponseData.culture_name ?? ""
+                        }
+                        updatedFarm.crops = [...updatedFarm.crops ? updatedFarm.crops : [], response.data as ICrop];
+                        setSelectedFarm(
+                            updatedFarm
+                        )
+                    }
+                } else {
+                    setSavedWithErrorMessage(true);
+                    setTimeout(() => {
+                        setSavedWithErrorMessage(false);
+                    }, 2000);
+                }
             }
+        } catch (err) {
+            console.log("-------")
+            console.error(err);
+            console.log("-------")
         }
     };
 
     useEffect(() => {
         (async () => {
-            const response = await API.get("/api/v1/culture");
+            const response = await API.get(`/api/v1/farmer/${selectedOption}/culture`);
             
             if (response.status === 200) {
                 setCultures(response.data as ICulture[]);
@@ -129,7 +169,10 @@ export default function CreateCropModal() {
                                 cultures.map(culture => (
                                     <tr
                                         key={culture.id}
-                                        onClick={() => setSelectedCulture(culture.id)}
+                                        onClick={() => {
+                                            setSelectedCulture(culture.id)
+                                            console.log(selectedCulture === culture.id)
+                                        }}
                                         style={{ cursor: 'pointer', background: selectedCulture === culture.id ? '#f0f0f0' : 'white' }}
                                     >
                                         <td>{culture.id}</td>

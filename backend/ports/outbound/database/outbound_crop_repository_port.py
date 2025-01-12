@@ -36,12 +36,27 @@ class OutboundCropRepositoryPort:
 
     async def create_crop_for_a_farm(self, farm_id: int, crop: dict):
         d = crop.dict()
-        crop = Crop(
+        new_crop = Crop(
             date=d["date"],
             farm_id=farm_id,
             culture_id=d["culture"]["id"],
         )
-        self.session.add(crop)
+        self.session.add(new_crop)
         await self.session.commit()
-        await self.session.refresh(crop)
-        return crop
+        await self.session.refresh(new_crop)
+        
+        stmt = (
+            select(
+                Crop.id,
+                Crop.date,
+                Culture.name.label("culture_name"),
+                Culture.id.label("culture_id"),
+                Farm.id.label("farm_id"),
+            )
+            .join(Culture, Culture.id == Crop.culture_id)
+            .join(Farm, Farm.id == Crop.farm_id)
+            .where(Crop.id == new_crop.id)
+        )
+        result = await self.session.execute(stmt)
+        return result.mappings().first()
+
