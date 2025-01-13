@@ -5,6 +5,7 @@ import { FarmerModalContext } from "../context/FarmerModalContext";
 import { OptionsContext } from "../context/OptionsContext";
 import StatesSelect from "./StatesSelect";
 import messageTranslations from '../messageTranslations'
+import IFarmer from "./IFarmer";
 
 export default function FarmerModal() {
     const [name, setName] = useState("");
@@ -21,7 +22,7 @@ export default function FarmerModal() {
         setModalIsOpen
     } = useContext(FarmerModalContext);
 
-    const { selectedOption } = useContext(OptionsContext);
+    const { selectedOption, setSelectedOption, setSearchTerm } = useContext(OptionsContext);
 
     useEffect(() => {
         if (isEdit && selectedOption) {
@@ -48,7 +49,9 @@ export default function FarmerModal() {
                 setTimeout(() => {
                     setSavedSuccessFullyMessage(false);
                 }, 2000);
-                return
+                const newFarmer = response.data as IFarmer
+                setSelectedOption(newFarmer);
+                setSearchTerm(newFarmer.name);
             } else {
                 if(response.status === 400) {
                     const data = response.data as { message: string };

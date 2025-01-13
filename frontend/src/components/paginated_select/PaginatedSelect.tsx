@@ -6,12 +6,11 @@ import { OptionsContext } from '../../context/OptionsContext';
 import { TablesContext } from '../../context/TablesContext';
 
 export const PaginatedSelect: React.FC = () => {
-  const { selectedOption, setSelectedOption } = useContext(OptionsContext);
+  const { selectedOption, setSelectedOption, searchTerm, setSearchTerm } = useContext(OptionsContext);
   const { setFarms, setCrops } = useContext(TablesContext);
   const [options, setOptions] = useState<IFarmer[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -48,7 +47,7 @@ export const PaginatedSelect: React.FC = () => {
       setHasMore(newOptions.length > 0);
       setIsLoading(false);
     },
-    [setOptions, setSelectedOption, setFarms, setCrops]
+    [setOptions, setSelectedOption, setFarms, setCrops, setSearchTerm]
   );
 
   useEffect(() => {

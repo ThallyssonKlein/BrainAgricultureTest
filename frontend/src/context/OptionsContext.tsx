@@ -6,11 +6,15 @@ export const OptionsContext = createContext<{
   setSelectedOption: React.Dispatch<React.SetStateAction<any>>;
   refreshCharts: number;
   setRefreshCharts: React.Dispatch<React.SetStateAction<number>>;
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
 }>({
   selectedOption: null,
   setSelectedOption: () => {},
   refreshCharts: 0,
   setRefreshCharts: () => {},
+  searchTerm: '',
+  setSearchTerm: () => {},
 });
 
 interface OptionsproviderProps {
@@ -20,6 +24,7 @@ interface OptionsproviderProps {
 export const OptionsContextProvider = ({ children }: OptionsproviderProps) => {
   const [selectedOption, setSelectedOption] = useState<IFarmer | null>(null);
   const [refreshCharts, setRefreshCharts] = useState(0);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   return (
     <OptionsContext.Provider value={{ 
@@ -27,6 +32,8 @@ export const OptionsContextProvider = ({ children }: OptionsproviderProps) => {
         setSelectedOption,
         refreshCharts,
         setRefreshCharts,
+        searchTerm,
+        setSearchTerm,
       }}>
       {children}
     </OptionsContext.Provider>
