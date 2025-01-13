@@ -44,6 +44,18 @@ async def test_find_farms_ordered_by_vegetation_area_desc(farm_controller, mock_
     mock_farm_adapter.find_farms_ordered_by_vegetation_area_desc_by_farmer_id.assert_called_once_with(farmer_id, "trace-12345")
 
 @pytest.mark.asyncio
+async def test_find_farms_ordered_by_arable_area_desc(farm_controller, mock_farm_adapter, mock_request):
+    farmer_id = 1
+    farms = [{"id": 1, "name": "Farm A"}, {"id": 2, "name": "Farm B"}]
+
+    mock_farm_adapter.find_farms_ordered_by_arable_area_desc_by_farmer_id.return_value = farms
+
+    result = await farm_controller.find_farms_ordered_by_arable_area_desc_by_farmer_id(mock_request, farmer_id)
+
+    assert result == farms
+    mock_farm_adapter.find_farms_ordered_by_arable_area_desc_by_farmer_id.assert_called_once_with(farmer_id, "trace-12345")
+
+@pytest.mark.asyncio
 async def test_create_farm_for_a_farmer(farm_controller, mock_farm_adapter, mock_request):
     farmer_id = 1
     farm_data = FarmSchema(
