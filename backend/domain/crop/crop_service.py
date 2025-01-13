@@ -1,8 +1,8 @@
 from adapters.outbound.outbound_crop_adapter import OutboundCropAdapter
 from adapters.outbound.outbound_culture_adapter import OutboundCultureAdapter
 from adapters.outbound.outbound_farm_adapter import OutboundFarmAdapter
-from domain.crop_service.culture_not_found_error import CultureNotFoundError
-from domain.crop_service.farm_not_found_error import FarmNotFoundError
+from domain.crop.culture_not_found_error import CultureNotFoundError
+from domain.crop.farm_not_found_error import FarmNotFoundError
 from shared.loggable import Loggable
 
 class CropService(Loggable):

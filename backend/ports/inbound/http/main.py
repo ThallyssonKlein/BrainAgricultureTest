@@ -8,7 +8,7 @@ from adapters.outbound.outbound_crop_adapter import OutboundCropAdapter
 from adapters.outbound.outbound_culture_adapter import OutboundCultureAdapter
 from adapters.outbound.outbound_farm_adapter import OutboundFarmAdapter
 from adapters.outbound.outbound_farmer_adapter import OutboundFarmerAdapter
-from domain.crop_service.crop_service import CropService
+from domain.crop.crop_service import CropService
 from domain.culture.culture_service import CultureService
 from domain.farm.farm_service import FarmService
 from ports.inbound.http.controllers.crop_controller import CropController

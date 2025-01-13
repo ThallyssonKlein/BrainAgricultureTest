@@ -26,7 +26,7 @@ class OutboundCultureRepositoryPort(Loggable):
         try:
             stmt = (
                 insert(Culture)
-                .values(**culture, farmer_id=farmer_id)
+                .values(name=culture['name'], farmer_id=farmer_id)
                 .returning(Culture)
             )
             result = await self.session.execute(stmt)

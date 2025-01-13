@@ -32,7 +32,7 @@ CREATE TABLE crops (
 
 INSERT INTO farmers (document, name, city, state)
 VALUES 
-('12345678901234', 'João da Silva', 'São Paulo', 'SP');
+('39010154009', 'João da Silva', 'São Paulo', 'SP');
 
 INSERT INTO farms (name, arable_area, vegetation_area, total_area, farmer_id, city, state)
 VALUES
