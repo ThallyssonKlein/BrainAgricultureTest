@@ -26,6 +26,6 @@ CREATE TABLE cultures (
 CREATE TABLE crops (
     id SERIAL PRIMARY KEY,
     date DATE NOT NULL,
-    culture_id INTEGER NOT NULL REFERENCES cultures(id),
-    farm_id INTEGER NOT NULL REFERENCES farms(id)
+    culture_id INTEGER NOT NULL REFERENCES cultures(id) ON DELETE CASCADE,
+    farm_id INTEGER NOT NULL REFERENCES farms(id) ON DELETE CASCADE
 );

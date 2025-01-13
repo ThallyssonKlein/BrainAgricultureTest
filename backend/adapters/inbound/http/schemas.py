@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 from datetime import date
 
 class CultureSchema(BaseModel):
-    name: str = Field(..., min_length=1)
-    old_name: Optional[str] = Field(None, min_length=1)
+    name: str = Field(..., min_length=1, max_length=255, description="Name must be between 1 and 255 characters")
+    old_name: Optional[str] = Field(None, min_length=1, max_length=255, description="Old name must be between 1 and 255 characters if provided")
 
 class ResumedCultureSchema(BaseModel):
     id: int
@@ -44,10 +44,10 @@ class BrazilianState(str, Enum):
     TO = "TO"
 
 class FarmSchema(BaseModel):
-    name: str = Field(..., min_length=1)
+    name: str = Field(..., min_length=1, max_length=255, description="Name must be between 1 and 255 characters")
     arable_area: float = Field(..., gt=0, description="Arable area must be greater than 0")
     vegetation_area: float = Field(..., gt=0, description="Vegetation area must be greater than 0")
-    city: str = Field(..., min_length=1)
+    city: str = Field(..., min_length=1, max_length=255, description="City must be between 1 and 255 characters")
     state: BrazilianState
 
 class FarmerSchema(BaseModel):

@@ -56,6 +56,16 @@ export default function FarmModal() {
             return;
         }
 
+        if ((name || "").length > 255) {
+            alert("O nome deve ter no máximo 255 caracteres!");
+            return;
+        }
+
+        if ((city || "").length > 255) {
+            alert("A cidade deve ter no máximo 255 caracteres!");
+            return;
+        }
+
         const newFarm = { vegetation_area: vegetationArea, state, name, arable_area: arableArea, total_area: totalArea, city, id: selectedOption?.id };
         if (isEdit) {
             const response = await API.put(`/api/v1/farm/${selectedFarm?.id}`, newFarm);

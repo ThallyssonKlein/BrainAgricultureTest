@@ -59,6 +59,12 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
     
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if ((name || "").length > 255) {
+            alert("O nome deve ter no máximo 255 caracteres!");
+            return;
+        }
+
         let newCulture: { name: string; old_name?: string } = { name };
         if (isEdit) {
             newCulture = { ...newCulture, old_name: selectedCultureObject?.name };
