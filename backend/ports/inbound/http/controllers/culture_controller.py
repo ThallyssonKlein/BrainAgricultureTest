@@ -50,6 +50,7 @@ class CultureController(Loggable):
     async def delete_culture_by_id(self, request: Request, culture_id: int = Path(...)):
         self.log.info(f"Request received to delete culture with id: {culture_id}", request.state.trace_id)
         await self.inbound_culture_adapter.delete_culture_by_id(culture_id, request.state.trace_id)
+        return {"message": "Culture deleted successfully"}
     
     def get_router(self):
         return self.router

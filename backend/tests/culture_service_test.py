@@ -66,7 +66,7 @@ class TestCultureService:
         mock_outbound_culture_adapter.update_culture_by_id.assert_called_once_with(101, update_culture_data, trace_id)
 
     async def test_update_culture_already_exists(self, culture_service, mock_outbound_culture_adapter, update_culture_data, trace_id):
-        mock_outbound_culture_adapter.get_by_farmer_id_and_name.return_value = {"id": 1, "name": "Corn"}
+        mock_outbound_culture_adapter.get_by_farmer_id_and_name.return_value = {"id": 1, "name": "Wheat"}
 
         with pytest.raises(CultureAlreadyExistsError):
             await culture_service.update_culture_by_id(101, update_culture_data, trace_id)

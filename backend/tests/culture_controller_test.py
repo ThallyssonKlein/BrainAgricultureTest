@@ -82,5 +82,5 @@ async def test_delete_culture_by_id(culture_controller, mock_inbound_culture_ada
 
     result = await culture_controller.delete_culture_by_id(mock_request, culture_id=culture_id)
 
-    assert result is None
+    assert result == {"message": "Culture deleted successfully"}
     mock_inbound_culture_adapter.delete_culture_by_id.assert_called_once_with(culture_id, "trace-12345")
