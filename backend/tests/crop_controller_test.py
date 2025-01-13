@@ -46,7 +46,6 @@ async def test_create_crop_for_a_farm_and_return_culture(crop_controller, mock_i
         farm_id, crop_data, "trace-12345"
     )
 
-
 @pytest.mark.asyncio
 async def test_find_crops(crop_controller, mock_inbound_crop_adapter, mock_request):
     culture_name = "Wheat"

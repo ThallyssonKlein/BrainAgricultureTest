@@ -32,28 +32,28 @@ class TestCropService:
 
     @pytest.fixture
     def crop_data(self):
-        return {"culture": {"id": 1}, "details": "Planting details"}
+        return {"culture": {"id": 1}, "date": "2021-01-01"}
 
     @pytest.fixture
     def trace_id(self):
         return "trace-12345"
 
     async def test_create_crop_success(self, crop_service, mock_adapters, valid_culture, valid_farm, crop_data, trace_id):
-        """Teste para criação de uma safra com cultura e fazenda válidas."""
         mock_adapters["outbound_culture_adapter"].find_culture_by_id.return_value = valid_culture
         mock_adapters["outbound_farm_adapter"].find_farm_by_id.return_value = valid_farm
         mock_adapters["outbound_crop_adapter"].create_crop_for_a_farm_and_return_with_culture.return_value = {
             "id": 1,
             "farm_id": 101,
             "culture": valid_culture,
-            "details": crop_data["details"],
+            "date": crop_data["date"],
         }
 
         result = await crop_service.create_crop_for_a_farm_and_return_culture(101, crop_data, trace_id)
 
         assert result["farm_id"] == 101
         assert result["culture"] == valid_culture
-        assert result["details"] == crop_data["details"]
+        assert result["date"] == crop_data["date"]
+        assert result["id"] == 1
 
         mock_adapters["outbound_culture_adapter"].find_culture_by_id.assert_called_once_with(1, trace_id)
         mock_adapters["outbound_farm_adapter"].find_farm_by_id.assert_called_once_with(101, trace_id)
@@ -62,7 +62,6 @@ class TestCropService:
         )
 
     async def test_culture_not_found(self, crop_service, mock_adapters, crop_data, trace_id):
-        """Teste para exceção quando a cultura não é encontrada."""
         mock_adapters["outbound_culture_adapter"].find_culture_by_id.return_value = None
 
         with pytest.raises(CultureNotFoundError):
@@ -72,7 +71,6 @@ class TestCropService:
         mock_adapters["outbound_crop_adapter"].create_crop_for_a_farm_and_return_with_culture.assert_not_called()
 
     async def test_farm_not_found(self, crop_service, mock_adapters, valid_culture, crop_data, trace_id):
-        """Teste para exceção quando a fazenda não é encontrada."""
         mock_adapters["outbound_culture_adapter"].find_culture_by_id.return_value = valid_culture
         mock_adapters["outbound_farm_adapter"].find_farm_by_id.return_value = None
 
@@ -83,7 +81,6 @@ class TestCropService:
         mock_adapters["outbound_crop_adapter"].create_crop_for_a_farm_and_return_with_culture.assert_not_called()
 
     async def test_log_calls(self, crop_service, mock_adapters, valid_culture, valid_farm, crop_data, trace_id):
-        """Teste para verificar chamadas de log em diferentes cenários."""
         mock_logger = MagicMock()
         crop_service.log = mock_logger
 
@@ -93,7 +90,7 @@ class TestCropService:
             "id": 1,
             "farm_id": 101,
             "culture": valid_culture,
-            "details": crop_data["details"],
+            "date": crop_data["date"],
         }
 
         await crop_service.create_crop_for_a_farm_and_return_culture(101, crop_data, trace_id)
