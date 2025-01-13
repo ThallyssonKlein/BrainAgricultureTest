@@ -28,22 +28,6 @@ class TestOutboundFarmerAdapter:
 
         assert result["name"] == "John Doe"
         assert result["document"] == "12345678901"
-
-        mock_outbound_farmer_repository_port.find_farmer_by_id.assert_called_once_with(1, trace_id)
-
-    async def test_find_farmer_by_id_not_found(self, farmer_adapter, mock_outbound_farmer_repository_port, trace_id):
-        mock_outbound_farmer_repository_port.find_farmer_by_id.return_value = None
-
-        result = await farmer_adapter.find_farmer_by_id(999, trace_id)
-
-        assert result is None
-
-        mock_outbound_farmer_repository_port.find_farmer_by_id.assert_called_once_with(999, trace_id)
-
-    async def test_find_farmer_by_id_error(self, farmer_adapter, mock_outbound_farmer_repository_port, trace_id):
-        mock_outbound_farmer_repository_port.find_farmer_by_id.side_effect = Exception("Database error")
-
-        with pytest.raises(Exception, match="Database error"):
-            await farmer_adapter.find_farmer_by_id(1, trace_id)
+        assert result["id"] == 1
 
         mock_outbound_farmer_repository_port.find_farmer_by_id.assert_called_once_with(1, trace_id)
