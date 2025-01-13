@@ -113,7 +113,7 @@ class OutboundCropRepositoryPort(Loggable):
             updated_crop = result.scalars().first()
 
             if not updated_crop:
-                raise ValueError("Crop not found.")
+                raise ValueError("Crop not found")
 
             return updated_crop
         except Exception as e:

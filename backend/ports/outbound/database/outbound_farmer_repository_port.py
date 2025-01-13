@@ -57,7 +57,7 @@ class OutboundFarmerRepositoryPort(Loggable):
             updated_farmer = result.scalars().first()
 
             if not updated_farmer:
-                raise ValueError("Farmer not found with the provided id")
+                raise ValueError("Farmer not found")
 
             return updated_farmer
         except Exception as e:

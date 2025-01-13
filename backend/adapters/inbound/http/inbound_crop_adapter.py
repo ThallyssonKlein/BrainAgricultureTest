@@ -36,7 +36,12 @@ class InboundCropAdapter(Loggable):
     async def update_crop_by_id(self, crop_id: int, crop: CropSchema, trace_id):
         c = crop.model_dump()
         self.log.info(f"Updating crop with id: {crop_id} and data: {c}", trace_id)
-        return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, c, trace_id)
+        try:
+            return await self.outbound_crop_repository_port.update_crop_by_id(crop_id, c, trace_id)
+        except ValueError as e:
+            if e.args[0] == "Crop not found":
+                self.log.error("Crop not found", trace_id)
+                raise NotFoundError("Crop not found")
     
     async def delete_crop_by_id(self, crop_id: int, trace_id: str):
         self.log.info(f"Deleting crop with id: {crop_id}")

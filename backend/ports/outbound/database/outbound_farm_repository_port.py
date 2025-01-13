@@ -190,7 +190,7 @@ class OutboundFarmRepositoryPort(Loggable):
                     name=farm["name"],
                     arable_area=farm["arable_area"],
                     vegetation_area=farm["vegetation_area"],
-                    total_area=farm["total_area"],
+                    total_area=farm["vegetation_area"] + farm["arable_area"],
                     city=farm["city"],
                     state=farm["state"]
                 )
@@ -212,6 +212,8 @@ class OutboundFarmRepositoryPort(Loggable):
                         crop,
                         attribute_names=["culture"]
                     )
+            else:
+                raise ValueError("Farm not found")
 
             return updated_farm
         except Exception as e:

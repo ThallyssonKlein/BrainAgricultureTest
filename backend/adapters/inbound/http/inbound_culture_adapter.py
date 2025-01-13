@@ -31,9 +31,9 @@ class InboundCultureAdapter(Loggable):
             self.log.info(f"Updating culture with id: {culture_id} and data: {c}", trace_id)
             return await self.culture_service.update_culture_by_id(culture_id, c, trace_id)
         except ValueError as err:
-            self.log.error(err._message(), trace_id)
-            if err._message().find("Culture not found.") != -1:
-                raise NotFoundError("Culture not found.")
+            if err.args[0] == "Culture not found":
+                self.log.error("Culture not found", trace_id)
+                raise NotFoundError("Culture not found")
         except CultureAlreadyExistsError as err:
             self.log.error(err.get_message, trace_id)
             raise ConflictError(err.get_message)

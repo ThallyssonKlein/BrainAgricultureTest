@@ -72,7 +72,7 @@ class OutboundCultureRepositoryPort(Loggable):
             updated_culture = result.scalars().first()
 
             if not updated_culture:
-                raise ValueError("Culture not found.")
+                raise ValueError("Culture not found")
 
             return updated_culture
         except Exception as e:

@@ -67,9 +67,9 @@ class InboundFarmerAdapter(Loggable):
             farmer = await self.outbound_farmer_repository_port.update_farmer(farmer_data, trace_id)
             return farmer
         except ValueError as err:
-            self.log.error(err._message(), trace_id)
-            if err._message().find("Farmer not found with the provided id") != -1:
-                raise NotFoundError("Farmer not found with the provided id")
+            if err.args[0] == "Farmer not found":
+                self.log.error("Farmer not found", trace_id)
+                raise NotFoundError("Farmer not found")
 
     async def find_farmers_paginated_and_with_query(self, limit: int, offset: int, query: str, trace_id: str):
         self.log.info(f"Finding farmers with limit: {limit}, offset: {offset}, query: {query}", trace_id)

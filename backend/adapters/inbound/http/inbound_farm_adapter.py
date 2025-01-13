@@ -28,14 +28,19 @@ class InboundFarmAdapter(Loggable):
         d = farm.model_dump()
         try:
             return await self.farm_service.create_farm_for_a_farmer(farmer_id, d, trace_id)
-        except FarmerNotFoundError as e:
+        except FarmerNotFoundError:
             self.log.error(f"Farmer with id: {farmer_id} not found", trace_id)
             raise NotFoundError("Farmer not found")
     
     async def update_farm_by_id(self, farm_id: int, farm: FarmSchema, trace_id: str):
         self.log.info(f"Updating farm with id: {farm_id} and data: {farm}", trace_id)
         f = farm.model_dump()
-        return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, f, trace_id)
+        try:
+            return await self.outbound_farm_repository_port.update_farm_by_id(farm_id, f, trace_id)
+        except ValueError as e:
+            if e.args[0] == "Farm not found":
+                self.log.error("Farm not found", trace_id)
+                raise NotFoundError("Farm not found")
     
     async def delete_farm_by_id(self, farm_id: int, trace_id: str):
         self.log.info(f"Deleting farm with id: {farm_id}", trace_id)
