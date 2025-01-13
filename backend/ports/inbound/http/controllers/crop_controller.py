@@ -49,6 +49,7 @@ class CropController(Loggable):
     async def delete_crop_by_id(self, request: Request, crop_id: int = Path(...)):
         self.log.info(f"Request received to delete crop with id: {crop_id}", request.state.trace_id)
         await self.inbound_crop_adapter.delete_crop_by_id(crop_id, request.state.trace_id)
+        return {"message": "Crop deleted successfully"}
     
     def get_router(self):
         return self.router

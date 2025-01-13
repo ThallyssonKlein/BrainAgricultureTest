@@ -91,5 +91,5 @@ async def test_delete_crop_by_id(crop_controller, mock_inbound_crop_adapter, moc
 
     result = await crop_controller.delete_crop_by_id(mock_request, crop_id=crop_id)
 
-    assert result is None
+    assert result == {"message": "Crop deleted successfully"}
     mock_inbound_crop_adapter.delete_crop_by_id.assert_called_once_with(crop_id, "trace-12345")
