@@ -32,16 +32,15 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
         const selectedFarm = farms.find(farm => farm.id === selectedFarmId);
         const createdCulture = response.data as ICulture
         if (selectedFarm) {
-            setFarms(prevFarms => prevFarms.map(farm => 
-                farm.id === selectedFarmId 
-                ? { ...farm, crops: farm.crops?.map(crop => {
+            setFarms(prevFarms => prevFarms.map(farm => { 
+                return { ...farm, crops: farm.crops?.map(crop => {
                     if (crop.culture?.id === createdCulture.id) {
                         crop.culture = createdCulture;
                     }
 
                     return crop;
-                }) || [] } 
-                : farm
+                }) || [] }
+              }
             ));
         } else {
             setCrops((previousCrops) => previousCrops.map(crop => {

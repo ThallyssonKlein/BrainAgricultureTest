@@ -33,10 +33,6 @@ const Tables: React.FC = () => {
      }
   }
   
-  useEffect(() => {
-    console.log(farms)
-  }, [farms])
-
   return (
     <div className="farms-table-container">
       {farms && farms.length > 0 && (!crops || crops.length === 0) && 

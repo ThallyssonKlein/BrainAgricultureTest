@@ -35,12 +35,6 @@ export default function CropsTable(): JSX.Element {
       }
     }
 
-    useEffect(() => {
-      console.log("---------")
-      console.log(crops)
-      console.log("---------")
-    }, [crops])
-
     return (
         <div>
           <CropModal selectedCrop={selectedCrop} />
