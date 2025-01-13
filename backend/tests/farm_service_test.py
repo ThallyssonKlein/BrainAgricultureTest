@@ -21,7 +21,13 @@ class TestFarmService:
 
     @pytest.fixture
     def valid_farm_data(self):
-        return {"name": "Sunny Farm", "location": "Green Valley"}
+        return {
+            "name": "Sunny Farm",
+            "arable_area": 100.0,
+            "vegetation_area": 50.0,
+            "city": "Green Valley",
+            "state": "SP",
+        }
 
     @pytest.fixture
     def trace_id(self):
@@ -29,17 +35,20 @@ class TestFarmService:
 
     async def test_create_farm_success(self, farm_service, mock_adapters, valid_farm_data, trace_id):
         mock_adapters["outbound_farmer_adapter"].find_farmer_by_id.return_value = {"id": 1, "name": "John Doe"}
-        mock_adapters["outbound_farm_adapter"].create_farm_for_a_farmer.return_value = {
-            "id": 101,
+        returnValue = {
+            "id": 1,
             "farmer_id": 1,
             "name": "Sunny Farm",
-            "location": "Green Valley",
+            "arable_area": 100.0,
+            "vegetation_area": 50.0,
+            "city": "Green Valley",
+            "state": "SP",   
         }
+        mock_adapters["outbound_farm_adapter"].create_farm_for_a_farmer.return_value = returnValue
 
         result = await farm_service.create_farm_for_a_farmer(1, valid_farm_data, trace_id)
 
-        assert result["name"] == "Sunny Farm"
-        assert result["farmer_id"] == 1
+        assert result == returnValue
 
         mock_adapters["outbound_farmer_adapter"].find_farmer_by_id.assert_called_once_with(1, trace_id)
         mock_adapters["outbound_farm_adapter"].create_farm_for_a_farmer.assert_called_once_with(1, valid_farm_data, trace_id)
