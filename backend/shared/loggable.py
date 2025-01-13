@@ -12,7 +12,7 @@ class Loggable:
             self.prefix = prefix
 
         def _format_message(self, level: str, message: str, trace_id: str = None) -> str:
-            timestamp = datetime.datetime.utcnow().isoformat()
+            timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
             trace_part = f"[{trace_id}]" if trace_id else ""
             return f"{timestamp} {self.prefix} {level}: {trace_part} {message}"
 
