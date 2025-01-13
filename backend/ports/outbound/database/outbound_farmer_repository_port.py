@@ -90,3 +90,13 @@ class OutboundFarmerRepositoryPort(Loggable):
             await self.session.rollback()
             self.log.error(f"Error deleting farmer: {e}", trace_id)
             raise e
+    
+    async def find_farmer_by_id(self, farmer_id: int, trace_id: str):
+        try:
+            stmt = select(Farmer).where(Farmer.id == farmer_id)
+            result = await self.session.execute(stmt)
+            return result.scalars().first()
+        except Exception as e:
+            await self.session.rollback()
+            self.log.error(f"Error finding farmer: {e}", trace_id)
+            raise e

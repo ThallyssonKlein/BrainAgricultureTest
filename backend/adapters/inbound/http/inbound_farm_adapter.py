@@ -1,12 +1,15 @@
 from adapters.inbound.http.schemas import FarmSchema
+from domain.farm.farm_service import FarmService
+from domain.farm.farmer_not_found_error import FarmerNotFoundError
 from ports.inbound.http.error.not_found_error import NotFoundError
 from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRepositoryPort
 from shared.loggable import Loggable
 
 class InboundFarmAdapter(Loggable):
-    def __init__(self, outbound_farm_repository_port: OutboundFarmRepositoryPort):
+    def __init__(self, outbound_farm_repository_port: OutboundFarmRepositoryPort, farm_service: FarmService):
         Loggable.__init__(self, prefix="InboundFarmAdapter")
         self.outbound_farm_repository_port = outbound_farm_repository_port
+        self.farm_service = farm_service
 
     async def find_farms_by_state_and_farmer_id(self, farmer_id: int, state: str, trace_id: str):
         self.log.info(f"Finding farms with farmer_id: {farmer_id} and state: {state}", trace_id)
@@ -23,7 +26,11 @@ class InboundFarmAdapter(Loggable):
     async def create_farm_for_a_farmer(self, farmer_id: int, farm: FarmSchema, trace_id: str):
         self.log.info(f"Creating farm for farmer with id: {farmer_id} and data: {farm}", trace_id)
         d = farm.model_dump()
-        return await self.outbound_farm_repository_port.create_farm_for_a_farmer(farmer_id, d, trace_id)
+        try:
+            return await self.farm_service.create_farm_for_a_farmer(farmer_id, d, trace_id)
+        except FarmerNotFoundError as e:
+            self.log.error(f"Farmer with id: {farmer_id} not found", trace_id)
+            raise NotFoundError("Farmer not found")
     
     async def update_farm_by_id(self, farm_id: int, farm: FarmSchema, trace_id: str):
         self.log.info(f"Updating farm with id: {farm_id} and data: {farm}", trace_id)

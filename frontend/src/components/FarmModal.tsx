@@ -6,6 +6,7 @@ import API from "../API";
 import { TablesContext } from "../context/TablesContext";
 import { IFarm } from "./IFarmer";
 import StatesSelect from "./StatesSelect";
+import messageTranslations from '../messageTranslations';
 
 export default function FarmModal() {
     const [vegetationArea, setVegetationArea] = useState<number | undefined>(0);
@@ -78,6 +79,13 @@ export default function FarmModal() {
                 setFarms((prevFarms) => prevFarms.map(farm => farm.id === selectedFarm?.id ? response.data as IFarm : farm));
                 setRefreshCharts(previous => previous + 1);
             } else {
+                if (response.status === 404) {
+                    const data = response.data as { message: string };
+                    const message = data.message;
+                    if (messageTranslations[message]) {
+                        alert(messageTranslations[message])
+                    }
+                }
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);
@@ -100,6 +108,13 @@ export default function FarmModal() {
                 setFarms((prevFarms) => [...prevFarms, response.data as IFarm]);
                 setRefreshCharts(previous => previous + 1);
             } else {
+                if (response.status === 404) {
+                    const data = response.data as { message: string };
+                    const message = data.message;
+                    if (messageTranslations[message]) {
+                        alert(messageTranslations[message])
+                    }
+                }
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);
