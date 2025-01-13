@@ -34,7 +34,6 @@ class CropController(Loggable):
             status_code=200
         )
 
-
     async def find_crops(self, request: Request, culture_name: str, farmer_id: int):
         self.log.info(f"Request received to find crops with culture_name: {culture_name} and farmer_id: {farmer_id}", request.state.trace_id)
         return await self.inbound_crop_adapter.find_crops(culture_name, farmer_id, request.state.trace_id)
