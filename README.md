@@ -47,3 +47,7 @@ pip install -r requirements.txt
 ```
 pytest -v
 ```
+
+## Notes
+
+To scale this project it would be necessary to add pagination to the crops as well, as over time a farmer will have many crops, but it was not possible to do this during the test period.
