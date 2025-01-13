@@ -7,6 +7,7 @@ import { ICrop, ICulture, IFarm } from "./IFarmer";
 import { CropModalContext } from "../context/CropModalContext";
 import { TablesContext } from "../context/TablesContext";
 import { ApiResponse } from "apisauce";
+import messageTranslations from "../messageTranslations"
 
 interface ICreateCropModalProps {
     selectedCrop?: ICrop | null;
@@ -74,9 +75,6 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        console.log("---------")
-        console.log(selectedCulture);
-        console.log("---------")
         if (!selectedCulture) {
             alert("Selecione uma cultura!");
             return;
@@ -115,6 +113,14 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 setSelectedCulture(null);
                 refreshTablesAndCharts(isEdit, response);
             } else {
+                if (response.status === 404) {
+                    const data = response.data as { message: string };
+                    const message = data.message;
+                    if (messageTranslations[message]) {
+                        alert(messageTranslations[message])
+                    }
+                }
+
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);

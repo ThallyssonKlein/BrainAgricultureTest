@@ -4,6 +4,10 @@ from adapters.inbound.http.inbound_crop_adapter import InboundCropAdapter
 from adapters.inbound.http.inbound_culture_adapter import InboundCultureAdapter
 from adapters.inbound.http.inbound_dashboard_adapter import InboundDashboardAdapter
 from adapters.inbound.http.inbound_farm_adapter import InboundFarmAdapter
+from adapters.outbound.outbound_crop_adapter import OutboundCropAdapter
+from adapters.outbound.outbound_culture_adapter import OutboundCultureAdapter
+from adapters.outbound.outbound_farm_adapter import OutboundFarmAdapter
+from domain.crop_service.crop_service import CropService
 from domain.culture.culture_service import CultureService
 from ports.inbound.http.controllers.crop_controller import CropController
 from ports.inbound.http.controllers.culture_controller import CultureController
@@ -58,10 +62,14 @@ async def init_dependencies(db: AsyncSession):
         outbound_farm_repository_port
     )
 
+    outbound_culture_adapter = OutboundCultureAdapter(outbound_culture_repository_port)
+    outbound_crop_adapter = OutboundCropAdapter(outbound_crop_repository_port)
+    outbound_farm_adapter = OutboundFarmAdapter(outbound_farm_repository_port)
+
     inbound_dashboard_adapter = InboundDashboardAdapter(outbound_farm_repository_port)
     inbound_farm_adapter = InboundFarmAdapter(outbound_farm_repository_port)
-    inbound_crop_adapter = InboundCropAdapter(outbound_crop_repository_port)
-    inbound_culture_adapter = InboundCultureAdapter(outbound_culture_repository_port, CultureService(outbound_culture_repository_port))
+    inbound_crop_adapter = InboundCropAdapter(outbound_crop_repository_port, CropService(outbound_crop_adapter, outbound_culture_adapter, outbound_farm_adapter))
+    inbound_culture_adapter = InboundCultureAdapter(outbound_culture_repository_port, CultureService(outbound_culture_adapter))
 
     return inbound_farmer_adapter, inbound_dashboard_adapter, inbound_farm_adapter, inbound_crop_adapter, inbound_culture_adapter
 

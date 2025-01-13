@@ -232,3 +232,15 @@ class OutboundFarmRepositoryPort(Loggable):
             await self.session.rollback()
             self.log.error(f"Error deleting farm: {e}", trace_id)
             raise e
+    
+    async def find_farm_by_id(self, farm_id: int, trace_id: str):
+        try:
+            result = await self.session.execute(
+                select(Farm)
+                .where(Farm.id == farm_id)
+            )
+            return result.scalars().first()
+        except Exception as e:
+            await self.session.rollback()
+            self.log.error(f"Error finding farm: {e}", trace_id)
+            raise e

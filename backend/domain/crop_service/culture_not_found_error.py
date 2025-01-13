@@ -1,6 +1,6 @@
-class CultureAlreadyExistsError(Exception):
+class CultureNotFoundError(Exception):
     def __init__(self):
-        self.message = "Culture already exists for this farmer"
+        self.message = "Culture not found"
         super().__init__(self.message)
     
     @property

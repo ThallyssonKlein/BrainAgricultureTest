@@ -91,3 +91,12 @@ class OutboundCultureRepositoryPort(Loggable):
             await self.session.rollback()
             self.log.error(f"Error deleting culture: {e}", trace_id)
             raise e
+    
+    async def find_culture_by_id(self, culture_id: int, trace_id: str):
+        try:
+            result = await self.session.execute(select(Culture).where(Culture.id == culture_id).limit(1))
+            return result.scalar_one_or_none()
+        except Exception as e:
+            await self.session.rollback()
+            self.log.error(f"Error finding culture: {e}", trace_id)
+            raise e
