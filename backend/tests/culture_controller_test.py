@@ -8,7 +8,6 @@ from ports.inbound.http.controllers.culture_controller import CultureController
 def mock_inbound_culture_adapter():
     return AsyncMock()
 
-
 @pytest.fixture
 def mock_request():
     request = MagicMock(spec=Request)
@@ -20,10 +19,8 @@ def mock_request():
 def culture_controller(mock_inbound_culture_adapter):
     return CultureController(inbound_culture_adapter=mock_inbound_culture_adapter)
 
-
 @pytest.mark.asyncio
 async def test_create_a_culture_for_a_farmer(culture_controller, mock_inbound_culture_adapter, mock_request):
-    """Teste unitário para criar uma cultura para um fazendeiro."""
     farmer_id = 1
     culture_data = CultureSchema(name="Cereal", old_name=None)
     created_culture_response = {"id": 1, "name": "Cereal"}
@@ -44,7 +41,6 @@ async def test_create_a_culture_for_a_farmer(culture_controller, mock_inbound_cu
 
 @pytest.mark.asyncio
 async def test_get_cultures_for_a_farmer(culture_controller, mock_inbound_culture_adapter, mock_request):
-    """Teste unitário para buscar culturas de um fazendeiro."""
     farmer_id = 1
     cultures_response = [
         {"id": 1, "name": "Cereal"},
@@ -61,7 +57,6 @@ async def test_get_cultures_for_a_farmer(culture_controller, mock_inbound_cultur
 
 @pytest.mark.asyncio
 async def test_update_culture_by_id(culture_controller, mock_inbound_culture_adapter, mock_request):
-    """Teste unitário para atualizar uma cultura pelo ID."""
     culture_id = 1
     culture_data = CultureSchema(name="Updated Cereal", old_name="Cereal")
     updated_culture_response = {"id": 1, "name": "Updated Cereal"}
@@ -82,7 +77,6 @@ async def test_update_culture_by_id(culture_controller, mock_inbound_culture_ada
 
 @pytest.mark.asyncio
 async def test_delete_culture_by_id(culture_controller, mock_inbound_culture_adapter, mock_request):
-    """Teste unitário para deletar uma cultura pelo ID."""
     culture_id = 1
     mock_inbound_culture_adapter.delete_culture_by_id.return_value = None
 
