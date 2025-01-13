@@ -58,6 +58,34 @@ class TestInboundFarmAdapter:
         mock_adapters["outbound_farm_repository_port"].find_farms_by_state_and_farmer_id.assert_called_once_with(
             101, "State A", trace_id
         )
+    
+    async def test_find_farms_ordered_by_vegetation_area_desc_by_farmer_id_success(self, farm_adapter, mock_adapters, trace_id):
+        mock_adapters["outbound_farm_repository_port"].find_farms_ordered_by_vegetation_area_desc_by_farmer_id.return_value = [
+            {"id": 1, "name": "Farm A", "state": "State A", "vegetation_area": 100.5},
+            {"id": 2, "name": "Farm B", "state": "State A", "vegetation_area": 50.3},
+        ]
+
+        result = await farm_adapter.find_farms_ordered_by_vegetation_area_desc_by_farmer_id(101, trace_id)
+
+        assert len(result) == 2
+        assert result[0]["name"] == "Farm A"
+
+        mock_adapters["outbound_farm_repository_port"].find_farms_ordered_by_vegetation_area_desc_by_farmer_id.assert_called_once_with(
+            101, trace_id)
+        
+    async def test_find_farms_ordered_by_arable_area_desc_by_farmer_id_success(self, farm_adapter, mock_adapters, trace_id):
+        mock_adapters["outbound_farm_repository_port"].find_farms_ordered_by_arable_area_desc_by_farmer_id.return_value = [
+            {"id": 1, "name": "Farm A", "state": "State A", "arable_area": 100.5},
+            {"id": 2, "name": "Farm B", "state": "State A", "arable_area": 50.3},
+        ]
+
+        result = await farm_adapter.find_farms_ordered_by_arable_area_desc_by_farmer_id(101, trace_id)
+
+        assert len(result) == 2
+        assert result[0]["name"] == "Farm A"
+
+        mock_adapters["outbound_farm_repository_port"].find_farms_ordered_by_arable_area_desc_by_farmer_id.assert_called_once_with(
+            101, trace_id)
 
     async def test_create_farm_for_a_farmer_success(self, farm_adapter, mock_adapters, valid_farm, trace_id):
         mock_adapters["farm_service"].create_farm_for_a_farmer.return_value = {
