@@ -47,7 +47,7 @@ class TestInboundFarmerAdapter:
     def trace_id(self):
         return "trace-12345"
 
-    async def test_create_farmer_success(self, farmer_adapter, mock_adapters, valid_farmer, trace_id):
+    async def test_create_farmer_success_with_cpf(self, farmer_adapter, mock_adapters, valid_farmer, trace_id):
         mock_adapters["outbound_farmer_repository_port"].create_farmer.return_value = {
             "id": 1,
             "name": "John Doe",
@@ -63,11 +63,35 @@ class TestInboundFarmerAdapter:
         mock_adapters["outbound_farmer_repository_port"].create_farmer.assert_called_once_with(
             valid_farmer.model_dump(), trace_id
         )
+    
+    async def test_create_farmer_success_with_cnpj(self, farmer_adapter, mock_adapters, valid_farmer, trace_id):
+        valid_farmer.document = "12345678901234"
+        mock_adapters["outbound_farmer_repository_port"].create_farmer.return_value = {
+            "id": 1,
+            "name": "John Doe",
+            "document": "12345678901234",
+        }
+
+        result = await farmer_adapter.create_farmer(valid_farmer, trace_id)
+
+        assert result["name"] == "John Doe"
+        assert result["document"] == "12345678901234"
+
+        mock_adapters["person_service"].validate_cnpj.assert_called_once_with("12345678901234")
+        mock_adapters["outbound_farmer_repository_port"].create_farmer.assert_called_once_with(
+            valid_farmer.model_dump(), trace_id
+        )
 
     async def test_create_farmer_invalid_cpf(self, farmer_adapter, mock_adapters, valid_farmer, trace_id):
         mock_adapters["person_service"].validate_cpf.side_effect = InvalidCPFError("Invalid CPF")
 
         with pytest.raises(BadRequestError, match="Invalid CPF"):
+            await farmer_adapter.create_farmer(valid_farmer, trace_id)
+    
+    async def test_create_fermer_invalid_cnpj(self, farmer_adapter, mock_adapters, valid_farmer, trace_id):
+        mock_adapters["person_service"].validate_cpf.side_effect = InvalidCNPJError("Invalid CNPJ")
+
+        with pytest.raises(BadRequestError, match="Invalid CNPJ"):
             await farmer_adapter.create_farmer(valid_farmer, trace_id)
 
     async def test_create_farmer_conflict(self, farmer_adapter, mock_adapters, valid_farmer, trace_id):
