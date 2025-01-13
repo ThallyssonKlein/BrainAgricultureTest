@@ -8,7 +8,6 @@ from pydantic import BaseModel
 
 class MockCultureSchema(BaseModel):
     name: str
-    description: str
 
     def model_dump(self, *args, **kwargs):
         """Mock do método model_dump do Pydantic para aceitar argumentos opcionais."""
@@ -33,7 +32,7 @@ class TestInboundCultureAdapter:
 
     @pytest.fixture
     def valid_culture(self):
-        return MockCultureSchema(name="Cereal", description="A common crop")
+        return MockCultureSchema(name="Cereal")
 
     @pytest.fixture
     def trace_id(self):
@@ -43,13 +42,11 @@ class TestInboundCultureAdapter:
         mock_adapters["culture_service"].create_culture_for_a_farmer.return_value = {
             "id": 1,
             "name": "Cereal",
-            "description": "A common crop",
         }
 
         result = await inbound_culture_adapter.create_culture_for_a_farmer(101, valid_culture, trace_id)
 
         assert result["name"] == "Cereal"
-        assert result["description"] == "A common crop"
 
         mock_adapters["culture_service"].create_culture_for_a_farmer.assert_called_once_with(
             101, valid_culture.model_dump(), trace_id
@@ -89,6 +86,12 @@ class TestInboundCultureAdapter:
         mock_adapters["culture_service"].update_culture_by_id.side_effect = ValueError("Culture not found")
 
         with pytest.raises(NotFoundError, match="Culture not found"):
+            await inbound_culture_adapter.update_culture_by_id(1, valid_culture, trace_id)
+    
+    async def test_update_culture_culture_already_exists(self, inbound_culture_adapter, mock_adapters, valid_culture, trace_id):
+        mock_adapters["culture_service"].update_culture_by_id.side_effect = CultureAlreadyExistsError()
+
+        with pytest.raises(ConflictError, match="Culture already exists"):
             await inbound_culture_adapter.update_culture_by_id(1, valid_culture, trace_id)
 
     async def test_delete_culture_success(self, inbound_culture_adapter, mock_adapters, trace_id):
