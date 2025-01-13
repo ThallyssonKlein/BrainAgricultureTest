@@ -45,6 +45,17 @@ export default function FarmModal() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (vegetationArea && vegetationArea <= 0) {
+            alert("A área de vegetação deve ser maior que 0!");
+            return;
+        }
+
+        if (arableArea && arableArea <= 0) {
+            alert("A área de cultivo deve ser maior que 0!");
+            return;
+        }
+
         const newFarm = { vegetation_area: vegetationArea, state, name, arable_area: arableArea, total_area: totalArea, city, id: selectedOption?.id };
         if (isEdit) {
             const response = await API.put(`/api/v1/farm/${selectedFarm?.id}`, newFarm);
@@ -138,7 +149,6 @@ export default function FarmModal() {
 
                 <label style={{ marginRight: 20}}>Nome</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-
 
                 <label style={{ marginRight: 20}}>Área de Cultivo</label>
                 <input type="number" value={arableArea} onChange={(e) => setArableArea(Number(e.target.value))} required />

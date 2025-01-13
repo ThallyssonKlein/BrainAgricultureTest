@@ -96,6 +96,13 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 }, 2000);
                 refreshTablesAndCharts(isEdit, response);
             } else {
+                if (response.status === 404) {
+                    const data = response.data as { message: string };
+                    const message = data.message;
+                    if (messageTranslations[message]) {
+                        alert(messageTranslations[message])
+                    }
+                }
                 setSavedWithErrorMessage(true);
                 setTimeout(() => {
                     setSavedWithErrorMessage(false);
