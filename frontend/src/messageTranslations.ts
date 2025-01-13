@@ -1,7 +1,8 @@
 type Translations = Record<string, string>;
 
 const translations: Translations = {
-    "Invalid CPF number": "CPF inválido",
+    "Invalid CPF": "CPF inválido",
+    "Invalid CNPJ": "CNPJ inválido",
     "Culture not found": "Cultura não encontrada",
     
 };

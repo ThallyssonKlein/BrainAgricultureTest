@@ -40,6 +40,12 @@ export default function FarmerModal() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (document.length !== 11 && document.length !== 14) {
+            alert("O documento deve ter 11 ou 14 dígitos!");
+            return;
+        }
+
         const newFarmer = { name, state, city, document: document.replace(/\D/g, ""), id: selectedOption?.id };
         if (isEdit) {
             const response = await API.put(`/api/v1/farmer/${selectedOption?.id}`, newFarmer);
