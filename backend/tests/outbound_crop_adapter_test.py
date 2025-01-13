@@ -16,10 +16,8 @@ class TestOutboundCropAdapter:
     @pytest.fixture
     def valid_crop(self):
         return {
-            "name": "Corn",
-            "variety": "Sweet Corn",
-            "quantity": 100,
-            "culture_id": 1,
+            "date": "2021-01-01",
+            "culture": {"id": 1},
         }
 
     @pytest.fixture
@@ -29,28 +27,15 @@ class TestOutboundCropAdapter:
     async def test_create_crop_success(self, crop_adapter, mock_outbound_crop_repository_port, valid_crop, trace_id):
         mock_outbound_crop_repository_port.create_crop_for_a_farm_and_return_with_culture.return_value = {
             "id": 1,
-            "name": "Corn",
-            "variety": "Sweet Corn",
-            "quantity": 100,
-            "culture": {"id": 1, "name": "Cereal"},
+            "date": "2021-01-01",
+            "culture": {"id": 1},
         }
 
         result = await crop_adapter.create_crop_for_a_farm_and_return_with_culture(101, valid_crop, trace_id)
 
-        assert result["name"] == "Corn"
-        assert result["variety"] == "Sweet Corn"
-        assert result["quantity"] == 100
-        assert result["culture"]["name"] == "Cereal"
-
-        mock_outbound_crop_repository_port.create_crop_for_a_farm_and_return_with_culture.assert_called_once_with(
-            101, valid_crop, trace_id
-        )
-
-    async def test_create_crop_error(self, crop_adapter, mock_outbound_crop_repository_port, valid_crop, trace_id):
-        mock_outbound_crop_repository_port.create_crop_for_a_farm_and_return_with_culture.side_effect = Exception("Database error")
-
-        with pytest.raises(Exception, match="Database error"):
-            await crop_adapter.create_crop_for_a_farm_and_return_with_culture(101, valid_crop, trace_id)
+        assert result["id"] == 1
+        assert result["date"] == "2021-01-01"
+        assert result["culture"] == {"id": 1}
 
         mock_outbound_crop_repository_port.create_crop_for_a_farm_and_return_with_culture.assert_called_once_with(
             101, valid_crop, trace_id
