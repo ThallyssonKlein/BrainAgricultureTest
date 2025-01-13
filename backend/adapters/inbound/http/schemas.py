@@ -1,11 +1,9 @@
 from enum import Enum
-from typing import Optional
 from pydantic import BaseModel, Field
 from datetime import date
 
 class CultureSchema(BaseModel):
     name: str = Field(..., min_length=1, max_length=255, description="Name must be between 1 and 255 characters")
-    old_name: Optional[str] = Field(None, min_length=1, max_length=255, description="Old name must be between 1 and 255 characters if provided")
 
 class ResumedCultureSchema(BaseModel):
     id: int

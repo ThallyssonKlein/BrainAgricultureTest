@@ -22,7 +22,7 @@ def culture_controller(mock_inbound_culture_adapter):
 @pytest.mark.asyncio
 async def test_create_a_culture_for_a_farmer(culture_controller, mock_inbound_culture_adapter, mock_request):
     farmer_id = 1
-    culture_data = CultureSchema(name="Cereal", old_name=None)
+    culture_data = CultureSchema(name="Cereal")
     created_culture_response = {"id": 1, "name": "Cereal"}
 
     mock_inbound_culture_adapter.create_culture_for_a_farmer.return_value = created_culture_response
@@ -58,7 +58,7 @@ async def test_get_cultures_for_a_farmer(culture_controller, mock_inbound_cultur
 @pytest.mark.asyncio
 async def test_update_culture_by_id(culture_controller, mock_inbound_culture_adapter, mock_request):
     culture_id = 1
-    culture_data = CultureSchema(name="Updated Cereal", old_name="Cereal")
+    culture_data = CultureSchema(name="Updated Cereal")
     updated_culture_response = {"id": 1, "name": "Updated Cereal"}
 
     mock_inbound_culture_adapter.update_culture_by_id.return_value = updated_culture_response

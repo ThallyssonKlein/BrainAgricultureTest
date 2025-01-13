@@ -64,9 +64,9 @@ export default function CultureModal({ isEdit, modalIsOpen, setModalIsOpen, setR
             return;
         }
 
-        let newCulture: { name: string; old_name?: string } = { name };
+        let newCulture: { name: string } = { name };
         if (isEdit) {
-            newCulture = { ...newCulture, old_name: selectedCultureObject?.name };
+            newCulture = { ...newCulture };
             const response = await API.put(`/api/v1/culture/${selectedCultureObject?.id}`, newCulture);
             const createdCulture = response.data as ICulture
             if (response.status === 200) {

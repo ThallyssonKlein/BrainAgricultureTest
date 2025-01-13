@@ -11,10 +11,7 @@ class CultureService(Loggable):
         self.log.info(f"Creating culture for farmer with id: {farmer_id} and data: {culture_data}", trace_id)
         culture = None
 
-        if not update:
-            culture = await self.outbound_culture_adapter.get_by_farmer_id_and_name(farmer_id, culture_data["name"], trace_id)
-        else:
-            culture = await self.outbound_culture_adapter.get_by_farmer_id_and_name(farmer_id, culture_data["old_name"], trace_id)
+        culture = await self.outbound_culture_adapter.get_by_farmer_id_and_name(farmer_id, culture_data["name"], trace_id)
 
         if culture:
             self.log.error(f"Culture with name {culture_data['name']} already exists for farmer with id {farmer_id}", trace_id)

@@ -19,7 +19,7 @@ class TestCultureService:
 
     @pytest.fixture
     def update_culture_data(self):
-        return {"old_name": "Corn", "name": "Wheat"}
+        return {"name": "Wheat"}
 
     @pytest.fixture
     def trace_id(self):
@@ -62,7 +62,7 @@ class TestCultureService:
         assert result["name"] == "Wheat"
         assert result["farmer_id"] == 101
 
-        mock_outbound_culture_adapter.get_by_farmer_id_and_name.assert_called_once_with(101, "Corn", trace_id)
+        mock_outbound_culture_adapter.get_by_farmer_id_and_name.assert_called_once_with(101, "Wheat", trace_id)
         mock_outbound_culture_adapter.update_culture_by_id.assert_called_once_with(101, update_culture_data, trace_id)
 
     async def test_update_culture_already_exists(self, culture_service, mock_outbound_culture_adapter, update_culture_data, trace_id):
