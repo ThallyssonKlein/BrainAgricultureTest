@@ -17,7 +17,6 @@ class TestOutboundCultureAdapter:
     def valid_culture(self):
         return {
             "name": "Cereal",
-            "description": "A common crop culture",
         }
 
     @pytest.fixture
@@ -28,7 +27,6 @@ class TestOutboundCultureAdapter:
         mock_outbound_culture_repository_port.find_culture_by_id.return_value = {
             "id": 1,
             "name": "Cereal",
-            "description": "A common crop culture",
         }
 
         result = await culture_adapter.find_culture_by_id(1, trace_id)
@@ -41,7 +39,6 @@ class TestOutboundCultureAdapter:
         mock_outbound_culture_repository_port.get_by_farmer_id_and_name.return_value = {
             "id": 1,
             "name": "Cereal",
-            "description": "A common crop culture",
         }
 
         result = await culture_adapter.get_by_farmer_id_and_name(101, "Cereal", trace_id)
@@ -54,7 +51,6 @@ class TestOutboundCultureAdapter:
         mock_outbound_culture_repository_port.create_culture_for_a_farmer.return_value = {
             "id": 1,
             "name": "Cereal",
-            "description": "A common crop culture",
         }
 
         result = await culture_adapter.create_culture_for_a_farmer(101, valid_culture, trace_id)
@@ -67,7 +63,6 @@ class TestOutboundCultureAdapter:
         mock_outbound_culture_repository_port.update_culture_by_id.return_value = {
             "id": 1,
             "name": "Cereal Updated",
-            "description": "An updated crop culture",
         }
 
         result = await culture_adapter.update_culture_by_id(1, valid_culture, trace_id)
