@@ -1,136 +1,254 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock
+from sqlalchemy import insert, update, delete, select
 from sqlalchemy.exc import IntegrityError
 from ports.outbound.database.models import Farmer
 from ports.outbound.database.outbound_farmer_repository_port import OutboundFarmerRepositoryPort
 
-@pytest.fixture
-def mock_session():
-    return AsyncMock()
-
-
-@pytest.fixture
-def farmer_repository(mock_session):
-    return OutboundFarmerRepositoryPort(session=mock_session)
-
-
-@pytest.fixture
-def trace_id():
-    return "trace-12345"
-
-
 @pytest.mark.asyncio
-async def test_create_farmer_success(farmer_repository, mock_session, trace_id):
-    farmer_data = {
-        "document": "123456789",
-        "name": "John Doe",
-        "city": "Smalltown",
-        "state": "ST",
-    }
-    mock_result = MagicMock()
-    farmer = Farmer(**farmer_data, id=1)
-    mock_result.scalars.return_value.first.return_value = farmer
-    mock_session.execute.return_value = mock_result
+class TestOutboundFarmerRepositoryPort:
+    @pytest.fixture
+    def mock_session(self):
+        session = AsyncMock()
+        session.execute = AsyncMock()
+        session.commit = AsyncMock()
+        session.rollback = AsyncMock()
+        return session
 
-    result = await farmer_repository.create_farmer(farmer_data, trace_id)
+    @pytest.fixture
+    def farmer_repository(self, mock_session):
+        return OutboundFarmerRepositoryPort(session=mock_session)
 
-    assert result.id == 1
-    assert result.document == farmer_data["document"]
-    assert result.name == farmer_data["name"]
-    mock_session.commit.assert_called_once()
+    @pytest.fixture
+    def trace_id(self):
+        return "trace-12345"
 
+    async def test_create_farmer_query_validation(self, farmer_repository, mock_session, trace_id):
+        farmer_data = {
+            "document": "12345678901",
+            "name": "John Doe",
+            "city": "Springfield",
+            "state": "IL",
+        }
+        created_farmer = Farmer(**farmer_data)
 
-@pytest.mark.asyncio
-async def test_create_farmer_integrity_error(farmer_repository, mock_session, trace_id):
-    farmer_data = {
-        "document": "123456789",
-        "name": "John Doe",
-        "city": "Smalltown",
-        "state": "ST",
-    }
-    mock_session.execute.side_effect = IntegrityError("duplicate key", {}, None)
+        scalars = MagicMock()
+        first = MagicMock()
+        first.return_value = created_farmer
+        scalars.return_value.first = first
+        mock_session.execute.return_value.scalars = scalars
 
-    with pytest.raises(ValueError, match="Farmer with this document already exists"):
-        await farmer_repository.create_farmer(farmer_data, trace_id)
+        result = await farmer_repository.create_farmer(farmer_data, trace_id)
 
-    mock_session.rollback.assert_called_once()
+        executed_query = mock_session.execute.call_args[0][0]
+        expected_query = (
+            insert(Farmer)
+            .values(
+                document=farmer_data["document"],
+                name=farmer_data["name"],
+                city=farmer_data["city"],
+                state=farmer_data["state"],
+            )
+            .returning(Farmer)
+        )
 
+        assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
+        assert result == created_farmer
+        mock_session.commit.assert_called_once()
 
-@pytest.mark.asyncio
-async def test_update_farmer_success(farmer_repository, mock_session, trace_id):
-    farmer_data = {
-        "id": 1,
-        "document": "987654321",
-        "name": "John Updated",
-        "city": "Updatedtown",
-        "state": "UT",
-    }
-    mock_result = MagicMock()
-    farmer = Farmer(**farmer_data)
-    mock_result.scalars.return_value.first.return_value = farmer
-    mock_session.execute.return_value = mock_result
+    async def test_update_farmer_query_validation(self, farmer_repository, mock_session, trace_id):
+        farmer_data = {
+            "id": 1,
+            "document": "12345678901",
+            "name": "John Doe Updated",
+            "city": "Springfield",
+            "state": "IL",
+        }
+        updated_farmer = Farmer(**farmer_data)
 
-    result = await farmer_repository.update_farmer(farmer_data, trace_id)
+        scalars = MagicMock()
+        first = MagicMock()
+        first.return_value = updated_farmer
+        scalars.return_value.first = first
+        mock_session.execute.return_value.scalars = scalars
 
-    assert result.id == farmer_data["id"]
-    assert result.document == farmer_data["document"]
-    assert result.name == farmer_data["name"]
-    mock_session.commit.assert_called_once()
+        result = await farmer_repository.update_farmer(farmer_data, trace_id)
 
+        executed_query = mock_session.execute.call_args[0][0]
+        expected_query = (
+            update(Farmer)
+            .where(Farmer.id == farmer_data["id"])
+            .values(
+                document=farmer_data["document"],
+                name=farmer_data["name"],
+                city=farmer_data["city"],
+                state=farmer_data["state"],
+            )
+            .returning(Farmer)
+            .execution_options(synchronize_session="fetch")
+        )
 
-@pytest.mark.asyncio
-async def test_update_farmer_not_found(farmer_repository, mock_session, trace_id):
-    farmer_data = {
-        "id": 1,
-        "document": "987654321",
-        "name": "John Updated",
-        "city": "Updatedtown",
-        "state": "UT",
-    }
-    mock_result = MagicMock()
-    mock_result.scalars.return_value.first.return_value = None
-    mock_session.execute.return_value = mock_result
+        assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
+        assert result == updated_farmer
+        mock_session.commit.assert_called_once()
 
-    with pytest.raises(ValueError, match="Farmer not found"):
-        await farmer_repository.update_farmer(farmer_data, trace_id)
+    async def test_find_farmers_paginated_and_with_query_validation(self, farmer_repository, mock_session, trace_id):
+        farmers = [Farmer(id=1, name="John Doe", city="Springfield", state="IL")]
+        
+        scalars = MagicMock()
+        all = MagicMock()
+        all.return_value = farmers
+        scalars.return_value.all = all
+        mock_session.execute.return_value.scalars = scalars
 
-    mock_session.rollback.assert_called_once()
+        limit = 10
+        offset = 1
+        query = "John"
+        result = await farmer_repository.find_farmers_paginated_and_with_query(limit, offset, query, trace_id)
 
+        executed_query = mock_session.execute.call_args[0][0]
+        expected_query = (
+            select(Farmer)
+            .offset(offset - 1)
+            .limit(limit)
+            .where(Farmer.name.ilike(f"%{query}%"))
+        )
 
-@pytest.mark.asyncio
-async def test_find_farmers_paginated_and_with_query_success(farmer_repository, mock_session, trace_id):
-    farmer = Farmer(id=1, document="123456789", name="John Doe", city="Smalltown", state="ST")
-    mock_result = MagicMock()
-    mock_result.scalars.return_value.all.return_value = [farmer]
-    mock_session.execute.return_value = mock_result
+        assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
+        assert result == farmers
 
-    result = await farmer_repository.find_farmers_paginated_and_with_query(10, 0, "John", trace_id)
+    async def test_delete_farmer_by_id_query_validation(self, farmer_repository, mock_session, trace_id):
+        farmer_id = 1
 
-    assert len(result) == 1
-    assert result[0].name == "John Doe"
-    mock_session.execute.assert_called_once()
+        mock_session.execute.return_value = AsyncMock()
 
+        await farmer_repository.delete_farmer_by_id(farmer_id, trace_id)
 
-@pytest.mark.asyncio
-async def test_delete_farmer_by_id_success(farmer_repository, mock_session, trace_id):
-    mock_result = MagicMock(rowcount=1)
-    mock_session.execute.return_value = mock_result
+        executed_query = mock_session.execute.call_args[0][0]
+        expected_query = delete(Farmer).where(Farmer.id == farmer_id)
 
-    result = await farmer_repository.delete_farmer_by_id(1, trace_id)
+        assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
+        mock_session.commit.assert_called_once()
 
-    assert result.rowcount == 1
-    mock_session.commit.assert_called_once()
+    async def test_find_farmer_by_id_query_validation(self, farmer_repository, mock_session, trace_id):
+        farmer_id = 1
+        farmer = Farmer(id=farmer_id, name="John Doe", city="Springfield", state="IL")
 
+        scalars = MagicMock()
+        first = MagicMock()
+        first.return_value = farmer
+        scalars.return_value.first = first
+        mock_session.execute.return_value.scalars = scalars
 
-@pytest.mark.asyncio
-async def test_find_farmer_by_id_success(farmer_repository, mock_session, trace_id):
-    farmer = Farmer(id=1, document="123456789", name="John Doe", city="Smalltown", state="ST")
-    mock_result = MagicMock()
-    mock_result.scalars.return_value.first.return_value = farmer
-    mock_session.execute.return_value = mock_result
+        result = await farmer_repository.find_farmer_by_id(farmer_id, trace_id)
 
-    result = await farmer_repository.find_farmer_by_id(1, trace_id)
+        executed_query = mock_session.execute.call_args[0][0]
+        expected_query = select(Farmer).where(Farmer.id == farmer_id)
 
-    assert result.id == 1
-    assert result.name == "John Doe"
-    mock_session.execute.assert_called_once()
+        assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
+        assert result == farmer
+    
+    async def test_create_farmer_integrity_error(self, farmer_repository, mock_session, trace_id):
+        farmer_data = {
+            "document": "12345678901",
+            "name": "John Doe",
+            "city": "Springfield",
+            "state": "IL",
+        }
+
+        mock_session.execute.side_effect = IntegrityError("IntegrityError", {}, None)
+
+        with pytest.raises(ValueError, match="Farmer with this document already exists"):
+            await farmer_repository.create_farmer(farmer_data, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_not_called()
+
+    async def test_update_farmer_not_found(self, farmer_repository, mock_session, trace_id):
+        farmer_data = {
+            "id": 1,
+            "document": "12345678901",
+            "name": "John Doe Updated",
+            "city": "Springfield",
+            "state": "IL",
+        }
+
+        scalars = MagicMock()
+        first = MagicMock()
+        first.return_value = None
+        scalars.return_value.first = first
+        mock_session.execute.return_value.scalars = scalars
+
+        with pytest.raises(ValueError, match="Farmer not found"):
+            await farmer_repository.update_farmer(farmer_data, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_called_once()
+
+    async def test_find_farmer_by_id_query_validation_failed_should_rollback(self, farmer_repository, mock_session, trace_id):
+        farmer_id = 1
+
+        mock_session.execute.side_effect = Exception("Error")
+
+        with pytest.raises(Exception, match="Error"):
+            await farmer_repository.find_farmer_by_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_not_called()
+    
+    async def test_delete_farmer_by_id_query_validation_faild_should_rollback(self, farmer_repository, mock_session, trace_id):
+        farmer_id = 1
+
+        mock_session.execute.side_effect = Exception("Error")
+
+        with pytest.raises(Exception, match="Error"):
+            await farmer_repository.delete_farmer_by_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_not_called()
+    
+    async def test_find_farmers_paginated_and_with_query_validation_failed_should_rollback(self, farmer_repository, mock_session, trace_id):
+        limit = 10
+        offset = 1
+        query = "John"
+
+        mock_session.execute.side_effect = Exception("Error")
+
+        with pytest.raises(Exception, match="Error"):
+            await farmer_repository.find_farmers_paginated_and_with_query(limit, offset, query, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_not_called()
+    
+    async def test_update_farmer_query_validation_failed_should_rollback(self, farmer_repository, mock_session, trace_id):
+        farmer_data = {
+            "id": 1,
+            "document": "12345678901",
+            "name": "John Doe Updated",
+            "city": "Springfield",
+            "state": "IL",
+        }
+
+        mock_session.execute.side_effect = Exception("Error")
+
+        with pytest.raises(Exception, match="Error"):
+            await farmer_repository.update_farmer(farmer_data, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_not_called()
+    
+    async def test_create_farmer_query_validation_failed_should_rollback(self, farmer_repository, mock_session, trace_id):
+        farmer_data = {
+            "document": "12345678901",
+            "name": "John Doe",
+            "city": "Springfield",
+            "state": "IL",
+        }
+
+        mock_session.execute.side_effect = Exception("Error")
+
+        with pytest.raises(Exception, match="Error"):
+            await farmer_repository.create_farmer(farmer_data, trace_id)
+
+        mock_session.rollback.assert_called_once()
+        mock_session.commit.assert_not_called()
