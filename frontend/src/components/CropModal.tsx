@@ -8,6 +8,7 @@ import { CropModalContext } from "../context/CropModalContext";
 import { TablesContext } from "../context/TablesContext";
 import { ApiResponse } from "apisauce";
 import messageTranslations from "../messageTranslations"
+import CulturesTable from "./CulturesTable";
 
 interface ICreateCropModalProps {
     selectedCrop?: ICrop | null;
@@ -21,7 +22,7 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
     const [savedWithErrorMessage, setSavedWithErrorMessage] = useState(false);
     const [isEditCulture, setIsEditCulture] = useState(false);
     const [cultureModalIsOpen, setCultureModalIsOpen] = useState(false);
-    const [cultures, setCultures] = useState<ICulture[] | null>([]);
+    const [cultures, setCultures] = useState<ICulture[] | null>(null);
     const [selectedCulture, setSelectedCulture] = useState<number | null | undefined>(null);
     const [refreshCropModal, setRefreshCropModal] = useState(0);
     const { setCrops, farms, selectedFarmId, setFarms } = useContext(TablesContext);
@@ -145,6 +146,8 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                 if (isEdit) {
                     setSelectedCulture(selectedCrop?.culture?.id ?? undefined);
                 }
+            } else {
+                setCultures([]);
             }
         })()
     }, [isEdit, refreshCropModal, selectedCrop, selectedOption]);
@@ -237,58 +240,19 @@ export default function CropModal({ selectedCrop }: ICreateCropModalProps) {
                     <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
                 </div>
                 <h3>Selecione uma Cultura ou Crie Uma</h3>
-                {cultures && cultures.length > 0 ? 
-                    <div>
-                        <table border={1} style={{ width: '100%', marginBottom: '20px', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr>
-                                <th style={{ minWidth: '50px', width: '1%' }}>Id</th>
-                                <th style={{ minWidth: '100px', width: '10%' }}>Nome da Cultura</th>
-                                <th style={{ minWidth: '80px', width: '0.1%' }}>Editar</th>
-                                <th style={{ minWidth: '80px', width: '0.1%' }}>Excluir</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                cultures.map(culture => (
-                                    <tr
-                                        key={culture.id}
-                                        onClick={() => {
-                                            setSelectedCulture(culture.id)
-                                        }}
-                                        style={{ cursor: 'pointer', background: selectedCulture === culture.id ? '#adacac' : 'white' }}
-                                    >
-                                        <td>{culture.id}</td>
-                                        <td>{culture.name}</td>
-                                        <td>
-                                        <button
-                                            onClick={() => {
-                                                setIsEditCulture(true);
-                                                setSelectedCulture(null);
-                                                setSelectedCulture(culture.id);
-                                                setCultureModalIsOpen(true);
-                                            }}
-                                            >Editar</button>
-                                        </td>
-                                        <td>
-                                            <button onClick={(_event) => handleDeleteCulture(culture.id)}>Excluir</button>
-                                        </td>
-                                    </tr>                  
-                                ))
-                            }
-                            </tbody>
-                        </table>
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <button 
-                                style={{flex: 1, marginBottom: 50}}
-                                onClick={() => {
-                                    setIsEditCulture(false);
-                                    setCultureModalIsOpen(true);
-                                }}
-                            >Criar Cultura</button>
-                        </div>
-                    </div>
-                    : "Loading cultures..."                  
+                {
+                    !cultures && <p>Carregando culturas...</p>
+                }
+                {
+                    cultures &&
+                    <CulturesTable 
+                        cultures={cultures}
+                        setSelectedCulture={setSelectedCulture}
+                        selectedCulture={selectedCulture}
+                        setIsEditCulture={setIsEditCulture}
+                        setCultureModalIsOpen={setCultureModalIsOpen}
+                        handleDeleteCulture={handleDeleteCulture}
+                    />
                 }
                  <button
                     type="submit"
