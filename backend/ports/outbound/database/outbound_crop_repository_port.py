@@ -9,22 +9,6 @@ class OutboundCropRepositoryPort(Loggable):
     def __init__(self, session: AsyncSession):
         Loggable.__init__(self, prefix="OutboundCropRepositoryPort")
         self.session = session
-
-    async def create_crop(self, farm_id: int, crop_data: dict, culture_id: int, trace_id: str) -> Crop:
-        try:
-            crop = Crop(
-                date=crop_data["date"],
-                farm_id=farm_id,
-                culture_id=culture_id,
-            )
-            self.session.add(crop)
-            await self.session.commit()
-            await self.session.refresh(crop)
-            return crop
-        except Exception as e:
-            await self.session.rollback()
-            self.log.error(f"Error creating crop: {e}", trace_id)
-            raise e
     
     async def find_crops_by_culture_name_and_farmer_id(self, culture_name: str, farmer_id: int, trace_id: str):
         try:
@@ -131,4 +115,3 @@ class OutboundCropRepositoryPort(Loggable):
             await self.session.rollback()
             self.log.error(f"Error deleting crop: {e}", trace_id)
             raise e
-
