@@ -10,7 +10,7 @@ from sqlalchemy.orm import selectinload
 class TestOutboundCropRepositoryPort:
     @pytest.fixture
     def mock_session(self):
-        session = AsyncMock()
+        session = MagicMock()
         session.execute = AsyncMock()
         session.commit = AsyncMock()
         session.rollback = AsyncMock()
@@ -81,11 +81,15 @@ class TestOutboundCropRepositoryPort:
         crop_id = 1
         crop = Crop(id=crop_id, date=valid_crop_data["date"], farm_id=farm_id, culture_id=valid_crop_data["culture"]["id"])
 
-        mock_session.execute.return_value.scalar.return_value = crop_id
+        scalar = MagicMock()
+        scalar.return_value = crop_id
+        mock_session.execute.return_value.scalar = scalar
 
         mock_scalars = MagicMock()
-        mock_scalars.first.return_value = crop
-        mock_session.execute.return_value.scalars = MagicMock(return_value=mock_scalars)
+        first = MagicMock()
+        first.return_value = crop
+        mock_scalars.return_value.first = first
+        mock_session.execute.return_value.scalars = mock_scalars
 
         result = await crop_repository.create_crop_for_a_farm_and_return_with_culture(farm_id, valid_crop_data, trace_id)
 
@@ -115,18 +119,29 @@ class TestOutboundCropRepositoryPort:
         mock_session.execute.assert_called()
         mock_session.commit.assert_called_once()
 
-    async def test_create_crop_for_a_farm_and_return_with_culture_failed_should_call_rollback(self, crop_repository, mock_session, valid_crop_data, trace_id):
+    async def test_create_crop_for_a_farm_and_return_with_culture_failed_should_call_rollback(
+        self, crop_repository, mock_session, valid_crop_data, trace_id
+    ):
+        print("Início do teste 'test_create_crop_for_a_farm_and_return_with_culture_failed_should_call_rollback'")
+
         farm_id = 1
 
-        mock_session.execute.side_effect = Exception("Error")
+        # Configurando o mock para simular exceção
+        mock_session.execute = AsyncMock(side_effect=Exception("Error"))
         mock_session.rollback = AsyncMock()
 
-        with pytest.raises(Exception):
+        # Validando que a exceção é levantada
+        with pytest.raises(Exception) as exc_info:
             await crop_repository.create_crop_for_a_farm_and_return_with_culture(farm_id, valid_crop_data, trace_id)
 
+        print(f"Exceção capturada: {exc_info.value}")
+
+        # Verificações sobre o comportamento do mock
         mock_session.execute.assert_called_once()
         mock_session.rollback.assert_called_once()
         mock_session.commit.assert_not_called()
+
+        print("Fim do teste 'test_create_crop_for_a_farm_and_return_with_culture_failed_should_call_rollback'")
     
     async def test_update_crop_by_id_query_validation(self, crop_repository, mock_session, valid_crop_data, trace_id):
         crop_id = 1
@@ -171,7 +186,6 @@ class TestOutboundCropRepositoryPort:
         crop_id = 1
 
         mock_session.execute.side_effect = Exception("Error")
-        mock_session.rollback = AsyncMock()
 
         with pytest.raises(Exception):
             await crop_repository.update_crop_by_id(crop_id, valid_crop_data, trace_id)
@@ -183,7 +197,7 @@ class TestOutboundCropRepositoryPort:
     async def test_delete_crop_by_id_query_validation(self, crop_repository, mock_session, trace_id):
         crop_id = 1
 
-        mock_result = AsyncMock()
+        mock_result = MagicMock()
         mock_session.execute.return_value = mock_result
 
         result = await crop_repository.delete_crop_by_id(crop_id, trace_id)

@@ -8,7 +8,7 @@ from ports.outbound.database.outbound_farm_repository_port import OutboundFarmRe
 class TestOutboundFarmRepositoryPort:
     @pytest.fixture
     def mock_session(self):
-        session = AsyncMock()
+        session = MagicMock()
         session.execute = AsyncMock()
         session.commit = AsyncMock()
         session.rollback = AsyncMock()
