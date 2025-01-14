@@ -104,7 +104,6 @@ class TestOutboundFarmRepositoryPort:
         assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
         assert result == farm
     
-    
     async def test_find_farms_ordered_by_arable_area_desc_by_farmer_id_query_validation(self, farm_repository, mock_session, trace_id):
         farmer_id = 1
         farms = [Farm(id=1, name="Farm A", farmer_id=farmer_id)]
@@ -337,3 +336,112 @@ class TestOutboundFarmRepositoryPort:
 
         assert str(executed_query) == str(expected_query), f"Query mismatch. Got: {executed_query}"
         assert result == farms
+
+    async def test_find_farm_counts_grouped_by_state_by_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farm_counts_grouped_by_state_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_farms_ordered_by_vegetation_area_desc_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farms_ordered_by_vegetation_area_desc_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_farm_by_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farm_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farm_by_id(farm_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_farms_ordered_by_arable_area_desc_by_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farms_ordered_by_arable_area_desc_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_create_farm_for_a_farmer_query_validation_failed_should_rollback(self, farm_repository, mock_session, valid_farm_data, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.create_farm_for_a_farmer(farmer_id, valid_farm_data, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_update_farm_by_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, valid_farm_data, trace_id):
+        farm_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.update_farm_by_id(farm_id, valid_farm_data, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_delete_farm_by_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farm_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.delete_farm_by_id(farm_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_farm_counts_grouped_by_state_by_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farm_counts_grouped_by_state_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_farms_count_grouped_by_culture_by_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farms_count_grouped_by_culture_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_average_land_use_by_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_average_land_use_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_total_farms_and_hectares_by_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_total_farms_and_hectares_by_farmer_id(farmer_id, trace_id)
+
+        mock_session.rollback.assert_called_once()
+    
+    async def test_find_farms_by_state_and_farmer_id_query_validation_failed_should_rollback(self, farm_repository, mock_session, trace_id):
+        farmer_id = 1
+        state = "IL"
+        mock_session.execute.side_effect = Exception()
+
+        with pytest.raises(Exception):
+            await farm_repository.find_farms_by_state_and_farmer_id(farmer_id, state, trace_id)
+
+        mock_session.rollback.assert_called_once()
