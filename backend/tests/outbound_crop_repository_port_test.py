@@ -76,7 +76,6 @@ class TestOutboundCropRepositoryPort:
         mock_session.rollback.assert_called_once()
         mock_session.commit.assert_not_called()
 
-
     async def test_create_crop_for_a_farm_and_return_with_culture_query_validation(self, crop_repository, mock_session, valid_crop_data, trace_id):
         farm_id = 1
         crop_id = 1
@@ -115,7 +114,6 @@ class TestOutboundCropRepositoryPort:
         assert result == crop
         mock_session.execute.assert_called()
         mock_session.commit.assert_called_once()
-
 
     async def test_create_crop_for_a_farm_and_return_with_culture_failed_should_call_rollback(self, crop_repository, mock_session, valid_crop_data, trace_id):
         farm_id = 1
