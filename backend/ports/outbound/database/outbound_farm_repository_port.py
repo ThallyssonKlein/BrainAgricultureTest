@@ -10,39 +10,7 @@ class OutboundFarmRepositoryPort(Loggable):
     def __init__(self, session: AsyncSession):
         Loggable.__init__(self, prefix="OutboundFarmRepositoryPort")
         self.session = session
-
-    async def create_farm(self, farmer_id: int, farm_data: dict, trace_id: str) -> Farm:
-        try:
-            farm = Farm(
-                name=farm_data["name"],
-                arable_area=farm_data["arable_area"],
-                vegetation_area=farm_data["vegetation_area"],
-                total_area=farm_data["total_area"],
-                farmer_id=farmer_id,
-                city=farm_data["city"],
-                state=farm_data["state"]
-            )
-            self.session.add(farm)
-            await self.session.commit()
-            await self.session.refresh(farm)
-            return farm
-        except Exception as e:
-            await self.session.rollback()
-            self.log.error(f"Error creating farm: {e}", trace_id)
-            raise e
     
-    async def delete_farm(self, farm_id: int, trace_id: str):
-        try:
-            await self.session.execute(
-                delete(Farm).where(Farm.id == farm_id)
-            )
-            await self.session.commit()
-
-        except Exception as e:
-            await self.session.rollback()
-            self.log.error(f"Error deleting farm: {e}", trace_id)
-            raise e
-
     async def find_farm_counts_grouped_by_state_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(
@@ -91,14 +59,14 @@ class OutboundFarmRepositoryPort(Loggable):
     async def find_total_farms_and_hectares_by_farmer_id(self, farmer_id: int, trace_id: str):
         try:
             query = select(
-            func.count(Farm.id).label('total_farms'),
+            func.count(Farm.id).label('farm_count'),
             func.coalesce(func.sum(Farm.total_area), 0).label('total_hectares')  # Substituir NULL por 0
             ).where(Farm.farmer_id == farmer_id)
             
             result = await self.session.execute(query)
             totals = result.one()
             return {
-                'farm_count': totals.total_farms,
+                'farm_count': totals.farm_count,
                 'total_hectares': totals.total_hectares
             }
         except Exception as e:
